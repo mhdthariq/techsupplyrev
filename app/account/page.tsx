@@ -1,13 +1,9 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import Link from "next/link";
 import { User, Package, Heart, Settings, LogOut } from "lucide-react";
 
 export default function AccountPage() {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <div className="pt-28 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-heading font-bold text-primary-blue mb-12">
@@ -141,8 +137,6 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

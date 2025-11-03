@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+
 import { Filter, Star } from "lucide-react";
 
 interface Product {
@@ -22,7 +21,7 @@ interface Product {
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
-  const [products, setProducts] = useState<Product[]>([]);
+
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -73,7 +72,6 @@ export default function ProductsPage() {
           else if (filters.sort === "rating")
             filtered.sort((a, b) => b.rating - a.rating);
 
-          setProducts(data);
           setFilteredProducts(filtered);
         }
       } catch (error) {
@@ -214,8 +212,6 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
-      <Header />
-
       <div className="pt-44 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
@@ -229,7 +225,7 @@ export default function ProductsPage() {
 
           <div className="flex gap-8">
             {/* Sidebar Filters - Desktop */}
-            <aside className="hidden lg:block w-72 flex-shrink-0">
+            <aside className="hidden lg:block w-72 shrink-0">
               <FilterSection />
             </aside>
 
@@ -311,7 +307,7 @@ export default function ProductsPage() {
                         </div>
 
                         {/* Content */}
-                        <div className="p-5 flex-grow flex flex-col">
+                        <div className="p-5 grow flex flex-col">
                           <h3 className="font-bold text-[#2c3e50] mb-3 line-clamp-2 text-sm">
                             {product.name}
                           </h3>
@@ -366,8 +362,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

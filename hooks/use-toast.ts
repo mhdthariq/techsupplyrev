@@ -1,69 +1,60 @@
 "use client";
 
-import * as React from "react";
-import { toast as sonnerToast } from "sonner";
+import { toast } from "sonner";
 
-type ToastProps = {
+export interface ToastActionElement {
+  label: string;
+  onClick: () => void;
+}
+
+export interface ToastProps {
   title?: string;
   description?: string;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
-};
+  action?: ToastActionElement;
+  variant?: "default" | "destructive" | "success" | "warning" | "info";
+}
 
-export const toast = {
-  success: (message: string, data?: ToastProps) => {
-    return sonnerToast.success(message, {
-      description: data?.description,
-      action: data?.action,
-    });
-  },
-  error: (message: string, data?: ToastProps) => {
-    return sonnerToast.error(message, {
-      description: data?.description,
-      action: data?.action,
-    });
-  },
-  info: (message: string, data?: ToastProps) => {
-    return sonnerToast.info(message, {
-      description: data?.description,
-      action: data?.action,
-    });
-  },
-  warning: (message: string, data?: ToastProps) => {
-    return sonnerToast.warning(message, {
-      description: data?.description,
-      action: data?.action,
-    });
-  },
-  loading: (message: string, data?: ToastProps) => {
-    return sonnerToast.loading(message, {
-      description: data?.description,
-      action: data?.action,
-    });
-  },
-  promise: <T>(
-    promise: Promise<T>,
-    msgs: {
-      loading: string;
-      success: string | ((data: T) => string);
-      error: string | ((error: unknown) => string);
-    },
-  ) => {
-    return sonnerToast.promise(promise, msgs);
-  },
-  custom: (jsx: (id: string | number) => React.ReactElement) => {
-    return sonnerToast.custom(jsx);
-  },
-  dismiss: (id?: string | number) => {
-    return sonnerToast.dismiss(id);
-  },
-};
+// Wrapper that uses sonner methods with proper variant mapping for the UI component
+function toastFunction({
+  title,
+  description,
+  action,
+  variant = "default",
+}: ToastProps) {
+  const message = title || description || "Notification";
+
+  const options: {
+    description?: string;
+    action?: ToastActionElement;
+  } = {};
+
+  if (title && description) {
+    options.description = description;
+  }
+  if (action) {
+    options.action = action;
+  }
+
+  // Map variants to appropriate sonner methods that work with our Toaster icons
+  switch (variant) {
+    case "destructive":
+      return toast.error(message, options);
+    case "success":
+      return toast.success(message, options);
+    case "warning":
+      return toast.warning(message, options);
+    case "info":
+      return toast.info(message, options);
+    default:
+      return toast.success(message, options);
+  }
+}
 
 export function useToast() {
   return {
-    toast,
+    toast: toastFunction,
     dismiss: toast.dismiss,
   };
 }
+
+export { toastFunction as toast };

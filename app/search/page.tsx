@@ -1,7 +1,5 @@
 "use client";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
@@ -25,8 +23,6 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <div className="pt-28 pb-20 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Search Header */}
@@ -114,8 +110,6 @@ export default function SearchPage() {
           )}
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

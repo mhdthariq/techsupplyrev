@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+
+import { useToast } from "@/hooks/use-toast";
 import {
   LayoutDashboard,
   Package,
@@ -72,6 +72,7 @@ export default function AdminDashboard() {
 
   const router = useRouter();
   const supabase = createClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -130,26 +131,58 @@ export default function AdminDashboard() {
             ? Number.parseFloat(newProduct.discount_price)
             : null,
           category: newProduct.category,
-          image_url: "/placeholder.svg",
-          in_stock: true,
         })
         .select()
         .single();
 
       if (error) throw error;
-      setProducts([...products, data]);
+
+      setProducts([data, ...products]);
       setNewProduct({ name: "", price: "", discount_price: "", category: "" });
+      toast({
+        title: "Product added successfully!",
+        description: `${data.name} has been added to your store`,
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error adding product:", error);
+      toast({
+        title: "Failed to add product",
+        description: "Please check all fields and try again",
+        variant: "destructive",
+      });
     }
   };
 
   const deleteProduct = async (id: string) => {
+    const productToDelete = products.find((p) => p.id === id);
     try {
       await supabase.from("products").delete().eq("id", id);
       setProducts(products.filter((p) => p.id !== id));
+      toast({
+        title: "Product deleted",
+        description: productToDelete
+          ? `${productToDelete.name} has been removed`
+          : "Product has been removed",
+        variant: "success",
+        action: {
+          label: "Undo",
+          onClick: () => {
+            toast({
+              title: "Undo not implemented",
+              description: "Please add the product again manually",
+              variant: "warning",
+            });
+          },
+        },
+      });
     } catch (error) {
       console.error("Error deleting product:", error);
+      toast({
+        title: "Failed to delete product",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
@@ -223,22 +256,30 @@ export default function AdminDashboard() {
     router.push("/");
   };
 
-  if (loading || !isAdmin) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-        <Header />
+      <div className="min-h-screen bg-gray-50">
         <div className="pt-28 pb-20 px-4 flex items-center justify-center">
           <p className="text-gray-600">Loading...</p>
         </div>
-        <Footer />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="pt-28 pb-20 px-4 flex items-center justify-center">
+          <p className="text-red-600">
+            Access denied. Admin privileges required.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Header />
-
+    <div className="min-h-screen bg-gray-50">
       <div className="pt-24 pb-20 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Admin Header */}
@@ -609,8 +650,6 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+import { useToast } from "@/hooks/use-toast";
+
 import { Star, ShoppingCart, Zap, TrendingUp, Award } from "lucide-react";
 
 interface Product {
@@ -22,6 +23,8 @@ export default function Home() {
 
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,12 +46,33 @@ export default function Home() {
     fetchData();
   }, [supabase]);
 
+  const addToCart = (product: Product) => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existingItem = cart.find(
+      (item: { id: string; quantity: number }) => item.id === product.id,
+    );
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({ id: product.id, quantity: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    toast({
+      title: `${product.name} added to cart!`,
+      variant: "success",
+      action: {
+        label: "View Cart",
+        onClick: () => router.push("/cart"),
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
-      <Header />
-
       {/* Hero Banner Section */}
-      <section className="pt-40 pb-20 bg-gradient-to-r from-[#2c3e50] via-[#34495e] to-[#3498db]">
+      <section className="pt-40 pb-20 bg-linear-to-r from-[#2c3e50] via-[#34495e] to-[#3498db]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="text-white">
@@ -81,7 +105,7 @@ export default function Home() {
             </div>
             <div className="hidden md:block">
               <div className="bg-white/10 backdrop-blur rounded-2xl p-8 border border-white/20">
-                <div className="bg-gradient-to-br from-[#3498db] to-[#2c3e50] rounded-xl h-96 flex items-center justify-center">
+                <div className="bg-linear-to-br from-[#3498db] to-[#2c3e50] rounded-xl h-96 flex items-center justify-center">
                   <div className="text-6xl">🎮</div>
                 </div>
               </div>
@@ -186,7 +210,10 @@ export default function Home() {
                         </div>
                       )}
                       <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <button className="w-full bg-[#3498db] hover:bg-[#2980b9] text-white py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition">
+                        <button
+                          onClick={() => addToCart(product)}
+                          className="w-full bg-[#3498db] hover:bg-[#2980b9] text-white py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition"
+                        >
                           <ShoppingCart size={18} />
                           Add to Cart
                         </button>
@@ -194,7 +221,7 @@ export default function Home() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-5 flex-grow flex flex-col">
+                    <div className="p-5 grow flex flex-col">
                       <h3 className="font-bold text-[#2c3e50] line-clamp-2 mb-3 text-sm h-10">
                         {product.name}
                       </h3>
@@ -278,7 +305,7 @@ export default function Home() {
                 href={`/products?category=${category.name}`}
               >
                 <div
-                  className={`bg-gradient-to-br ${category.color} rounded-2xl p-8 text-center hover:shadow-premium transition-all duration-300 transform hover:scale-105 cursor-pointer h-full flex flex-col items-center justify-center`}
+                  className={`bg-linear-to-br ${category.color} rounded-2xl p-8 text-center hover:shadow-premium transition-all duration-300 transform hover:scale-105 cursor-pointer h-full flex flex-col items-center justify-center`}
                 >
                   <div className="text-5xl mb-4">{category.icon}</div>
                   <h3 className="font-bold text-white text-xl">
@@ -293,8 +320,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

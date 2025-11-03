@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+
 import { Trash2, Plus, Minus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CartItem {
   id: string;
@@ -24,6 +24,7 @@ interface CartLocalItem {
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   const supabase = createClient();
 
   useEffect(() => {
@@ -75,9 +76,17 @@ export default function CartPage() {
       quantity: item.quantity,
     }));
     localStorage.setItem("cart", JSON.stringify(cart));
+
+    if (change > 0) {
+      toast({
+        title: "Quantity updated",
+        variant: "success",
+      });
+    }
   };
 
   const removeItem = (id: string) => {
+    const itemToRemove = cartItems.find((item) => item.id === id);
     const updated = cartItems.filter((item) => item.id !== id);
     setCartItems(updated);
     const cart = updated.map((item) => ({
@@ -85,6 +94,28 @@ export default function CartPage() {
       quantity: item.quantity,
     }));
     localStorage.setItem("cart", JSON.stringify(cart));
+
+    if (itemToRemove) {
+      toast({
+        title: `${itemToRemove.name} removed from cart`,
+        action: {
+          label: "Undo",
+          onClick: () => {
+            // Restore the item
+            setCartItems(cartItems);
+            const originalCart = cartItems.map((item) => ({
+              id: item.id,
+              quantity: item.quantity,
+            }));
+            localStorage.setItem("cart", JSON.stringify(originalCart));
+            toast({
+              title: "Item restored to cart",
+              variant: "success",
+            });
+          },
+        },
+      });
+    }
   };
 
   const subtotal = cartItems.reduce(
@@ -98,22 +129,18 @@ export default function CartPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
         <div className="pt-28 pb-20 px-4">
           <div className="max-w-7xl mx-auto animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 rounded w-1/3" />
             <div className="h-64 bg-gray-200 rounded" />
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
-
       <div className="pt-28 pb-20 px-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold text-[#2C3E50] mb-2">
@@ -304,8 +331,6 @@ export default function CartPage() {
           )}
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

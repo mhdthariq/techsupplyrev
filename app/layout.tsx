@@ -3,9 +3,8 @@ import type { Metadata } from "next";
 
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
+import { ConditionalLayout } from "@/components/conditional-layout";
 
 export const metadata: Metadata = {
   title: "TechSupply Co. - Premium Tech Accessories",
@@ -21,10 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
-        <Header />
-        <main className="pt-16">{children}</main>
-        <Footer />
+      <body className="font-sans antialiased">
+        <ConditionalLayout>{children}</ConditionalLayout>
         <Toaster />
         <Analytics />
       </body>

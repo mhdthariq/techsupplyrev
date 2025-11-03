@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+
 import { Check, ChevronRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CartItem {
   id: string;
@@ -47,6 +47,7 @@ export default function CheckoutPage() {
   });
   const router = useRouter();
   const supabase = createClient();
+  const { toast } = useToast();
 
   const steps = [
     {
@@ -130,6 +131,11 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     try {
       if (!user) {
+        toast({
+          title: "Please log in",
+          description: "You need to be logged in to place an order",
+          variant: "destructive",
+        });
         router.push("/auth/login");
         return;
       }
@@ -162,25 +168,37 @@ export default function CheckoutPage() {
       }
 
       localStorage.removeItem("cart");
+      toast({
+        title: "Order placed successfully!",
+        description: `Your order #${order.id} has been confirmed`,
+        variant: "success",
+      });
       router.push(`/order-confirmation/${order.id}`);
     } catch (error) {
       console.error("Error placing order:", error);
+      toast({
+        title: "Failed to place order",
+        description: "Please try again or contact support",
+        variant: "destructive",
+      });
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
-        <Footer />
+        <div className="pt-28 pb-20 px-4">
+          <div className="max-w-6xl mx-auto animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3" />
+            <div className="h-64 bg-gray-200 rounded" />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
-
       <div className="pt-28 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold text-[#2C3E50] mb-12">Checkout</h1>
@@ -574,8 +592,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }
