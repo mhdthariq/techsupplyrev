@@ -1,0 +1,581 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Check, ChevronRight } from "lucide-react";
+
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface CartLocalItem {
+  id: string;
+  price: number;
+  quantity: number;
+}
+
+interface User {
+  id: string;
+  email?: string;
+}
+
+export default function CheckoutPage() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [orderTotal, setOrderTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [formData, setFormData] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "",
+    shippingMethod: "standard",
+    paymentMethod: "credit-card",
+  });
+  const router = useRouter();
+  const supabase = createClient();
+
+  const steps = [
+    {
+      number: 1,
+      title: "Shipping Address",
+      description: "Where should we send your order?",
+    },
+    {
+      number: 2,
+      title: "Shipping Method",
+      description: "How fast do you need it?",
+    },
+    { number: 3, title: "Payment", description: "How would you like to pay?" },
+    { number: 4, title: "Review", description: "Confirm your order" },
+  ];
+
+  useEffect(() => {
+    const loadCheckout = async () => {
+      try {
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
+
+        if (authUser) {
+          setUser(authUser);
+          setFormData((prev) => ({ ...prev, email: authUser.email || "" }));
+        }
+
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        setCartItems(cart);
+
+        const subtotal = cart.reduce(
+          (sum: number, item: CartLocalItem) =>
+            sum + item.price * item.quantity,
+          0,
+        );
+        setOrderTotal(subtotal);
+      } catch (error) {
+        console.error("Error loading checkout:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCheckout();
+  }, [supabase.auth]);
+
+  const applyCoupon = async () => {
+    try {
+      const { data: coupon } = await supabase
+        .from("coupons")
+        .select("*")
+        .eq("code", couponCode.toUpperCase())
+        .eq("active", true)
+        .single();
+
+      if (coupon) {
+        let discountAmount = 0;
+        if (coupon.discount_type === "percentage") {
+          discountAmount = orderTotal * (coupon.discount_value / 100);
+        } else {
+          discountAmount = coupon.discount_value;
+        }
+        setDiscount(discountAmount);
+      }
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+    }
+  };
+
+  const shippingCost =
+    formData.shippingMethod === "standard"
+      ? 9.99
+      : formData.shippingMethod === "express"
+        ? 24.99
+        : 49.99;
+  const subtotal = orderTotal;
+  const tax = (subtotal - discount) * 0.08;
+  const total = subtotal + shippingCost + tax - discount;
+
+  const handlePlaceOrder = async () => {
+    try {
+      if (!user) {
+        router.push("/auth/login");
+        return;
+      }
+
+      const { data: order, error } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          total_amount: total,
+          discount_amount: discount,
+          status: "pending",
+          shipping_address: formData.address,
+          shipping_city: formData.city,
+          shipping_postal_code: formData.zip,
+          shipping_country: formData.country,
+          payment_method: formData.paymentMethod,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      for (const item of cartItems) {
+        await supabase.from("order_items").insert({
+          order_id: order.id,
+          product_id: item.id,
+          quantity: item.quantity,
+          price_at_purchase: item.price,
+        });
+      }
+
+      localStorage.removeItem("cart");
+      router.push(`/order-confirmation/${order.id}`);
+    } catch (error) {
+      console.error("Error placing order:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Header />
+
+      <div className="pt-28 pb-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-4xl font-bold text-[#2C3E50] mb-12">Checkout</h1>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Checkout Form */}
+            <div className="lg:col-span-2">
+              {/* Step Indicator */}
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-8">
+                  {steps.map((step, idx) => (
+                    <div key={step.number} className="flex items-center flex-1">
+                      <div
+                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition ${
+                          currentStep >= step.number
+                            ? "bg-[#3498DB] text-white"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
+                      >
+                        {currentStep > step.number ? (
+                          <Check size={20} />
+                        ) : (
+                          step.number
+                        )}
+                      </div>
+                      {idx < steps.length - 1 && (
+                        <div
+                          className={`flex-1 h-1 mx-2 transition ${
+                            currentStep > step.number
+                              ? "bg-[#3498DB]"
+                              : "bg-gray-200"
+                          }`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-[#2C3E50]">
+                    {steps[currentStep - 1].title}
+                  </h2>
+                  <p className="text-gray-600">
+                    {steps[currentStep - 1].description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 1: Shipping Address */}
+              {currentStep === 1 && (
+                <div className="bg-white rounded-lg p-8 shadow border border-gray-200 mb-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block font-bold text-[#2C3E50] mb-2">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block font-bold text-[#2C3E50] mb-2">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.firstName}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              firstName: e.target.value,
+                            })
+                          }
+                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-bold text-[#2C3E50] mb-2">
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.lastName}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              lastName: e.target.value,
+                            })
+                          }
+                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-[#2C3E50] mb-2">
+                        Address
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.address}
+                        onChange={(e) =>
+                          setFormData({ ...formData, address: e.target.value })
+                        }
+                        className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block font-bold text-[#2C3E50] mb-2">
+                          City
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.city}
+                          onChange={(e) =>
+                            setFormData({ ...formData, city: e.target.value })
+                          }
+                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-bold text-[#2C3E50] mb-2">
+                          State
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.state}
+                          onChange={(e) =>
+                            setFormData({ ...formData, state: e.target.value })
+                          }
+                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-bold text-[#2C3E50] mb-2">
+                          ZIP
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.zip}
+                          onChange={(e) =>
+                            setFormData({ ...formData, zip: e.target.value })
+                          }
+                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-[#2C3E50] mb-2">
+                        Country
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.country}
+                        onChange={(e) =>
+                          setFormData({ ...formData, country: e.target.value })
+                        }
+                        className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Shipping Method */}
+              {currentStep === 2 && (
+                <div className="bg-white rounded-lg p-8 shadow border border-gray-200 mb-6">
+                  <div className="space-y-3">
+                    {[
+                      {
+                        id: "standard",
+                        name: "Standard Shipping",
+                        desc: "5-7 business days",
+                        price: 9.99,
+                      },
+                      {
+                        id: "express",
+                        name: "Express Shipping",
+                        desc: "2-3 business days",
+                        price: 24.99,
+                      },
+                      {
+                        id: "overnight",
+                        name: "Overnight Shipping",
+                        desc: "Next business day",
+                        price: 49.99,
+                      },
+                    ].map((method) => (
+                      <label
+                        key={method.id}
+                        className="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-[#3498DB] transition"
+                      >
+                        <input
+                          type="radio"
+                          name="shipping"
+                          value={method.id}
+                          checked={formData.shippingMethod === method.id}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              shippingMethod: e.target.value,
+                            })
+                          }
+                          className="mr-4"
+                        />
+                        <div className="flex-1">
+                          <p className="font-bold text-[#2C3E50]">
+                            {method.name}
+                          </p>
+                          <p className="text-sm text-gray-600">{method.desc}</p>
+                        </div>
+                        <span className="font-bold text-[#3498DB]">
+                          ${method.price.toFixed(2)}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Payment */}
+              {currentStep === 3 && (
+                <div className="bg-white rounded-lg p-8 shadow border border-gray-200 mb-6">
+                  <div className="space-y-4">
+                    {[
+                      { id: "credit-card", name: "Credit/Debit Card" },
+                      {
+                        id: "midtrans",
+                        name: "Midtrans (Bank Transfer, E-Wallet)",
+                      },
+                      { id: "paypal", name: "PayPal" },
+                    ].map((method) => (
+                      <label
+                        key={method.id}
+                        className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition ${
+                          formData.paymentMethod === method.id
+                            ? "border-[#3498DB] bg-blue-50"
+                            : "border-gray-300 hover:border-[#3498DB]"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="payment"
+                          value={method.id}
+                          checked={formData.paymentMethod === method.id}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              paymentMethod: e.target.value,
+                            })
+                          }
+                          className="mr-4"
+                        />
+                        <span className="font-bold text-[#2C3E50]">
+                          {method.name}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Review */}
+              {currentStep === 4 && (
+                <div className="bg-white rounded-lg p-8 shadow border border-gray-200 mb-6">
+                  <h3 className="font-bold text-[#2C3E50] mb-4">
+                    Order Details
+                  </h3>
+                  <div className="space-y-3 text-sm">
+                    <p>
+                      <span className="font-bold text-[#2C3E50]">Email:</span>{" "}
+                      {formData.email}
+                    </p>
+                    <p>
+                      <span className="font-bold text-[#2C3E50]">
+                        Shipping To:
+                      </span>{" "}
+                      {formData.firstName} {formData.lastName}
+                    </p>
+                    <p>
+                      <span className="font-bold text-[#2C3E50]">Address:</span>{" "}
+                      {formData.address}, {formData.city}, {formData.state}{" "}
+                      {formData.zip}, {formData.country}
+                    </p>
+                    <p>
+                      <span className="font-bold text-[#2C3E50]">
+                        Payment Method:
+                      </span>{" "}
+                      {formData.paymentMethod.replace("-", " ").toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation Buttons */}
+              <div className="flex gap-4">
+                {currentStep > 1 && (
+                  <button
+                    onClick={() => setCurrentStep(currentStep - 1)}
+                    className="px-6 py-3 border-2 border-[#2C3E50] text-[#2C3E50] rounded-lg hover:bg-gray-100 transition font-bold"
+                  >
+                    Back
+                  </button>
+                )}
+                {currentStep < 4 && (
+                  <button
+                    onClick={() => setCurrentStep(currentStep + 1)}
+                    className="ml-auto px-6 py-3 bg-[#3498DB] text-white rounded-lg hover:bg-[#2980B9] transition font-bold flex items-center gap-2"
+                  >
+                    Next <ChevronRight size={20} />
+                  </button>
+                )}
+                {currentStep === 4 && (
+                  <button
+                    onClick={handlePlaceOrder}
+                    className="ml-auto px-8 py-3 bg-[#3498DB] text-white rounded-lg hover:bg-[#2980B9] transition font-bold text-lg"
+                  >
+                    Place Order
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="lg:col-span-1">
+              <div className="bg-gray-50 rounded-lg p-6 sticky top-24 border border-gray-200">
+                <h3 className="font-bold text-[#2C3E50] mb-6">Order Summary</h3>
+
+                {/* Coupon Code */}
+                <div className="mb-6">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Coupon code"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                    <button
+                      onClick={applyCoupon}
+                      className="bg-[#3498DB] text-white px-4 py-2 rounded-lg hover:bg-[#2980B9] transition text-sm font-bold"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 mb-6 space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-bold">${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="font-bold">
+                      ${shippingCost.toFixed(2)}
+                    </span>
+                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount</span>
+                      <span className="font-bold">-${discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tax (8%)</span>
+                    <span className="font-bold">${tax.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="border-t-2 border-gray-300 pt-4">
+                  <div className="flex justify-between">
+                    <span className="font-bold text-[#2C3E50]">Total</span>
+                    <span className="text-2xl font-bold text-[#3498DB]">
+                      ${total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}
