@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { addToCart as addToCartUtil } from "@/lib/cart";
+import Carousel from "@/components/ui/carousel";
 
 import { Star, ShoppingCart, Zap, TrendingUp, Award } from "lucide-react";
 
@@ -16,26 +17,68 @@ interface Product {
   image_url: string;
   rating: number;
   reviews_count: number;
+  featured?: boolean;
+}
+
+interface Banner {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  link: string;
+  active: boolean;
+  position: number;
 }
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
-
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
-  const { toast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: productsData } = await supabase
+        // Fetch banners
+        const { data: bannersData } = await supabase
+          .from("banners")
+          .select("*")
+          .eq("active", true)
+          .order("position", { ascending: true });
+
+        if (bannersData) {
+          setBanners(bannersData);
+        }
+
+        // Try to fetch featured products first
+        let { data: productsData } = await supabase
           .from("products")
           .select("*")
           .eq("featured", true)
           .limit(8);
 
-        if (productsData) setProducts(productsData);
+        // If no featured products found, fallback to getting the latest products
+        if (!productsData || productsData.length === 0) {
+          console.log(
+            "Featured products query failed or no featured products found, using fallback",
+          );
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from("products")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(8);
+
+          if (fallbackError) {
+            console.error("Fallback query error:", fallbackError);
+          } else {
+            productsData = fallbackData;
+          }
+        }
+
+        if (productsData) {
+          console.log("Products loaded for home page:", productsData.length);
+          setProducts(productsData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -47,70 +90,48 @@ export default function Home() {
   }, [supabase]);
 
   const addToCart = (product: Product) => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const existingItem = cart.find(
-      (item: { id: string; quantity: number }) => item.id === product.id,
-    );
-
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      cart.push({ id: product.id, quantity: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    toast({
-      title: `${product.name} added to cart!`,
-      variant: "success",
-      action: {
-        label: "View Cart",
-        onClick: () => router.push("/cart"),
-      },
-    });
+    addToCartUtil(product.id, 1);
   };
 
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
-      {/* Hero Banner Section */}
-      <section className="pt-40 pb-20 bg-linear-to-r from-[#2c3e50] via-[#34495e] to-[#3498db]">
+      {/* Hero Banner Carousel Section */}
+      <section className="pt-32 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="text-white">
-              <div className="inline-block badge-new mb-6">
-                New Collection 2024
-              </div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                Premium Tech <span className="text-[#ffd700]">Accessories</span>{" "}
-                for Your Setup
-              </h1>
-              <p className="text-xl text-[#ecf0f1] mb-8 leading-relaxed">
-                Discover our exclusive collection of high-quality tech
-                accessories. From gaming peripherals to office essentials.
-              </p>
-              <div className="flex gap-4">
-                <Link
-                  href="/products"
-                  className="inline-flex items-center gap-2 bg-white text-[#2c3e50] px-8 py-4 rounded-xl font-bold hover:bg-[#ecf0f1] transition-all transform hover:scale-105"
-                >
-                  <Zap size={20} />
-                  Shop Now
-                </Link>
-                <Link
-                  href="/deals"
-                  className="inline-flex items-center gap-2 bg-[#e74c3c] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#c0392b] transition-all transform hover:scale-105"
-                >
-                  View Deals
-                </Link>
-              </div>
-            </div>
-            <div className="hidden md:block">
-              <div className="bg-white/10 backdrop-blur rounded-2xl p-8 border border-white/20">
-                <div className="bg-linear-to-br from-[#3498db] to-[#2c3e50] rounded-xl h-96 flex items-center justify-center">
-                  <div className="text-6xl">🎮</div>
+          {banners.length > 0 ? (
+            <Carousel
+              banners={banners}
+              autoplay={true}
+              autoplayInterval={5000}
+            />
+          ) : (
+            // Fallback banner if no banners in database
+            <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-2xl bg-linear-to-r from-[#2c3e50] via-[#34495e] to-[#3498db]">
+              <div className="relative h-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
+                <div className="max-w-4xl mx-auto text-center text-white">
+                  <div className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium mb-6">
+                    New Collection 2024
+                  </div>
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+                    Premium Tech{" "}
+                    <span className="text-[#ffd700]">Accessories</span> for Your
+                    Setup
+                  </h1>
+                  <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 leading-relaxed">
+                    Discover our exclusive collection of high-quality tech
+                    accessories. From gaming peripherals to office essentials.
+                  </p>
+                  <Link
+                    href="/products"
+                    className="inline-flex items-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <Zap size={20} />
+                    Shop Now
+                  </Link>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -194,10 +215,11 @@ export default function Home() {
                   <div className="bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-premium card-hover h-full flex flex-col">
                     {/* Image Container */}
                     <div className="relative aspect-square bg-[#f8f9fa] overflow-hidden group">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={product.image_url || "/placeholder.svg"}
                         alt={product.name}
+                        width={300}
+                        height={300}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                       {product.discount_price && (
@@ -211,7 +233,11 @@ export default function Home() {
                       )}
                       <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
                         <button
-                          onClick={() => addToCart(product)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addToCart(product);
+                          }}
                           className="w-full bg-[#3498db] hover:bg-[#2980b9] text-white py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition"
                         >
                           <ShoppingCart size={18} />

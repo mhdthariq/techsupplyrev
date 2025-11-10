@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getCartItems, clearCart } from "@/lib/cart";
 
 import { Check, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -10,12 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 interface CartItem {
   id: string;
   name: string;
-  price: number;
-  quantity: number;
-}
-
-interface CartLocalItem {
-  id: string;
   price: number;
   quantity: number;
 }
@@ -76,15 +71,41 @@ export default function CheckoutPage() {
           setFormData((prev) => ({ ...prev, email: authUser.email || "" }));
         }
 
-        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-        setCartItems(cart);
+        const cart = getCartItems();
 
-        const subtotal = cart.reduce(
-          (sum: number, item: CartLocalItem) =>
-            sum + item.price * item.quantity,
-          0,
-        );
-        setOrderTotal(subtotal);
+        if (cart.length === 0) {
+          setCartItems([]);
+          setOrderTotal(0);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch product details for cart items
+        const ids = cart.map((item) => item.id);
+        const { data: products } = await supabase
+          .from("products")
+          .select("*")
+          .in("id", ids);
+
+        if (products) {
+          const cartWithProducts: CartItem[] = cart.map((cartItem) => {
+            const product = products.find((p) => p.id === cartItem.id);
+            return {
+              id: cartItem.id,
+              name: product?.name || "Unknown Product",
+              price: product?.discount_price || product?.price || 0,
+              quantity: cartItem.quantity,
+            };
+          });
+
+          setCartItems(cartWithProducts);
+
+          const subtotal = cartWithProducts.reduce(
+            (sum: number, item: CartItem) => sum + item.price * item.quantity,
+            0,
+          );
+          setOrderTotal(subtotal);
+        }
       } catch (error) {
         console.error("Error loading checkout:", error);
       } finally {
@@ -93,7 +114,7 @@ export default function CheckoutPage() {
     };
 
     loadCheckout();
-  }, [supabase.auth]);
+  }, [supabase.auth, supabase]);
 
   const applyCoupon = async () => {
     try {
@@ -167,7 +188,8 @@ export default function CheckoutPage() {
         });
       }
 
-      localStorage.removeItem("cart");
+      clearCart();
+
       toast({
         title: "Order placed successfully!",
         description: `Your order #${order.id} has been confirmed`,

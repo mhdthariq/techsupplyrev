@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import {
+  getCartItems,
+  updateCartItemQuantity,
+  removeFromCart,
+} from "@/lib/cart";
 
 import { Trash2, Plus, Minus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 interface CartItem {
   id: string;
@@ -24,13 +29,13 @@ interface CartLocalItem {
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+
   const supabase = createClient();
 
   useEffect(() => {
     const loadCart = async () => {
       try {
-        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const cart = getCartItems();
 
         if (cart.length === 0) {
           setCartItems([]);
@@ -38,7 +43,7 @@ export default function CartPage() {
           return;
         }
 
-        const ids = cart.map((item: CartLocalItem) => item.id);
+        const ids = cart.map((item) => item.id);
         const { data: products } = await supabase
           .from("products")
           .select("*")
@@ -71,51 +76,17 @@ export default function CartPage() {
         : item,
     );
     setCartItems(updated);
-    const cart = updated.map((item) => ({
-      id: item.id,
-      quantity: item.quantity,
-    }));
-    localStorage.setItem("cart", JSON.stringify(cart));
 
-    if (change > 0) {
-      toast({
-        title: "Quantity updated",
-        variant: "success",
-      });
+    const item = updated.find((item) => item.id === id);
+    if (item) {
+      updateCartItemQuantity(id, item.quantity);
     }
   };
 
   const removeItem = (id: string) => {
-    const itemToRemove = cartItems.find((item) => item.id === id);
     const updated = cartItems.filter((item) => item.id !== id);
     setCartItems(updated);
-    const cart = updated.map((item) => ({
-      id: item.id,
-      quantity: item.quantity,
-    }));
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    if (itemToRemove) {
-      toast({
-        title: `${itemToRemove.name} removed from cart`,
-        action: {
-          label: "Undo",
-          onClick: () => {
-            // Restore the item
-            setCartItems(cartItems);
-            const originalCart = cartItems.map((item) => ({
-              id: item.id,
-              quantity: item.quantity,
-            }));
-            localStorage.setItem("cart", JSON.stringify(originalCart));
-            toast({
-              title: "Item restored to cart",
-              variant: "success",
-            });
-          },
-        },
-      });
-    }
+    removeFromCart(id);
   };
 
   const subtotal = cartItems.reduce(
@@ -185,10 +156,11 @@ export default function CartPage() {
                             <td className="p-4">
                               <div className="flex items-center gap-4">
                                 <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img
+                                  <Image
                                     src={item.image_url || "/placeholder.svg"}
                                     alt={item.name}
+                                    width={64}
+                                    height={64}
                                     className="w-full h-full object-cover"
                                   />
                                 </div>

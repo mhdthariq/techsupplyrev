@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.products (
   reviews_count INTEGER DEFAULT 0,
   in_stock BOOLEAN DEFAULT true,
   stock_quantity INTEGER DEFAULT 0,
+  featured BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );

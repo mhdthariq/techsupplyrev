@@ -5,11 +5,7 @@ import { usePathname } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
-export function ConditionalLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Routes that should not have header and footer
@@ -20,9 +16,7 @@ export function ConditionalLayout({
   return (
     <>
       {!shouldHideNavigation && <Header />}
-      <main className={shouldHideNavigation ? "" : "pt-16"}>
-        {children}
-      </main>
+      <main className={shouldHideNavigation ? "" : "pt-24"}>{children}</main>
       {!shouldHideNavigation && <Footer />}
     </>
   );
