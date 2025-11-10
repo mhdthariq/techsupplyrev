@@ -1,14 +1,6 @@
 "use client";
 import Link from "next/link";
-import {
-  ShoppingCart,
-  Search,
-  User,
-  Menu,
-  X,
-  Heart,
-  Package,
-} from "lucide-react";
+import { ShoppingCart, Search, User, Menu, X, Package } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getCartItemCount } from "@/lib/cart";
 
@@ -64,22 +56,23 @@ export function Header() {
           </Link>
 
           {/* Main Navigation - Desktop */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          {/* Main Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
             <Link
               href="/"
-              className="text-[#2c3e50] hover:text-[#3498db] font-semibold transition-colors relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#3498db] hover:after:w-full after:transition-all after:duration-300"
+              className="px-6 py-3 text-[#2c3e50] hover:text-[#3498db] hover:bg-[#ecf0f1] rounded-xl font-medium transition-all duration-200"
             >
               Home
             </Link>
             <Link
               href="/products"
-              className="text-[#2c3e50] hover:text-[#3498db] font-semibold transition-colors relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#3498db] hover:after:w-full after:transition-all after:duration-300"
+              className="px-6 py-3 text-[#2c3e50] hover:text-[#3498db] hover:bg-[#ecf0f1] rounded-xl font-medium transition-all duration-200"
             >
               Products
             </Link>
             <Link
               href="/about"
-              className="text-[#2c3e50] hover:text-[#3498db] font-semibold transition-colors relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#3498db] hover:after:w-full after:transition-all after:duration-300"
+              className="px-6 py-3 text-[#2c3e50] hover:text-[#3498db] hover:bg-[#ecf0f1] rounded-xl font-medium transition-all duration-200"
             >
               About Us
             </Link>
@@ -96,7 +89,7 @@ export function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-transparent transition-all bg-gray-50 hover:bg-white text-gray-900"
                 onKeyPress={(e) => {
                   if (e.key === "Enter" && searchQuery.trim()) {
                     window.location.href = `/products?search=${encodeURIComponent(searchQuery.trim())}`;
@@ -119,11 +112,6 @@ export function Header() {
               }}
             >
               <Search size={20} />
-            </button>
-
-            {/* Wishlist */}
-            <button className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 text-[#2c3e50] hover:text-[#e74c3c] transition-all">
-              <Heart size={20} />
             </button>
 
             {/* Cart */}
@@ -173,7 +161,7 @@ export function Header() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-transparent transition-all"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-transparent transition-all bg-white text-gray-900"
                   onKeyPress={(e) => {
                     if (e.key === "Enter" && searchQuery.trim()) {
                       window.location.href = `/products?search=${encodeURIComponent(searchQuery.trim())}`;

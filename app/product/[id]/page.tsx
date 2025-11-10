@@ -443,8 +443,8 @@ export default function ProductPage() {
 
             {selectedTab === "reviews" && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-[#2c3e50]">
+                <div>
+                  <h3 className="text-xl font-bold text-[#2c3e50] mb-4">
                     Customer Reviews
                   </h3>
                   <button className="bg-[#3498db] text-white px-4 py-2 rounded-lg hover:bg-[#2980b9] transition">

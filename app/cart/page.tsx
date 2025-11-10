@@ -114,7 +114,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-white">
       <div className="pt-28 pb-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-[#2C3E50] mb-2">
+          <h1 className="text-4xl font-bold text-[#2C3E50] mb-8">
             Shopping Cart
           </h1>
           <p className="text-gray-600 mb-8">
@@ -125,7 +125,7 @@ export default function CartPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Cart Items */}
               <div className="lg:col-span-2">
-                <div className="bg-white rounded-lg shadow border border-gray-200">
+                <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
@@ -139,11 +139,11 @@ export default function CartPage() {
                           <th className="text-center p-4 font-bold text-[#2C3E50]">
                             Quantity
                           </th>
-                          <th className="text-right p-4 font-bold text-[#2C3E50]">
+                          <th className="text-center p-4 font-bold text-[#2C3E50]">
                             Total
                           </th>
                           <th className="text-center p-4 font-bold text-[#2C3E50]">
-                            Action
+                            Remove
                           </th>
                         </tr>
                       </thead>
@@ -151,7 +151,7 @@ export default function CartPage() {
                         {cartItems.map((item) => (
                           <tr
                             key={item.id}
-                            className="border-b border-gray-200 hover:bg-gray-50 transition"
+                            className="border-b border-gray-100 hover:bg-gray-50 transition"
                           >
                             <td className="p-4">
                               <div className="flex items-center gap-4">
@@ -165,45 +165,45 @@ export default function CartPage() {
                                   />
                                 </div>
                                 <div>
-                                  <p className="font-bold text-[#2C3E50] text-sm">
+                                  <h3 className="font-semibold text-gray-900">
                                     {item.name}
-                                  </p>
+                                  </h3>
                                 </div>
                               </div>
                             </td>
-                            <td className="text-center p-4 font-bold text-[#3498DB]">
-                              ${(item.discount_price || item.price).toFixed(2)}
+                            <td className="text-center p-4">
+                              <span className="text-[#3498DB] font-bold">
+                                ${item.price.toFixed(2)}
+                              </span>
                             </td>
                             <td className="text-center p-4">
-                              <div className="flex items-center justify-center gap-2 bg-gray-100 rounded-lg px-2 py-1 w-fit mx-auto">
+                              <div className="flex items-center justify-center gap-2">
                                 <button
                                   onClick={() => updateQuantity(item.id, -1)}
-                                  className="text-gray-600 hover:text-[#2C3E50]"
+                                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition text-gray-600"
                                 >
-                                  <Minus size={16} />
+                                  <Minus size={14} />
                                 </button>
-                                <span className="w-6 text-center font-bold">
+                                <span className="w-12 text-center font-bold text-gray-900">
                                   {item.quantity}
                                 </span>
                                 <button
                                   onClick={() => updateQuantity(item.id, 1)}
-                                  className="text-gray-600 hover:text-[#2C3E50]"
+                                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition text-gray-600"
                                 >
-                                  <Plus size={16} />
+                                  <Plus size={14} />
                                 </button>
                               </div>
                             </td>
-                            <td className="text-right p-4 font-bold text-[#3498DB]">
-                              $
-                              {(
-                                (item.discount_price || item.price) *
-                                item.quantity
-                              ).toFixed(2)}
+                            <td className="text-center p-4">
+                              <span className="font-bold text-[#2C3E50]">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </span>
                             </td>
                             <td className="text-center p-4">
                               <button
                                 onClick={() => removeItem(item.id)}
-                                className="text-red-500 hover:text-red-700 transition"
+                                className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition"
                               >
                                 <Trash2 size={18} />
                               </button>
@@ -225,35 +225,33 @@ export default function CartPage() {
 
               {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="bg-gray-50 rounded-lg p-6 sticky top-24 border border-gray-200">
-                  <h3 className="font-bold text-[#2C3E50] text-lg mb-6">
+                <div className="bg-white rounded-lg shadow border border-gray-200 p-6 sticky top-32">
+                  <h3 className="text-xl font-bold text-[#2C3E50] mb-4">
                     Order Summary
                   </h3>
 
-                  <div className="space-y-4 mb-6 pb-6 border-b-2 border-gray-300">
-                    <div className="flex justify-between text-sm">
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal</span>
-                      <span className="font-bold text-gray-800">
+                      <span className="font-bold text-[#2C3E50]">
                         ${subtotal.toFixed(2)}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between">
                       <span className="text-gray-600">Shipping</span>
-                      <span className="font-bold text-gray-800">
-                        {shipping === 0 ? (
-                          <span className="text-green-600">FREE</span>
-                        ) : (
-                          `$${shipping.toFixed(2)}`
-                        )}
+                      <span className="font-bold text-[#2C3E50]">
+                        ${shipping.toFixed(2)}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tax (8%)</span>
-                      <span className="font-bold text-gray-800">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tax</span>
+                      <span className="font-bold text-[#2C3E50]">
                         ${tax.toFixed(2)}
                       </span>
                     </div>
                   </div>
+
+                  <hr className="my-4 border-gray-200" />
 
                   <div className="flex justify-between mb-6">
                     <span className="font-bold text-[#2C3E50]">Total</span>
@@ -264,7 +262,7 @@ export default function CartPage() {
 
                   <Link
                     href="/checkout"
-                    className="block w-full bg-[#3498DB] hover:bg-[#2980B9] text-white py-3 rounded-lg font-bold text-center transition mb-3"
+                    className="block w-full bg-[#3498DB] text-white text-center py-3 rounded-lg font-bold hover:bg-[#2980B9] transition mb-4"
                   >
                     Proceed to Checkout
                   </Link>
@@ -275,23 +273,17 @@ export default function CartPage() {
                   >
                     Continue Shopping
                   </Link>
-
-                  {shipping === 0 && (
-                    <p className="text-xs text-green-600 mt-4 text-center font-bold">
-                      You qualify for FREE shipping!
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
           ) : (
             <div className="text-center py-16">
               <div className="text-6xl mb-4">🛒</div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
                 Your cart is empty
               </h2>
               <p className="text-gray-600 mb-6">
-                Add some products to get started
+                Add some products to your cart and come back!
               </p>
               <Link
                 href="/products"
