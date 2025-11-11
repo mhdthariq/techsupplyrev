@@ -60,84 +60,95 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#2C3E50] via-[#34495E] to-[#3498DB] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Subtle Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#3498DB]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/3 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-0 right-0 w-72 h-72 bg-linear-to-br from-blue-200/20 to-indigo-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-linear-to-br from-blue-100/30 to-purple-100/30 rounded-full blur-3xl"></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Back to Home Button */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors group"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-[#3498db] mb-8 transition-colors group font-medium"
         >
           <ArrowLeft
-            size={20}
+            size={18}
             className="group-hover:-translate-x-1 transition-transform"
           />
           Back to Home
         </Link>
 
         {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-12">
-          <div className="w-12 h-12 bg-linear-to-br from-white to-white/90 rounded-xl flex items-center justify-center text-[#3498DB] font-bold text-xl shadow-2xl">
-            T
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <div className="w-14 h-14 bg-linear-to-br from-[#2c3e50] to-[#3498db] rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10 2 10 2 7.79 2 6 3.79 6 6c0 .35.07.69.18 1H4c-1.11 0-2 .89-2 2v11c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM10 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z" />
+            </svg>
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">TechSupply Co.</h1>
-            <p className="text-white/60 text-sm">Premium Tech Store</p>
+            <h1 className="text-2xl font-bold text-[#2c3e50]">TechSupply</h1>
+            <p className="text-gray-500 text-sm">Premium Tech Store</p>
           </div>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-[#2C3E50] mb-2">
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-200/50">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-[#2C3E50] mb-3">
               Welcome Back
             </h2>
-            <p className="text-gray-600">Sign in to your account</p>
+            <p className="text-gray-600 text-lg">Sign in to your account</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8">
               <p className="text-red-700 text-sm font-medium flex items-center gap-2">
-                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                <svg
+                  className="w-4 h-4 text-red-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
                 {error}
               </p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-7">
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
                 Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-gray-400" />
+                  <Mail size={20} className="text-gray-400" />
                 </div>
                 <input
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="Enter your email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498DB] focus:border-transparent transition-all text-[#2C3E50] placeholder-gray-400"
+                  className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] transition-all text-[#2C3E50] placeholder-gray-400 text-base hover:border-gray-300"
                 />
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
                 Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-gray-400" />
+                  <Lock size={20} className="text-gray-400" />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -146,14 +157,14 @@ function LoginForm() {
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
-                  className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498DB] focus:border-transparent transition-all text-[#2C3E50] placeholder-gray-400"
+                  className="w-full pl-12 pr-12 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] transition-all text-[#2C3E50] placeholder-gray-400 text-base hover:border-gray-300"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#2C3E50] transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#3498db] transition-colors"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
@@ -162,9 +173,9 @@ function LoginForm() {
             <div className="flex justify-end">
               <Link
                 href="/auth/forgot-password"
-                className="text-sm text-[#3498DB] hover:text-[#2980B9] font-medium transition-colors hover:underline"
+                className="text-sm text-[#3498db] hover:text-[#2980b9] font-medium transition-colors hover:underline"
               >
-                Forgot your password?
+                Forgot password?
               </Link>
             </div>
 
@@ -172,10 +183,10 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-linear-to-r from-[#3498DB] to-[#2980B9] hover:from-[#2980B9] hover:to-[#1F4E79] disabled:from-gray-400 disabled:to-gray-500 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+              className="w-full bg-linear-to-r from-[#3498db] to-[#2980b9] hover:from-[#2980b9] hover:to-[#1f4e79] disabled:from-gray-400 disabled:to-gray-500 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 transform disabled:hover:translate-y-0 disabled:cursor-not-allowed mt-8"
             >
               {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-3">
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   Signing in...
                 </div>
@@ -186,22 +197,22 @@ function LoginForm() {
           </form>
 
           {/* Sign Up Link */}
-          <div className="text-center mt-8 pt-6 border-t border-gray-200">
-            <p className="text-gray-600 text-sm">
+          <div className="text-center mt-8 pt-8 border-t border-gray-100">
+            <p className="text-gray-600">
               Don&apos;t have an account?{" "}
               <Link
                 href="/auth/register"
-                className="text-[#3498DB] hover:text-[#2980B9] font-semibold transition-colors hover:underline"
+                className="text-[#3498db] hover:text-[#2980b9] font-semibold transition-colors hover:underline"
               >
-                Sign up here
+                Create one here
               </Link>
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8 text-white/60 text-sm">
-          <p>© 2024 TechSupply Co. All rights reserved.</p>
+        <div className="text-center mt-8 text-gray-400 text-sm">
+          <p>© 2024 TechSupply. All rights reserved.</p>
         </div>
       </div>
     </div>
@@ -212,8 +223,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-linear-to-br from-[#2C3E50] via-[#34495E] to-[#3498DB] flex items-center justify-center">
-          <div className="text-white">Loading...</div>
+        <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+          <div className="text-gray-600">Loading...</div>
         </div>
       }
     >
