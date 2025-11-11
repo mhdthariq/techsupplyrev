@@ -300,52 +300,6 @@ export default function Home() {
           )}
         </div>
       </section>
-
-      {/* Category Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white border-t border-[#ecf0f1]">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-[#2c3e50] mb-12">
-            Shop by Category
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                name: "Laptops",
-                icon: "💻",
-                color: "from-blue-400 to-blue-600",
-              },
-              {
-                name: "Keyboards",
-                icon: "⌨️",
-                color: "from-purple-400 to-purple-600",
-              },
-              { name: "Mice", icon: "🖱️", color: "from-pink-400 to-pink-600" },
-              {
-                name: "Accessories",
-                icon: "🎧",
-                color: "from-orange-400 to-orange-600",
-              },
-            ].map((category) => (
-              <Link
-                key={category.name}
-                href={`/products?category=${category.name}`}
-              >
-                <div
-                  className={`bg-linear-to-br ${category.color} rounded-2xl p-8 text-center hover:shadow-premium transition-all duration-300 transform hover:scale-105 cursor-pointer h-full flex flex-col items-center justify-center`}
-                >
-                  <div className="text-5xl mb-4">{category.icon}</div>
-                  <h3 className="font-bold text-white text-xl">
-                    {category.name}
-                  </h3>
-                  <p className="text-white/80 text-sm mt-2">
-                    Browse collection
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

@@ -226,21 +226,23 @@ export function Header() {
 
             {/* Account */}
             {user ? (
-              <div className="relative hidden sm:block user-menu-container">
+              <div className="relative user-menu-container">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 text-[#2c3e50] hover:text-[#3498db] transition-all"
+                  className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 text-[#2c3e50] hover:text-[#3498db] transition-all touch-manipulation"
                 >
                   <User size={20} />
                 </button>
 
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <div className="absolute right-0 mt-2 min-w-48 max-w-xs bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-200">
-                      <p className="text-sm font-semibold text-[#2C3E50]">
+                      <p className="text-sm font-semibold text-[#2C3E50] truncate">
                         {user.name || user.email}
                       </p>
-                      <p className="text-xs text-gray-600">{user.email}</p>
+                      <p className="text-xs text-gray-600 truncate">
+                        {user.email}
+                      </p>
                     </div>
                     <Link
                       href="/account"
@@ -263,9 +265,10 @@ export function Header() {
             ) : (
               <Link
                 href="/auth/login"
-                className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 text-[#2c3e50] hover:text-[#3498db] transition-all"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#3498db] text-white rounded-lg hover:bg-[#2980b9] transition-all font-medium text-sm"
               >
-                <User size={20} />
+                <User size={16} />
+                Login
               </Link>
             )}
 
