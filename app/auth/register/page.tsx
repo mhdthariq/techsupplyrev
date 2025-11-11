@@ -1,19 +1,19 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Eye, EyeOff, User, ArrowLeft } from "lucide-react";
 
-export default function RegisterPage() {
+import { useToast } from "@/hooks/use-toast";
+import { signUpWithEmail } from "@/lib/auth";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, User } from "lucide-react";
+
+function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+
   const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
@@ -33,8 +33,7 @@ export default function RegisterPage() {
     e.preventDefault();
 
     if (
-      !formData.firstName ||
-      !formData.lastName ||
+      !formData.fullName ||
       !formData.email ||
       !formData.password ||
       !formData.confirmPassword
@@ -57,24 +56,15 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-          },
-        },
-      });
+      const { error } = await signUpWithEmail(
+        formData.email,
+        formData.password,
+        formData.fullName.trim(),
+      );
 
-      if (signUpError) throw signUpError;
+      if (error) throw error;
 
-      toast({
-        title: "Account created successfully!",
-        description: "Please check your email to verify your account",
-        variant: "success",
-      });
+      // Redirect to login page
       router.push("/auth/login");
     } catch (err: unknown) {
       const errorMessage =
@@ -146,45 +136,24 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  First Name
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <User size={18} className="text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="John"
-                    value={formData.firstName}
-                    onChange={(e) =>
-                      handleInputChange("firstName", e.target.value)
-                    }
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498DB] focus:border-transparent transition-all text-[#2C3E50] placeholder-gray-400"
-                  />
+            {/* Full Name Field */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                Full Name
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User size={18} className="text-gray-400" />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                  Last Name
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <User size={18} className="text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Doe"
-                    value={formData.lastName}
-                    onChange={(e) =>
-                      handleInputChange("lastName", e.target.value)
-                    }
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498DB] focus:border-transparent transition-all text-[#2C3E50] placeholder-gray-400"
-                  />
-                </div>
+                <input
+                  type="text"
+                  placeholder="John Doe"
+                  value={formData.fullName}
+                  onChange={(e) =>
+                    handleInputChange("fullName", e.target.value)
+                  }
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498DB] focus:border-transparent transition-all text-[#2C3E50] placeholder-gray-400"
+                />
               </div>
             </div>
 
@@ -304,5 +273,19 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-linear-to-br from-[#2C3E50] via-[#34495E] to-[#3498DB] flex items-center justify-center">
+          <div className="text-white">Loading...</div>
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }

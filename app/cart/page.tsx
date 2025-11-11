@@ -35,7 +35,7 @@ export default function CartPage() {
   useEffect(() => {
     const loadCart = async () => {
       try {
-        const cart = getCartItems();
+        const cart = await getCartItems();
 
         if (cart.length === 0) {
           setCartItems([]);
@@ -69,7 +69,7 @@ export default function CartPage() {
     loadCart();
   }, [supabase]);
 
-  const updateQuantity = (id: string, change: number) => {
+  const updateQuantity = async (id: string, change: number) => {
     const updated = cartItems.map((item) =>
       item.id === id
         ? { ...item, quantity: Math.max(1, item.quantity + change) }
@@ -79,14 +79,14 @@ export default function CartPage() {
 
     const item = updated.find((item) => item.id === id);
     if (item) {
-      updateCartItemQuantity(id, item.quantity);
+      await updateCartItemQuantity(id, item.quantity);
     }
   };
 
-  const removeItem = (id: string) => {
+  const removeItem = async (id: string) => {
     const updated = cartItems.filter((item) => item.id !== id);
     setCartItems(updated);
-    removeFromCart(id);
+    await removeFromCart(id);
   };
 
   const subtotal = cartItems.reduce(

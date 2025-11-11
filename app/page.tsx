@@ -89,8 +89,8 @@ export default function Home() {
     fetchData();
   }, [supabase]);
 
-  const addToCart = (product: Product) => {
-    addToCartUtil(product.id, 1);
+  const addToCart = async (product: Product) => {
+    await addToCartUtil(product.id, 1);
   };
 
   return (

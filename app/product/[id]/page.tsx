@@ -88,9 +88,9 @@ export default function ProductPage() {
     fetchProduct();
   }, [params.id, supabase, router]);
 
-  const addToCart = () => {
+  const addToCart = async () => {
     if (!product) return;
-    addToCartUtil(product.id, quantity);
+    await addToCartUtil(product.id, quantity);
   };
 
   const toggleWishlist = () => {

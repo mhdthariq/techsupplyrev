@@ -1,34 +1,131 @@
 "use client";
 import Link from "next/link";
-import { ShoppingCart, Search, User, Menu, X, Package } from "lucide-react";
+import {
+  ShoppingCart,
+  Search,
+  User,
+  Menu,
+  X,
+  Package,
+  LogOut,
+} from "lucide-react";
 import { useState, useEffect } from "react";
-import { getCartItemCount } from "@/lib/cart";
+import {
+  getCurrentCartCount,
+  getCachedCartCount,
+  initializeCartSystem,
+  mergeGuestCartWithUserCart,
+} from "@/lib/cart";
+import { getCurrentUser, signOut } from "@/lib/auth";
+import type { User as AuthUser } from "@/lib/types";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const [cartCount, setCartCount] = useState(() => getCachedCartCount());
   const [searchQuery, setSearchQuery] = useState("");
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // Update cart count from localStorage
+  // Update cart count and initialize cart system
   useEffect(() => {
-    const updateCartCount = () => {
-      setCartCount(getCartItemCount());
+    const updateCartCount = async () => {
+      try {
+        const count = await getCurrentCartCount();
+        setCartCount(count);
+      } catch {
+        // Fallback to cached count
+        setCartCount(getCachedCartCount());
+      }
     };
 
-    // Update on mount
+    // Load actual count (async) - no sync setState in effect
     updateCartCount();
 
-    // Listen for storage changes (when cart is updated in other tabs/components)
-    window.addEventListener("storage", updateCartCount);
+    // Initialize cart system
+    initializeCartSystem().then(() => {
+      updateCartCount();
+    });
 
     // Listen for custom cart update events
-    window.addEventListener("cartUpdated", updateCartCount);
+    const handleCartUpdate = () => {
+      updateCartCount();
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
 
     return () => {
-      window.removeEventListener("storage", updateCartCount);
-      window.removeEventListener("cartUpdated", updateCartCount);
+      window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);
+
+  // Check for authenticated user and handle cart merge
+  useEffect(() => {
+    const checkUser = async () => {
+      const currentUser = await getCurrentUser();
+      const previousUser = user;
+      setUser(currentUser);
+
+      // If user just logged in, merge guest cart
+      if (currentUser && !previousUser) {
+        try {
+          await mergeGuestCartWithUserCart(currentUser.id);
+          // Update cart count after merge
+          const count = await getCurrentCartCount();
+          setCartCount(count);
+        } catch (error) {
+          console.error("Error merging cart on login:", error);
+          setCartCount(getCachedCartCount());
+        }
+      }
+
+      // If user logged out, reset to guest cart
+      if (!currentUser && previousUser) {
+        setCartCount(getCachedCartCount());
+      }
+    };
+
+    checkUser();
+
+    // Listen for auth state changes
+    const handleAuthChange = () => {
+      checkUser();
+    };
+
+    window.addEventListener("authStateChanged", handleAuthChange);
+    return () =>
+      window.removeEventListener("authStateChanged", handleAuthChange);
+  }, [user]);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest(".user-menu-container")) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showUserMenu]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setUser(null);
+      setShowUserMenu(false);
+      // Reset cart count to guest cart
+      setCartCount(getCachedCartCount());
+      window.dispatchEvent(new Event("authStateChanged"));
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+  };
 
   return (
     <header className="fixed top-0 w-full bg-white/95 backdrop-blur-md z-50 shadow-lg border-b border-gray-100">
@@ -128,12 +225,49 @@ export function Header() {
             </Link>
 
             {/* Account */}
-            <Link
-              href="/auth/login"
-              className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 text-[#2c3e50] hover:text-[#3498db] transition-all"
-            >
-              <User size={20} />
-            </Link>
+            {user ? (
+              <div className="relative hidden sm:block user-menu-container">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 text-[#2c3e50] hover:text-[#3498db] transition-all"
+                >
+                  <User size={20} />
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <p className="text-sm font-semibold text-[#2C3E50]">
+                        {user.name || user.email}
+                      </p>
+                      <p className="text-xs text-gray-600">{user.email}</p>
+                    </div>
+                    <Link
+                      href="/account"
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      <User size={16} />
+                      My Account
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/auth/login"
+                className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 text-[#2c3e50] hover:text-[#3498db] transition-all"
+              >
+                <User size={20} />
+              </Link>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -210,14 +344,37 @@ export function Header() {
                 </span>
               )}
             </Link>
-            <Link
-              href="/auth/login"
-              className="flex items-center gap-3 py-3 text-[#2c3e50] hover:text-[#3498db] font-medium transition-colors rounded-lg hover:bg-gray-50 px-3"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <User size={20} />
-              Sign In / Register
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/account"
+                  className="flex items-center gap-3 py-3 text-[#2c3e50] hover:text-[#3498db] font-medium transition-colors rounded-lg hover:bg-gray-50 px-3"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User size={20} />
+                  My Account
+                </Link>
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    setIsMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 py-3 text-red-600 hover:text-red-700 font-medium transition-colors rounded-lg hover:bg-red-50 px-3 w-full text-left"
+                >
+                  <LogOut size={20} />
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/auth/login"
+                className="flex items-center gap-3 py-3 text-[#2c3e50] hover:text-[#3498db] font-medium transition-colors rounded-lg hover:bg-gray-50 px-3"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User size={20} />
+                Sign In / Register
+              </Link>
+            )}
           </div>
         </nav>
       )}

@@ -71,7 +71,7 @@ export default function CheckoutPage() {
           setFormData((prev) => ({ ...prev, email: authUser.email || "" }));
         }
 
-        const cart = getCartItems();
+        const cart = await getCartItems();
 
         if (cart.length === 0) {
           setCartItems([]);
