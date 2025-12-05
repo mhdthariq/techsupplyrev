@@ -124,14 +124,14 @@ export default function ProductPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f9fa] pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="bg-white rounded-2xl h-96 animate-pulse" />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 md:grid-cols-2">
+            <div className="h-96 animate-pulse rounded-2xl bg-white" />
             <div className="space-y-4">
-              <div className="h-8 bg-white rounded animate-pulse" />
-              <div className="h-4 bg-white rounded animate-pulse w-3/4" />
-              <div className="h-4 bg-white rounded animate-pulse w-1/2" />
-              <div className="h-12 bg-white rounded animate-pulse" />
+              <div className="h-8 animate-pulse rounded bg-white" />
+              <div className="h-4 w-3/4 animate-pulse rounded bg-white" />
+              <div className="h-4 w-1/2 animate-pulse rounded bg-white" />
+              <div className="h-12 animate-pulse rounded bg-white" />
             </div>
           </div>
         </div>
@@ -141,17 +141,17 @@ export default function ProductPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] pt-32 pb-20 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#f8f9fa] pt-32 pb-20">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-[#2c3e50] mb-4">
+          <h1 className="mb-4 text-3xl font-bold text-[#2c3e50]">
             Product Not Found
           </h1>
-          <p className="text-[#7f8c8d] mb-8">
+          <p className="mb-8 text-[#7f8c8d]">
             The product you&apos;re looking for doesn&apos;t exist.
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-[#3498db] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#2980b9] transition"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#3498db] px-6 py-3 font-bold text-white transition hover:bg-[#2980b9]"
           >
             <ArrowLeft size={20} />
             Back to Products
@@ -169,9 +169,9 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] pt-32 pb-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-[#7f8c8d] mb-8">
+        <nav className="mb-8 flex items-center space-x-2 text-sm text-[#7f8c8d]">
           <Link href="/" className="hover:text-[#3498db]">
             Home
           </Link>
@@ -187,29 +187,29 @@ export default function ProductPage() {
             {product.category}
           </Link>
           <span>/</span>
-          <span className="text-[#2c3e50] font-medium">{product.name}</span>
+          <span className="font-medium text-[#2c3e50]">{product.name}</span>
         </nav>
 
         {/* Product Details */}
-        <div className="grid lg:grid-cols-2 gap-12 mb-16">
+        <div className="mb-16 grid gap-12 lg:grid-cols-2">
           {/* Product Image */}
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl overflow-hidden shadow-md relative group">
+            <div className="group relative overflow-hidden rounded-2xl bg-white shadow-md">
               <Image
                 src={product.image_url || "/placeholder.svg"}
                 alt={product.name}
                 width={500}
                 height={500}
-                className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500"
+                className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               {product.discount_price && (
-                <div className="absolute top-4 right-4 bg-[#e74c3c] text-white px-3 py-1 rounded-full text-sm font-bold">
+                <div className="absolute top-4 right-4 rounded-full bg-[#e74c3c] px-3 py-1 text-sm font-bold text-white">
                   -{discountPercentage}%
                 </div>
               )}
               {!product.in_stock && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <span className="bg-white text-[#2c3e50] px-6 py-3 rounded-xl font-bold">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <span className="rounded-xl bg-white px-6 py-3 font-bold text-[#2c3e50]">
                     Out of Stock
                   </span>
                 </div>
@@ -220,12 +220,12 @@ export default function ProductPage() {
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-[#2c3e50] mb-4">
+              <h1 className="mb-4 text-3xl font-bold text-[#2c3e50] md:text-4xl">
                 {product.name}
               </h1>
 
               {/* Rating */}
-              <div className="flex items-center gap-4 mb-6">
+              <div className="mb-6 flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
                     <Star
@@ -248,7 +248,7 @@ export default function ProductPage() {
               </div>
 
               {/* Price */}
-              <div className="flex items-center gap-4 mb-6">
+              <div className="mb-6 flex items-center gap-4">
                 <span className="text-4xl font-bold text-[#3498db]">
                   ${finalPrice.toFixed(2)}
                 </span>
@@ -260,17 +260,17 @@ export default function ProductPage() {
               </div>
 
               {/* Stock Status */}
-              <div className="flex items-center gap-2 mb-6">
+              <div className="mb-6 flex items-center gap-2">
                 {product.in_stock ? (
                   <>
                     <Check className="text-green-500" size={20} />
-                    <span className="text-green-600 font-medium">
+                    <span className="font-medium text-green-600">
                       In Stock ({product.stock_quantity} available)
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="text-red-500 font-medium">
+                    <span className="font-medium text-red-500">
                       Out of Stock
                     </span>
                   </>
@@ -283,11 +283,11 @@ export default function ProductPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
                   <span className="font-medium text-[#2c3e50]">Quantity:</span>
-                  <div className="flex items-center border border-[#ecf0f1] rounded-lg">
+                  <div className="flex items-center rounded-lg border border-[#ecf0f1]">
                     <button
                       onClick={decrementQuantity}
                       disabled={quantity <= 1}
-                      className="p-2 hover:bg-[#f8f9fa] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 hover:bg-[#f8f9fa] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Minus size={16} />
                     </button>
@@ -295,7 +295,7 @@ export default function ProductPage() {
                     <button
                       onClick={incrementQuantity}
                       disabled={quantity >= product.stock_quantity}
-                      className="p-2 hover:bg-[#f8f9fa] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 hover:bg-[#f8f9fa] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Plus size={16} />
                     </button>
@@ -305,16 +305,16 @@ export default function ProductPage() {
                 <div className="flex gap-4">
                   <button
                     onClick={addToCart}
-                    className="flex-1 bg-[#3498db] hover:bg-[#2980b9] text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition transform hover:scale-105"
+                    className="flex flex-1 transform items-center justify-center gap-2 rounded-xl bg-[#3498db] px-6 py-4 font-bold text-white transition hover:scale-105 hover:bg-[#2980b9]"
                   >
                     <ShoppingCart size={20} />
                     Add to Cart
                   </button>
                   <button
                     onClick={toggleWishlist}
-                    className={`p-4 rounded-xl border-2 transition ${
+                    className={`rounded-xl border-2 p-4 transition ${
                       isWishlisted
-                        ? "bg-[#e74c3c] border-[#e74c3c] text-white"
+                        ? "border-[#e74c3c] bg-[#e74c3c] text-white"
                         : "border-[#ecf0f1] hover:border-[#3498db] hover:text-[#3498db]"
                     }`}
                   >
@@ -322,7 +322,7 @@ export default function ProductPage() {
                   </button>
                   <button
                     onClick={shareProduct}
-                    className="p-4 rounded-xl border-2 border-[#ecf0f1] hover:border-[#3498db] hover:text-[#3498db] transition"
+                    className="rounded-xl border-2 border-[#ecf0f1] p-4 transition hover:border-[#3498db] hover:text-[#3498db]"
                   >
                     <Share2 size={20} />
                   </button>
@@ -331,9 +331,9 @@ export default function ProductPage() {
             )}
 
             {/* Features */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t border-[#ecf0f1]">
+            <div className="grid grid-cols-1 gap-4 border-t border-[#ecf0f1] pt-6 md:grid-cols-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#ecf0f1] rounded-full flex items-center justify-center text-[#3498db]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ecf0f1] text-[#3498db]">
                   <Truck size={20} />
                 </div>
                 <div>
@@ -346,7 +346,7 @@ export default function ProductPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#ecf0f1] rounded-full flex items-center justify-center text-[#3498db]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ecf0f1] text-[#3498db]">
                   <RotateCcw size={20} />
                 </div>
                 <div>
@@ -357,7 +357,7 @@ export default function ProductPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#ecf0f1] rounded-full flex items-center justify-center text-[#3498db]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ecf0f1] text-[#3498db]">
                   <Shield size={20} />
                 </div>
                 <div>
@@ -370,7 +370,7 @@ export default function ProductPage() {
         </div>
 
         {/* Product Tabs */}
-        <div className="bg-white rounded-2xl shadow-md mb-16">
+        <div className="mb-16 rounded-2xl bg-white shadow-md">
           <div className="border-b border-[#ecf0f1]">
             <div className="flex gap-8 px-8">
               {["description", "specifications", "reviews"].map((tab) => (
@@ -379,7 +379,7 @@ export default function ProductPage() {
                   onClick={() => setSelectedTab(tab)}
                   className={`py-4 font-medium capitalize transition ${
                     selectedTab === tab
-                      ? "text-[#3498db] border-b-2 border-[#3498db]"
+                      ? "border-b-2 border-[#3498db] text-[#3498db]"
                       : "text-[#7f8c8d] hover:text-[#2c3e50]"
                   }`}
                 >
@@ -392,30 +392,30 @@ export default function ProductPage() {
           <div className="p-8">
             {selectedTab === "description" && (
               <div className="prose max-w-none">
-                <p className="text-[#2c3e50] leading-relaxed">
+                <p className="leading-relaxed text-[#2c3e50]">
                   {product.description || "No description available."}
                 </p>
               </div>
             )}
 
             {selectedTab === "specifications" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b border-[#ecf0f1]">
+                  <div className="flex justify-between border-b border-[#ecf0f1] py-2">
                     <span className="font-medium text-[#2c3e50]">Category</span>
                     <span className="text-[#7f8c8d]">{product.category}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#ecf0f1]">
+                  <div className="flex justify-between border-b border-[#ecf0f1] py-2">
                     <span className="font-medium text-[#2c3e50]">Brand</span>
                     <span className="text-[#7f8c8d]">TechSupply</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#ecf0f1]">
+                  <div className="flex justify-between border-b border-[#ecf0f1] py-2">
                     <span className="font-medium text-[#2c3e50]">Rating</span>
                     <span className="text-[#7f8c8d]">{product.rating}/5</span>
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b border-[#ecf0f1]">
+                  <div className="flex justify-between border-b border-[#ecf0f1] py-2">
                     <span className="font-medium text-[#2c3e50]">
                       Availability
                     </span>
@@ -427,13 +427,13 @@ export default function ProductPage() {
                       {product.in_stock ? "In Stock" : "Out of Stock"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#ecf0f1]">
+                  <div className="flex justify-between border-b border-[#ecf0f1] py-2">
                     <span className="font-medium text-[#2c3e50]">SKU</span>
                     <span className="text-[#7f8c8d]">
                       {product.id.slice(0, 8)}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#ecf0f1]">
+                  <div className="flex justify-between border-b border-[#ecf0f1] py-2">
                     <span className="font-medium text-[#2c3e50]">Weight</span>
                     <span className="text-[#7f8c8d]">0.5 kg</span>
                   </div>
@@ -444,14 +444,14 @@ export default function ProductPage() {
             {selectedTab === "reviews" && (
               <div>
                 <div>
-                  <h3 className="text-xl font-bold text-[#2c3e50] mb-4">
+                  <h3 className="mb-4 text-xl font-bold text-[#2c3e50]">
                     Customer Reviews
                   </h3>
-                  <button className="bg-[#3498db] text-white px-4 py-2 rounded-lg hover:bg-[#2980b9] transition">
+                  <button className="rounded-lg bg-[#3498db] px-4 py-2 text-white transition hover:bg-[#2980b9]">
                     Write Review
                   </button>
                 </div>
-                <div className="text-center text-[#7f8c8d] py-12">
+                <div className="py-12 text-center text-[#7f8c8d]">
                   <p>No reviews yet. Be the first to review this product!</p>
                 </div>
               </div>
@@ -462,27 +462,27 @@ export default function ProductPage() {
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <section>
-            <h2 className="text-3xl font-bold text-[#2c3e50] mb-8">
+            <h2 className="mb-8 text-3xl font-bold text-[#2c3e50]">
               Related Products
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {relatedProducts.map((relatedProduct) => (
                 <Link
                   key={relatedProduct.id}
                   href={`/product/${relatedProduct.id}`}
                 >
-                  <div className="bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105">
-                    <div className="aspect-square bg-[#f8f9fa] overflow-hidden">
+                  <div className="overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                    <div className="aspect-square overflow-hidden bg-[#f8f9fa]">
                       <Image
                         src={relatedProduct.image_url || "/placeholder.svg"}
                         alt={relatedProduct.name}
                         width={300}
                         height={300}
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover"
                       />
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-[#2c3e50] line-clamp-2 mb-2">
+                      <h3 className="mb-2 line-clamp-2 font-bold text-[#2c3e50]">
                         {relatedProduct.name}
                       </h3>
                       <div className="flex items-center gap-2">

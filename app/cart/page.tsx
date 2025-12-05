@@ -100,10 +100,10 @@ export default function CartPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="pt-28 pb-20 px-4">
-          <div className="max-w-7xl mx-auto animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/3" />
-            <div className="h-64 bg-gray-200 rounded" />
+        <div className="px-4 pt-28 pb-20">
+          <div className="mx-auto max-w-7xl animate-pulse space-y-4">
+            <div className="h-8 w-1/3 rounded bg-gray-200" />
+            <div className="h-64 rounded bg-gray-200" />
           </div>
         </div>
       </div>
@@ -112,37 +112,37 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="pt-28 pb-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-[#2C3E50] mb-8">
+      <div className="px-4 pt-28 pb-20">
+        <div className="mx-auto max-w-7xl">
+          <h1 className="mb-8 text-4xl font-bold text-[#2C3E50]">
             Shopping Cart
           </h1>
-          <p className="text-gray-600 mb-8">
+          <p className="mb-8 text-gray-600">
             {cartItems.length} items in your cart
           </p>
 
           {cartItems.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
               {/* Cart Items */}
               <div className="lg:col-span-2">
-                <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b-2 border-gray-200">
-                          <th className="text-left p-4 font-bold text-[#2C3E50]">
+                          <th className="p-4 text-left font-bold text-[#2C3E50]">
                             Product
                           </th>
-                          <th className="text-center p-4 font-bold text-[#2C3E50]">
+                          <th className="p-4 text-center font-bold text-[#2C3E50]">
                             Price
                           </th>
-                          <th className="text-center p-4 font-bold text-[#2C3E50]">
+                          <th className="p-4 text-center font-bold text-[#2C3E50]">
                             Quantity
                           </th>
-                          <th className="text-center p-4 font-bold text-[#2C3E50]">
+                          <th className="p-4 text-center font-bold text-[#2C3E50]">
                             Total
                           </th>
-                          <th className="text-center p-4 font-bold text-[#2C3E50]">
+                          <th className="p-4 text-center font-bold text-[#2C3E50]">
                             Remove
                           </th>
                         </tr>
@@ -151,17 +151,17 @@ export default function CartPage() {
                         {cartItems.map((item) => (
                           <tr
                             key={item.id}
-                            className="border-b border-gray-100 hover:bg-gray-50 transition"
+                            className="border-b border-gray-100 transition hover:bg-gray-50"
                           >
                             <td className="p-4">
                               <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
+                                <div className="h-16 w-16 overflow-hidden rounded bg-gray-100">
                                   <Image
                                     src={item.image_url || "/placeholder.svg"}
                                     alt={item.name}
                                     width={64}
                                     height={64}
-                                    className="w-full h-full object-cover"
+                                    className="h-full w-full object-cover"
                                   />
                                 </div>
                                 <div>
@@ -171,16 +171,16 @@ export default function CartPage() {
                                 </div>
                               </div>
                             </td>
-                            <td className="text-center p-4">
-                              <span className="text-[#3498DB] font-bold">
+                            <td className="p-4 text-center">
+                              <span className="font-bold text-[#3498DB]">
                                 ${item.price.toFixed(2)}
                               </span>
                             </td>
-                            <td className="text-center p-4">
+                            <td className="p-4 text-center">
                               <div className="flex items-center justify-center gap-2">
                                 <button
                                   onClick={() => updateQuantity(item.id, -1)}
-                                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition text-gray-600"
+                                  className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-600 transition hover:bg-gray-100"
                                 >
                                   <Minus size={14} />
                                 </button>
@@ -189,21 +189,21 @@ export default function CartPage() {
                                 </span>
                                 <button
                                   onClick={() => updateQuantity(item.id, 1)}
-                                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition text-gray-600"
+                                  className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-600 transition hover:bg-gray-100"
                                 >
                                   <Plus size={14} />
                                 </button>
                               </div>
                             </td>
-                            <td className="text-center p-4">
+                            <td className="p-4 text-center">
                               <span className="font-bold text-[#2C3E50]">
                                 ${(item.price * item.quantity).toFixed(2)}
                               </span>
                             </td>
-                            <td className="text-center p-4">
+                            <td className="p-4 text-center">
                               <button
                                 onClick={() => removeItem(item.id)}
-                                className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition"
+                                className="rounded-full p-2 text-red-500 transition hover:bg-red-50 hover:text-red-700"
                               >
                                 <Trash2 size={18} />
                               </button>
@@ -217,7 +217,7 @@ export default function CartPage() {
 
                 <Link
                   href="/products"
-                  className="inline-block mt-6 text-[#3498DB] hover:text-[#2980B9] font-bold"
+                  className="mt-6 inline-block font-bold text-[#3498DB] hover:text-[#2980B9]"
                 >
                   ← Continue Shopping
                 </Link>
@@ -225,12 +225,12 @@ export default function CartPage() {
 
               {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-lg shadow border border-gray-200 p-6 sticky top-32">
-                  <h3 className="text-xl font-bold text-[#2C3E50] mb-4">
+                <div className="sticky top-32 rounded-lg border border-gray-200 bg-white p-6 shadow">
+                  <h3 className="mb-4 text-xl font-bold text-[#2C3E50]">
                     Order Summary
                   </h3>
 
-                  <div className="space-y-2 mb-4">
+                  <div className="mb-4 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal</span>
                       <span className="font-bold text-[#2C3E50]">
@@ -253,7 +253,7 @@ export default function CartPage() {
 
                   <hr className="my-4 border-gray-200" />
 
-                  <div className="flex justify-between mb-6">
+                  <div className="mb-6 flex justify-between">
                     <span className="font-bold text-[#2C3E50]">Total</span>
                     <span className="text-2xl font-bold text-[#3498DB]">
                       ${total.toFixed(2)}
@@ -262,14 +262,14 @@ export default function CartPage() {
 
                   <Link
                     href="/checkout"
-                    className="block w-full bg-[#3498DB] text-white text-center py-3 rounded-lg font-bold hover:bg-[#2980B9] transition mb-4"
+                    className="mb-4 block w-full rounded-lg bg-[#3498DB] py-3 text-center font-bold text-white transition hover:bg-[#2980B9]"
                   >
                     Proceed to Checkout
                   </Link>
 
                   <Link
                     href="/products"
-                    className="block w-full border-2 border-[#2C3E50] text-[#2C3E50] hover:bg-gray-100 py-3 rounded-lg font-bold text-center transition"
+                    className="block w-full rounded-lg border-2 border-[#2C3E50] py-3 text-center font-bold text-[#2C3E50] transition hover:bg-gray-100"
                   >
                     Continue Shopping
                   </Link>
@@ -277,17 +277,17 @@ export default function CartPage() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-16">
-              <div className="text-6xl mb-4">🛒</div>
-              <h2 className="text-2xl font-bold text-[#2C3E50] mb-2">
+            <div className="py-16 text-center">
+              <div className="mb-4 text-6xl">🛒</div>
+              <h2 className="mb-2 text-2xl font-bold text-[#2C3E50]">
                 Your cart is empty
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="mb-6 text-gray-600">
                 Add some products to your cart and come back!
               </p>
               <Link
                 href="/products"
-                className="inline-block bg-[#3498DB] text-white px-8 py-3 rounded-lg hover:bg-[#2980B9] transition font-bold"
+                className="inline-block rounded-lg bg-[#3498DB] px-8 py-3 font-bold text-white transition hover:bg-[#2980B9]"
               >
                 Start Shopping
               </Link>

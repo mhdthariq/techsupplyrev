@@ -22,27 +22,27 @@ export default function SearchPage() {
     : [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="pt-28 pb-20 px-4">
-        <div className="max-w-4xl mx-auto">
+    <div className="bg-background min-h-screen">
+      <div className="px-4 pt-28 pb-20">
+        <div className="mx-auto max-w-4xl">
           {/* Search Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-heading font-bold text-primary-blue mb-4">
+            <h1 className="font-heading text-primary-blue mb-4 text-4xl font-bold">
               Search Results
             </h1>
 
             {/* Search Bar */}
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center bg-white border-2 border-primary-blue rounded-lg px-4">
+              <div className="border-primary-blue flex flex-1 items-center rounded-lg border-2 bg-white px-4">
                 <input
                   type="text"
                   defaultValue={query}
                   placeholder="Search products..."
-                  className="flex-1 py-3 outline-none text-dark-grey"
+                  className="text-dark-grey flex-1 py-3 outline-none"
                 />
                 <Search className="text-neutral-grey" size={20} />
               </div>
-              <button className="bg-accent-blue text-white px-6 py-3 rounded-lg hover:bg-accent-blue/90 transition font-semibold">
+              <button className="bg-accent-blue hover:bg-accent-blue/90 rounded-lg px-6 py-3 font-semibold text-white transition">
                 Search
               </button>
             </div>
@@ -60,21 +60,21 @@ export default function SearchPage() {
                     <Link
                       key={result.id}
                       href={`/product/${result.id}`}
-                      className="bg-white rounded-lg p-6 border-2 border-light-grey hover:border-accent-blue transition flex items-center justify-between"
+                      className="border-light-grey hover:border-accent-blue flex items-center justify-between rounded-lg border-2 bg-white p-6 transition"
                     >
                       <div>
-                        <h3 className="font-heading font-semibold text-primary-blue text-lg mb-1">
+                        <h3 className="font-heading text-primary-blue mb-1 text-lg font-semibold">
                           {result.name}
                         </h3>
-                        <p className="text-sm text-neutral-grey">
+                        <p className="text-neutral-grey text-sm">
                           {result.match}
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-2xl font-bold text-accent-blue">
+                        <span className="text-accent-blue text-2xl font-bold">
                           ${result.price}
                         </span>
-                        <button className="mt-2 bg-accent-blue text-white px-4 py-2 rounded hover:bg-accent-blue/90 transition text-sm font-semibold">
+                        <button className="bg-accent-blue hover:bg-accent-blue/90 mt-2 rounded px-4 py-2 text-sm font-semibold text-white transition">
                           View Product
                         </button>
                       </div>
@@ -83,9 +83,9 @@ export default function SearchPage() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="text-4xl mb-4">🔍</div>
-                <h2 className="text-xl font-heading font-semibold text-dark-grey mb-2">
+              <div className="py-12 text-center">
+                <div className="mb-4 text-4xl">🔍</div>
+                <h2 className="font-heading text-dark-grey mb-2 text-xl font-semibold">
                   No results found
                 </h2>
                 <p className="text-neutral-grey mb-4">
@@ -94,15 +94,15 @@ export default function SearchPage() {
                 </p>
                 <Link
                   href="/products"
-                  className="inline-block bg-accent-blue text-white px-6 py-3 rounded-lg hover:bg-accent-blue/90 transition font-semibold"
+                  className="bg-accent-blue hover:bg-accent-blue/90 inline-block rounded-lg px-6 py-3 font-semibold text-white transition"
                 >
                   Browse All Products
                 </Link>
               </div>
             )
           ) : (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-4">🔍</div>
+            <div className="py-12 text-center">
+              <div className="mb-4 text-4xl">🔍</div>
               <p className="text-neutral-grey">
                 Enter a search term to find products
               </p>

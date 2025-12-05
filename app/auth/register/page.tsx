@@ -83,55 +83,55 @@ function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 p-4">
       {/* Subtle Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-linear-to-br from-blue-200/20 to-indigo-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-linear-to-br from-blue-100/30 to-purple-100/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 h-72 w-72 rounded-full bg-linear-to-br from-blue-200/20 to-indigo-200/20 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-linear-to-br from-blue-100/30 to-purple-100/30 blur-3xl"></div>
       </div>
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="relative z-10 w-full max-w-md">
         {/* Back to Home Button */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-[#3498db] mb-8 transition-colors group font-medium"
+          className="group mb-8 inline-flex items-center gap-2 font-medium text-gray-600 transition-colors hover:text-[#3498db]"
         >
           <ArrowLeft
             size={18}
-            className="group-hover:-translate-x-1 transition-transform"
+            className="transition-transform group-hover:-translate-x-1"
           />
           Back to Home
         </Link>
 
         {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <div className="w-14 h-14 bg-linear-to-br from-[#2c3e50] to-[#3498db] rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+        <div className="mb-10 flex items-center justify-center gap-3">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-[#2c3e50] to-[#3498db] text-xl font-bold text-white shadow-lg">
+            <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10 2 10 2 7.79 2 6 3.79 6 6c0 .35.07.69.18 1H4c-1.11 0-2 .89-2 2v11c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM10 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z" />
             </svg>
           </div>
           <div className="text-center">
             <h1 className="text-2xl font-bold text-[#2c3e50]">TechSupply</h1>
-            <p className="text-gray-500 text-sm">Premium Tech Store</p>
+            <p className="text-sm text-gray-500">Premium Tech Store</p>
           </div>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-200/50">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-[#2C3E50] mb-3">
+        <div className="rounded-3xl border border-gray-200/50 bg-white/95 p-8 shadow-xl backdrop-blur-sm">
+          <div className="mb-10 text-center">
+            <h2 className="mb-3 text-3xl font-bold text-[#2C3E50]">
               Create Account
             </h2>
-            <p className="text-gray-600 text-lg">
+            <p className="text-lg text-gray-600">
               Join thousands of satisfied customers
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8">
-              <p className="text-red-700 text-sm font-medium flex items-center gap-2">
+            <div className="mb-8 rounded-xl border border-red-200 bg-red-50 p-4">
+              <p className="flex items-center gap-2 text-sm font-medium text-red-700">
                 <svg
-                  className="w-4 h-4 text-red-500"
+                  className="h-4 w-4 text-red-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -149,11 +149,11 @@ function RegisterForm() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name Field */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
+              <label className="mb-3 block text-sm font-semibold text-[#2C3E50]">
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                   <User size={20} className="text-gray-400" />
                 </div>
                 <input
@@ -163,18 +163,18 @@ function RegisterForm() {
                   onChange={(e) =>
                     handleInputChange("fullName", e.target.value)
                   }
-                  className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] transition-all text-[#2C3E50] placeholder-gray-400 text-base hover:border-gray-300"
+                  className="w-full rounded-xl border-2 border-gray-200 bg-white py-4 pr-4 pl-12 text-base text-[#2C3E50] placeholder-gray-400 transition-all hover:border-gray-300 focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
+              <label className="mb-3 block text-sm font-semibold text-[#2C3E50]">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                   <Mail size={20} className="text-gray-400" />
                 </div>
                 <input
@@ -182,18 +182,18 @@ function RegisterForm() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] transition-all text-[#2C3E50] placeholder-gray-400 text-base hover:border-gray-300"
+                  className="w-full rounded-xl border-2 border-gray-200 bg-white py-4 pr-4 pl-12 text-base text-[#2C3E50] placeholder-gray-400 transition-all hover:border-gray-300 focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
+              <label className="mb-3 block text-sm font-semibold text-[#2C3E50]">
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                   <Lock size={20} className="text-gray-400" />
                 </div>
                 <input
@@ -203,12 +203,12 @@ function RegisterForm() {
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
-                  className="w-full pl-12 pr-12 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] transition-all text-[#2C3E50] placeholder-gray-400 text-base hover:border-gray-300"
+                  className="w-full rounded-xl border-2 border-gray-200 bg-white py-4 pr-12 pl-12 text-base text-[#2C3E50] placeholder-gray-400 transition-all hover:border-gray-300 focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#3498db] transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 transition-colors hover:text-[#3498db]"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -217,11 +217,11 @@ function RegisterForm() {
 
             {/* Confirm Password Field */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C3E50] mb-3">
+              <label className="mb-3 block text-sm font-semibold text-[#2C3E50]">
                 Confirm Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                   <Lock size={20} className="text-gray-400" />
                 </div>
                 <input
@@ -231,12 +231,12 @@ function RegisterForm() {
                   onChange={(e) =>
                     handleInputChange("confirmPassword", e.target.value)
                   }
-                  className="w-full pl-12 pr-12 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3498db]/20 focus:border-[#3498db] transition-all text-[#2C3E50] placeholder-gray-400 text-base hover:border-gray-300"
+                  className="w-full rounded-xl border-2 border-gray-200 bg-white py-4 pr-12 pl-12 text-base text-[#2C3E50] placeholder-gray-400 transition-all hover:border-gray-300 focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#3498db] transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 transition-colors hover:text-[#3498db]"
                 >
                   {showConfirmPassword ? (
                     <EyeOff size={20} />
@@ -251,11 +251,11 @@ function RegisterForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-linear-to-r from-[#3498db] to-[#2980b9] hover:from-[#2980b9] hover:to-[#1f4e79] disabled:from-gray-400 disabled:to-gray-500 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 transform disabled:hover:translate-y-0 disabled:cursor-not-allowed mt-8"
+              className="mt-8 w-full transform rounded-xl bg-linear-to-r from-[#3498db] to-[#2980b9] py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-[#2980b9] hover:to-[#1f4e79] hover:shadow-xl disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-500 disabled:hover:translate-y-0"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-3">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                   Creating Account...
                 </div>
               ) : (
@@ -265,12 +265,12 @@ function RegisterForm() {
           </form>
 
           {/* Sign In Link */}
-          <div className="text-center mt-8 pt-8 border-t border-gray-100">
+          <div className="mt-8 border-t border-gray-100 pt-8 text-center">
             <p className="text-gray-600">
               Already have an account?{" "}
               <Link
                 href="/auth/login"
-                className="text-[#3498db] hover:text-[#2980b9] font-semibold transition-colors hover:underline"
+                className="font-semibold text-[#3498db] transition-colors hover:text-[#2980b9] hover:underline"
               >
                 Sign in here
               </Link>
@@ -279,7 +279,7 @@ function RegisterForm() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8 text-gray-400 text-sm">
+        <div className="mt-8 text-center text-sm text-gray-400">
           <p>© 2024 TechSupply. All rights reserved.</p>
         </div>
       </div>
@@ -291,7 +291,7 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50">
           <div className="text-gray-600">Loading...</div>
         </div>
       }

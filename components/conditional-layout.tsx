@@ -10,8 +10,9 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
 
   // Routes that should not have header and footer
   const isAuthRoute = pathname?.startsWith("/auth");
+  const isAdminRoute = pathname?.startsWith("/admin");
   const isCheckoutRoute = pathname?.startsWith("/checkout");
-  const shouldHideNavigation = isAuthRoute || isCheckoutRoute;
+  const shouldHideNavigation = isAuthRoute || isCheckoutRoute || isAdminRoute;
 
   return (
     <>

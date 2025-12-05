@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import {
   User,
   Package,
@@ -18,6 +19,8 @@ import {
   Mail,
   ShoppingBag,
   Trash2,
+  Heart,
+  ShoppingCart,
 } from "lucide-react";
 
 import { getCurrentUser, signOut, updatePassword } from "@/lib/auth";
@@ -38,10 +41,44 @@ import type {
   CreateReviewData,
 } from "@/lib/types";
 
-export default function AccountPage() {
+interface WishlistProduct {
+  id: string;
+  name: string;
+  price: number;
+  image_url: string;
+  in_stock: boolean;
+}
+
+// Mock data for wishlist
+const mockWishlist: WishlistProduct[] = [
+  {
+    id: "1",
+    name: "Wireless Noise-Canceling Headphones",
+    price: 299.99,
+    image_url: "/placeholder.svg",
+    in_stock: true,
+  },
+  {
+    id: "2",
+    name: "Mechanical Gaming Keyboard",
+    price: 159.99,
+    image_url: "/placeholder.svg",
+    in_stock: true,
+  },
+  {
+    id: "3",
+    name: "Ultra-Wide Monitor 34",
+    price: 499.99,
+    image_url: "/placeholder.svg",
+    in_stock: false,
+  },
+];
+
+function AccountContent() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistProduct[]>(mockWishlist);
   const [reviewableProducts, setReviewableProducts] = useState<
     Array<{
       product_id: string;
@@ -56,9 +93,33 @@ export default function AccountPage() {
       order: { id: string; status: string; created_at: string };
     }>
   >([]);
+
+  const searchParams = useSearchParams();
+  const initialTab =
+    (searchParams.get("tab") as
+      | "profile"
+      | "orders"
+      | "reviews"
+      | "wishlist"
+      | "settings") || "profile";
+
   const [activeTab, setActiveTab] = useState<
-    "profile" | "orders" | "reviews" | "settings"
-  >("profile");
+    "profile" | "orders" | "reviews" | "wishlist" | "settings"
+  >(initialTab);
+
+  // Update active tab when URL changes
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (
+      tab &&
+      ["profile", "orders", "reviews", "wishlist", "settings"].includes(tab)
+    ) {
+      setActiveTab(
+        tab as "profile" | "orders" | "reviews" | "wishlist" | "settings",
+      );
+    }
+  }, [searchParams]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -336,9 +397,9 @@ export default function AccountPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#3498DB] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[#3498DB] border-t-transparent"></div>
           <p className="text-gray-600">Loading your account...</p>
         </div>
       </div>
@@ -347,10 +408,10 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="pt-28 pb-20 px-4">
-        <div className="max-w-6xl mx-auto">
+      <div className="px-4 pt-28 pb-20">
+        <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-[#2C3E50] mb-2">
+            <h1 className="mb-2 text-4xl font-bold text-[#2C3E50]">
               My Account
             </h1>
             <p className="text-gray-600">
@@ -358,46 +419,71 @@ export default function AccountPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
             {/* Sidebar Menu */}
             <aside className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-24">
+              <div className="sticky top-24 overflow-hidden rounded-lg bg-white shadow-sm">
                 <nav className="flex flex-col">
                   <button
-                    onClick={() => setActiveTab("profile")}
-                    className={`px-6 py-4 text-left font-semibold flex items-center gap-3 transition-colors ${
+                    onClick={() => {
+                      setActiveTab("profile");
+                      router.push("/account?tab=profile", { scroll: false });
+                    }}
+                    className={`flex items-center gap-3 px-6 py-4 text-left font-semibold transition-colors ${
                       activeTab === "profile"
-                        ? "bg-[#3498DB] text-white border-l-4 border-[#2980B9]"
+                        ? "border-l-4 border-[#2980B9] bg-[#3498DB] text-white"
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
                     <User size={20} /> Profile
                   </button>
                   <button
-                    onClick={() => setActiveTab("orders")}
-                    className={`px-6 py-4 text-left font-semibold flex items-center gap-3 transition-colors ${
+                    onClick={() => {
+                      setActiveTab("orders");
+                      router.push("/account?tab=orders", { scroll: false });
+                    }}
+                    className={`flex items-center gap-3 px-6 py-4 text-left font-semibold transition-colors ${
                       activeTab === "orders"
-                        ? "bg-[#3498DB] text-white border-l-4 border-[#2980B9]"
+                        ? "border-l-4 border-[#2980B9] bg-[#3498DB] text-white"
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
                     <Package size={20} /> Orders ({orders.length})
                   </button>
                   <button
-                    onClick={() => setActiveTab("reviews")}
-                    className={`px-6 py-4 text-left font-semibold flex items-center gap-3 transition-colors ${
+                    onClick={() => {
+                      setActiveTab("reviews");
+                      router.push("/account?tab=reviews", { scroll: false });
+                    }}
+                    className={`flex items-center gap-3 px-6 py-4 text-left font-semibold transition-colors ${
                       activeTab === "reviews"
-                        ? "bg-[#3498DB] text-white border-l-4 border-[#2980B9]"
+                        ? "border-l-4 border-[#2980B9] bg-[#3498DB] text-white"
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
                     <MessageSquare size={20} /> Reviews ({reviews.length})
                   </button>
                   <button
-                    onClick={() => setActiveTab("settings")}
-                    className={`px-6 py-4 text-left font-semibold flex items-center gap-3 transition-colors ${
+                    onClick={() => {
+                      setActiveTab("wishlist");
+                      router.push("/account?tab=wishlist", { scroll: false });
+                    }}
+                    className={`flex items-center gap-3 px-6 py-4 text-left font-semibold transition-colors ${
+                      activeTab === "wishlist"
+                        ? "border-l-4 border-[#2980B9] bg-[#3498DB] text-white"
+                        : "text-[#2C3E50] hover:bg-gray-50"
+                    }`}
+                  >
+                    <Heart size={20} /> Wishlist ({wishlist.length})
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab("settings");
+                      router.push("/account?tab=settings", { scroll: false });
+                    }}
+                    className={`flex items-center gap-3 px-6 py-4 text-left font-semibold transition-colors ${
                       activeTab === "settings"
-                        ? "bg-[#3498DB] text-white border-l-4 border-[#2980B9]"
+                        ? "border-l-4 border-[#2980B9] bg-[#3498DB] text-white"
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
@@ -405,7 +491,7 @@ export default function AccountPage() {
                   </button>
                   <button
                     onClick={handleSignOut}
-                    className="px-6 py-4 text-left font-semibold flex items-center gap-3 text-red-600 hover:bg-red-50 transition-colors border-t border-gray-200"
+                    className="flex items-center gap-3 border-t border-gray-200 px-6 py-4 text-left font-semibold text-red-600 transition-colors hover:bg-red-50"
                   >
                     <LogOut size={20} /> Sign Out
                   </button>
@@ -417,37 +503,37 @@ export default function AccountPage() {
             <div className="lg:col-span-3">
               {/* Profile Tab */}
               {activeTab === "profile" && (
-                <div className="bg-white rounded-lg shadow-sm p-8">
-                  <div className="flex justify-between items-center mb-6">
+                <div className="rounded-lg bg-white p-8 shadow-sm">
+                  <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-[#2C3E50]">
                       Profile Information
                     </h2>
                     <button
                       onClick={() => setIsEditingProfile(!isEditingProfile)}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#3498DB] text-white rounded-lg hover:bg-[#2980B9] transition-colors"
+                      className="flex items-center gap-2 rounded-lg bg-[#3498DB] px-4 py-2 text-white transition-colors hover:bg-[#2980B9]"
                     >
                       {isEditingProfile ? <X size={18} /> : <Edit size={18} />}
                       {isEditingProfile ? "Cancel" : "Edit"}
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                        <Mail size={16} className="inline mr-2" />
+                      <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
+                        <Mail size={16} className="mr-2 inline" />
                         Email
                       </label>
                       <input
                         type="email"
                         value={user?.email || ""}
                         disabled
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 text-gray-600"
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-gray-600"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                        <User size={16} className="inline mr-2" />
+                      <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
+                        <User size={16} className="mr-2 inline" />
                         Full Name
                       </label>
                       <input
@@ -461,13 +547,13 @@ export default function AccountPage() {
                         }
                         disabled={!isEditingProfile}
                         placeholder="Enter your full name"
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB] disabled:bg-gray-50"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none disabled:bg-gray-50"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                        <Phone size={16} className="inline mr-2" />
+                      <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
+                        <Phone size={16} className="mr-2 inline" />
                         Phone
                       </label>
                       <input
@@ -480,13 +566,13 @@ export default function AccountPage() {
                           })
                         }
                         disabled={!isEditingProfile}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB] disabled:bg-gray-50"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none disabled:bg-gray-50"
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
-                        <MapPin size={16} className="inline mr-2" />
+                      <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
+                        <MapPin size={16} className="mr-2 inline" />
                         Address
                       </label>
                       <input
@@ -499,12 +585,12 @@ export default function AccountPage() {
                           })
                         }
                         disabled={!isEditingProfile}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB] disabled:bg-gray-50"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none disabled:bg-gray-50"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                      <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         City
                       </label>
                       <input
@@ -517,12 +603,12 @@ export default function AccountPage() {
                           })
                         }
                         disabled={!isEditingProfile}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB] disabled:bg-gray-50"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none disabled:bg-gray-50"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                      <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         Postal Code
                       </label>
                       <input
@@ -535,12 +621,12 @@ export default function AccountPage() {
                           })
                         }
                         disabled={!isEditingProfile}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB] disabled:bg-gray-50"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none disabled:bg-gray-50"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                      <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         Country
                       </label>
                       <input
@@ -553,7 +639,7 @@ export default function AccountPage() {
                           })
                         }
                         disabled={!isEditingProfile}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB] disabled:bg-gray-50"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none disabled:bg-gray-50"
                       />
                     </div>
                   </div>
@@ -561,7 +647,7 @@ export default function AccountPage() {
                   {isEditingProfile && (
                     <button
                       onClick={handleProfileUpdate}
-                      className="mt-6 flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                      className="mt-6 flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-green-700"
                     >
                       <Save size={18} />
                       Save Changes
@@ -572,24 +658,24 @@ export default function AccountPage() {
 
               {/* Orders Tab */}
               {activeTab === "orders" && (
-                <div className="bg-white rounded-lg shadow-sm p-8">
-                  <h2 className="text-2xl font-bold text-[#2C3E50] mb-6">
+                <div className="rounded-lg bg-white p-8 shadow-sm">
+                  <h2 className="mb-6 text-2xl font-bold text-[#2C3E50]">
                     Order History
                   </h2>
 
                   {orders.length === 0 ? (
-                    <div className="text-center py-12">
+                    <div className="py-12 text-center">
                       <ShoppingBag
                         size={48}
-                        className="mx-auto text-gray-400 mb-4"
+                        className="mx-auto mb-4 text-gray-400"
                       />
-                      <p className="text-gray-600 text-lg">No orders yet</p>
-                      <p className="text-gray-500 mb-6">
+                      <p className="text-lg text-gray-600">No orders yet</p>
+                      <p className="mb-6 text-gray-500">
                         Start shopping to see your orders here
                       </p>
                       <button
                         onClick={() => router.push("/products")}
-                        className="bg-[#3498DB] text-white px-6 py-3 rounded-lg hover:bg-[#2980B9] transition-colors"
+                        className="rounded-lg bg-[#3498DB] px-6 py-3 text-white transition-colors hover:bg-[#2980B9]"
                       >
                         Browse Products
                       </button>
@@ -599,14 +685,14 @@ export default function AccountPage() {
                       {orders.map((order) => (
                         <div
                           key={order.id}
-                          className="border border-gray-200 rounded-lg p-6 hover:border-[#3498DB] transition-colors"
+                          className="rounded-lg border border-gray-200 p-6 transition-colors hover:border-[#3498DB]"
                         >
-                          <div className="flex justify-between items-start mb-4">
+                          <div className="mb-4 flex items-start justify-between">
                             <div>
-                              <h3 className="font-bold text-[#2C3E50] text-lg">
+                              <h3 className="text-lg font-bold text-[#2C3E50]">
                                 Order #{order.id.slice(-8)}
                               </h3>
-                              <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                              <div className="mt-1 flex items-center gap-4 text-sm text-gray-600">
                                 <span className="flex items-center gap-1">
                                   <Calendar size={14} />
                                   {formatDate(order.created_at)}
@@ -619,11 +705,11 @@ export default function AccountPage() {
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-xl text-[#2C3E50]">
+                              <p className="text-xl font-bold text-[#2C3E50]">
                                 ${order.total_amount.toFixed(2)}
                               </p>
                               <span
-                                className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
+                                className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(order.status)}`}
                               >
                                 {order.status.charAt(0).toUpperCase() +
                                   order.status.slice(1)}
@@ -638,7 +724,7 @@ export default function AccountPage() {
                                 {order.order_items.map((item) => (
                                   <div
                                     key={item.id}
-                                    className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
+                                    className="flex items-center gap-4 rounded-lg bg-gray-50 p-3"
                                   >
                                     {item.product && (
                                       <>
@@ -646,13 +732,13 @@ export default function AccountPage() {
                                         <img
                                           src={item.product.image_url}
                                           alt={item.product.name}
-                                          className="w-16 h-16 object-cover rounded-lg"
+                                          className="h-16 w-16 rounded-lg object-cover"
                                         />
                                         <div className="flex-1">
                                           <h4 className="font-semibold text-[#2C3E50]">
                                             {item.product.name}
                                           </h4>
-                                          <div className="flex justify-between items-center mt-1">
+                                          <div className="mt-1 flex items-center justify-between">
                                             <span className="text-gray-600">
                                               Qty: {item.quantity}
                                             </span>
@@ -674,7 +760,7 @@ export default function AccountPage() {
                                               });
                                               setShowReviewModal(true);
                                             }}
-                                            className="bg-[#3498DB] text-white px-4 py-2 rounded-lg hover:bg-[#2980B9] transition-colors text-sm font-medium"
+                                            className="rounded-lg bg-[#3498DB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2980B9]"
                                           >
                                             Write Review
                                           </button>
@@ -694,13 +780,13 @@ export default function AccountPage() {
 
               {/* Reviews Tab */}
               {activeTab === "reviews" && (
-                <div className="bg-white rounded-lg shadow-sm p-8">
-                  <div className="flex justify-between items-center mb-6">
+                <div className="rounded-lg bg-white p-8 shadow-sm">
+                  <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-[#2C3E50]">
                       My Reviews
                     </h2>
                     {reviewableProducts.length > 0 && (
-                      <span className="bg-[#3498DB] text-white px-3 py-1 rounded-full text-sm">
+                      <span className="rounded-full bg-[#3498DB] px-3 py-1 text-sm text-white">
                         {reviewableProducts.length} products awaiting review
                       </span>
                     )}
@@ -709,24 +795,24 @@ export default function AccountPage() {
                   {/* Reviewable Products */}
                   {reviewableProducts.length > 0 && (
                     <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-[#2C3E50] mb-4">
+                      <h3 className="mb-4 text-lg font-semibold text-[#2C3E50]">
                         Products You Can Review
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {reviewableProducts.slice(0, 4).map((item) => (
                           <div
                             key={`${item.order_id}-${item.product_id}`}
-                            className="border border-gray-200 rounded-lg p-4"
+                            className="rounded-lg border border-gray-200 p-4"
                           >
-                            <div className="flex items-center gap-3 mb-3">
+                            <div className="mb-3 flex items-center gap-3">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={item.product?.image_url}
                                 alt={item.product?.name}
-                                className="w-12 h-12 object-cover rounded-lg"
+                                className="h-12 w-12 rounded-lg object-cover"
                               />
                               <div className="flex-1">
-                                <h4 className="font-semibold text-sm text-[#2C3E50]">
+                                <h4 className="text-sm font-semibold text-[#2C3E50]">
                                   {item.product?.name}
                                 </h4>
                                 <p className="text-xs text-gray-600">
@@ -739,7 +825,7 @@ export default function AccountPage() {
                                 setSelectedProduct(item);
                                 setShowReviewModal(true);
                               }}
-                              className="w-full bg-[#3498DB] text-white py-2 rounded-lg hover:bg-[#2980B9] transition-colors text-sm font-medium"
+                              className="w-full rounded-lg bg-[#3498DB] py-2 text-sm font-medium text-white transition-colors hover:bg-[#2980B9]"
                             >
                               Write Review
                             </button>
@@ -751,12 +837,12 @@ export default function AccountPage() {
 
                   {/* Existing Reviews */}
                   {reviews.length === 0 ? (
-                    <div className="text-center py-12">
+                    <div className="py-12 text-center">
                       <MessageSquare
                         size={48}
-                        className="mx-auto text-gray-400 mb-4"
+                        className="mx-auto mb-4 text-gray-400"
                       />
-                      <p className="text-gray-600 text-lg">No reviews yet</p>
+                      <p className="text-lg text-gray-600">No reviews yet</p>
                       <p className="text-gray-500">
                         Purchase products to leave reviews
                       </p>
@@ -769,9 +855,9 @@ export default function AccountPage() {
                       {reviews.map((review) => (
                         <div
                           key={review.id}
-                          className="border border-gray-200 rounded-lg p-6"
+                          className="rounded-lg border border-gray-200 p-6"
                         >
-                          <div className="flex justify-between items-start mb-4">
+                          <div className="mb-4 flex items-start justify-between">
                             <div className="flex items-center gap-4">
                               {review.product && (
                                 <>
@@ -779,13 +865,13 @@ export default function AccountPage() {
                                   <img
                                     src={review.product.image_url}
                                     alt={review.product.name}
-                                    className="w-16 h-16 object-cover rounded-lg"
+                                    className="h-16 w-16 rounded-lg object-cover"
                                   />
                                   <div>
                                     <h4 className="font-semibold text-[#2C3E50]">
                                       {review.product.name}
                                     </h4>
-                                    <div className="flex items-center gap-2 mt-1">
+                                    <div className="mt-1 flex items-center gap-2">
                                       <div className="flex">
                                         {[...Array(5)].map((_, i) => (
                                           <Star
@@ -800,7 +886,7 @@ export default function AccountPage() {
                                         ))}
                                       </div>
                                       {review.verified_purchase && (
-                                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                                        <span className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
                                           Verified Purchase
                                         </span>
                                       )}
@@ -812,7 +898,7 @@ export default function AccountPage() {
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleDeleteReview(review.id)}
-                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
                                 title="Delete review"
                               >
                                 <Trash2 size={16} />
@@ -820,10 +906,10 @@ export default function AccountPage() {
                             </div>
                           </div>
                           <div>
-                            <h5 className="font-semibold text-[#2C3E50] mb-2">
+                            <h5 className="mb-2 font-semibold text-[#2C3E50]">
                               {review.title}
                             </h5>
-                            <p className="text-gray-700 mb-3">
+                            <p className="mb-3 text-gray-700">
                               {review.comment}
                             </p>
                             <p className="text-sm text-gray-500">
@@ -837,33 +923,118 @@ export default function AccountPage() {
                 </div>
               )}
 
+              {/* Wishlist Tab */}
+              {activeTab === "wishlist" && (
+                <div className="rounded-lg bg-white p-8 shadow-sm">
+                  <h2 className="mb-6 text-2xl font-bold text-[#2C3E50]">
+                    My Wishlist
+                  </h2>
+
+                  {wishlist.length === 0 ? (
+                    <div className="py-12 text-center">
+                      <Heart size={48} className="mx-auto mb-4 text-gray-400" />
+                      <p className="text-lg text-gray-600">
+                        Your wishlist is empty
+                      </p>
+                      <p className="mb-6 text-gray-500">
+                        Save items you love to buy later
+                      </p>
+                      <button
+                        onClick={() => router.push("/products")}
+                        className="rounded-lg bg-[#3498DB] px-6 py-3 text-white transition-colors hover:bg-[#2980B9]"
+                      >
+                        Browse Products
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {wishlist.map((item) => (
+                        <div
+                          key={item.id}
+                          className="group overflow-hidden rounded-lg border border-gray-200 transition-shadow hover:shadow-md"
+                        >
+                          <div className="relative aspect-square bg-gray-100">
+                            <Image
+                              src={item.image_url}
+                              alt={item.name}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                            <button
+                              onClick={() => {
+                                setWishlist(
+                                  wishlist.filter((w) => w.id !== item.id),
+                                );
+                                toast({
+                                  title: "Removed from Wishlist",
+                                  description: `${item.name} has been removed`,
+                                });
+                              }}
+                              className="absolute top-3 right-3 rounded-full bg-white/80 p-2 text-red-500 backdrop-blur-sm transition-colors hover:bg-white"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="mb-1 line-clamp-1 font-semibold text-[#2C3E50]">
+                              {item.name}
+                            </h3>
+                            <div className="mb-4 flex items-center justify-between">
+                              <span className="font-bold text-[#3498DB]">
+                                ${item.price.toFixed(2)}
+                              </span>
+                              <span
+                                className={`rounded px-2 py-0.5 text-xs font-medium ${
+                                  item.in_stock
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                {item.in_stock ? "In Stock" : "Out of Stock"}
+                              </span>
+                            </div>
+                            <button
+                              disabled={!item.in_stock}
+                              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#2C3E50] py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#34495E] disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <ShoppingCart size={16} />
+                              Add to Cart
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Settings Tab */}
               {activeTab === "settings" && (
-                <div className="bg-white rounded-lg shadow-sm p-8">
-                  <h2 className="text-2xl font-bold text-[#2C3E50] mb-6">
+                <div className="rounded-lg bg-white p-8 shadow-sm">
+                  <h2 className="mb-6 text-2xl font-bold text-[#2C3E50]">
                     Account Settings
                   </h2>
 
                   <div className="space-y-6">
-                    <div className="border border-gray-200 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-[#2C3E50] mb-3">
+                    <div className="rounded-lg border border-gray-200 p-6">
+                      <h3 className="mb-3 text-lg font-semibold text-[#2C3E50]">
                         Password
                       </h3>
-                      <p className="text-gray-600 mb-4">
+                      <p className="mb-4 text-gray-600">
                         Update your password to keep your account secure
                       </p>
 
                       {!showPasswordForm ? (
                         <button
                           onClick={() => setShowPasswordForm(true)}
-                          className="bg-[#3498DB] text-white px-4 py-2 rounded-lg hover:bg-[#2980B9] transition-colors"
+                          className="rounded-lg bg-[#3498DB] px-4 py-2 text-white transition-colors hover:bg-[#2980B9]"
                         >
                           Change Password
                         </button>
                       ) : (
                         <div className="space-y-4">
                           <div>
-                            <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                            <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                               New Password
                             </label>
                             <input
@@ -875,12 +1046,12 @@ export default function AccountPage() {
                                   newPassword: e.target.value,
                                 })
                               }
-                              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB]"
+                              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none"
                               placeholder="Enter new password"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                            <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                               Confirm Password
                             </label>
                             <input
@@ -892,14 +1063,14 @@ export default function AccountPage() {
                                   confirmPassword: e.target.value,
                                 })
                               }
-                              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB]"
+                              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none"
                               placeholder="Confirm new password"
                             />
                           </div>
                           <div className="flex gap-3">
                             <button
                               onClick={handlePasswordUpdate}
-                              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                              className="rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
                             >
                               Update Password
                             </button>
@@ -911,7 +1082,7 @@ export default function AccountPage() {
                                   confirmPassword: "",
                                 });
                               }}
-                              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                              className="rounded-lg bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
                             >
                               Cancel
                             </button>
@@ -920,14 +1091,14 @@ export default function AccountPage() {
                       )}
                     </div>
 
-                    <div className="border border-red-200 rounded-lg p-6 bg-red-50">
-                      <h3 className="text-lg font-semibold text-red-800 mb-3">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+                      <h3 className="mb-3 text-lg font-semibold text-red-800">
                         Danger Zone
                       </h3>
-                      <p className="text-red-700 mb-4">
+                      <p className="mb-4 text-red-700">
                         These actions are permanent and cannot be undone
                       </p>
-                      <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                      <button className="rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700">
                         Delete Account
                       </button>
                     </div>
@@ -941,9 +1112,9 @@ export default function AccountPage() {
 
       {/* Review Modal */}
       {showReviewModal && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-6">
+        <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6">
+            <div className="mb-6 flex items-center justify-between">
               <h3 className="text-xl font-bold text-[#2C3E50]">Write Review</h3>
               <button
                 onClick={() => {
@@ -957,12 +1128,12 @@ export default function AccountPage() {
               </button>
             </div>
 
-            <div className="flex items-center gap-3 mb-6">
+            <div className="mb-6 flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={selectedProduct.product?.image_url}
                 alt={selectedProduct.product?.name}
-                className="w-16 h-16 object-cover rounded-lg"
+                className="h-16 w-16 rounded-lg object-cover"
               />
               <div>
                 <h4 className="font-semibold text-[#2C3E50]">
@@ -976,7 +1147,7 @@ export default function AccountPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                   Rating
                 </label>
                 <div className="flex gap-1">
@@ -1002,7 +1173,7 @@ export default function AccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                   Review Title
                 </label>
                 <input
@@ -1011,13 +1182,13 @@ export default function AccountPage() {
                   onChange={(e) =>
                     setReviewForm({ ...reviewForm, title: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB]"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none"
                   placeholder="Summarize your experience"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#2C3E50] mb-2">
+                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                   Comment
                 </label>
                 <textarea
@@ -1025,7 +1196,7 @@ export default function AccountPage() {
                   onChange={(e) =>
                     setReviewForm({ ...reviewForm, comment: e.target.value })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3498DB] h-24 resize-none"
+                  className="h-24 w-full resize-none rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none"
                   placeholder="Tell others about your experience with this product"
                 />
               </div>
@@ -1033,7 +1204,7 @@ export default function AccountPage() {
               <div className="flex gap-3">
                 <button
                   onClick={handleCreateReview}
-                  className="flex-1 bg-[#3498DB] text-white py-3 rounded-lg hover:bg-[#2980B9] transition-colors font-semibold"
+                  className="flex-1 rounded-lg bg-[#3498DB] py-3 font-semibold text-white transition-colors hover:bg-[#2980B9]"
                 >
                   Submit Review
                 </button>
@@ -1043,7 +1214,7 @@ export default function AccountPage() {
                     setSelectedProduct(null);
                     setReviewForm({ rating: 5, title: "", comment: "" });
                   }}
-                  className="px-6 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-colors"
+                  className="rounded-lg bg-gray-500 px-6 py-3 text-white transition-colors hover:bg-gray-600"
                 >
                   Cancel
                 </button>
@@ -1053,5 +1224,22 @@ export default function AccountPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[#3498DB] border-t-transparent"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <AccountContent />
+    </Suspense>
   );
 }

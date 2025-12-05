@@ -7,8 +7,9 @@ This documentation explains the new cart system that intelligently handles both 
 **Before**: Cart items persisted in localStorage even after login, causing confusion where new users would see items they never added.
 
 **After**: Smart cart system that:
+
 - Uses localStorage for guests
-- Transfers guest cart to user account on login  
+- Transfers guest cart to user account on login
 - Starts fresh for new user logins
 - Maintains user cart in database
 
@@ -56,37 +57,49 @@ CREATE TABLE public.cart (
 ### Core Functions
 
 #### `getCartItems(): Promise<CartItem[]>`
+
 Auto-detects user state and returns appropriate cart.
+
 ```typescript
 const cart = await getCartItems(); // Works for both guests and users
 ```
 
 #### `addToCart(productId: string, quantity?: number): Promise<void>`
+
 Adds item to guest localStorage or user database.
+
 ```typescript
 await addToCart("product-123", 2); // Adds 2 items
 ```
 
 #### `removeFromCart(productId: string): Promise<void>`
+
 Removes item from cart.
+
 ```typescript
 await removeFromCart("product-123");
 ```
 
 #### `updateCartItemQuantity(productId: string, quantity: number): Promise<void>`
+
 Updates item quantity.
+
 ```typescript
 await updateCartItemQuantity("product-123", 5);
 ```
 
 #### `clearCart(): Promise<void>`
+
 Clears entire cart (guest or user).
+
 ```typescript
 await clearCart();
 ```
 
 #### `mergeGuestCartWithUserCart(userId: string): Promise<void>`
+
 Merges guest cart with user cart on login.
+
 ```typescript
 // Automatically called on login - no manual call needed
 await mergeGuestCartWithUserCart(user.id);
@@ -95,25 +108,33 @@ await mergeGuestCartWithUserCart(user.id);
 ### Helper Functions
 
 #### `getCartItemCount(): Promise<number>`
+
 Gets total item count (async).
+
 ```typescript
 const count = await getCartItemCount();
 ```
 
 #### `getCartItemCountSync(): number`
+
 Gets guest cart count synchronously (for header).
+
 ```typescript
 const count = getCartItemCountSync(); // For initial header display
 ```
 
 #### `isInCart(productId: string): Promise<boolean>`
+
 Checks if item exists in cart.
+
 ```typescript
 const exists = await isInCart("product-123");
 ```
 
 #### `calculateCartTotal(cartItems: CartItemWithProduct[]): number`
+
 Calculates total cart value.
+
 ```typescript
 const total = calculateCartTotal(cartItemsWithPrices);
 ```
@@ -121,24 +142,26 @@ const total = calculateCartTotal(cartItemsWithPrices);
 ## 🔄 Authentication Integration
 
 ### Login Flow
+
 ```typescript
 // In auth.ts - after successful login
 window.dispatchEvent(new Event("authStateChanged"));
 ```
 
 ### Header Component
+
 ```typescript
 // Listens for auth changes and merges cart
 useEffect(() => {
   const checkUser = async () => {
     const currentUser = await getCurrentUser();
-    
+
     if (currentUser && !previousUser) {
       // User just logged in - merge guest cart
       await mergeGuestCartWithUserCart(currentUser.id);
     }
   };
-  
+
   checkUser();
 }, [user]);
 ```
@@ -166,6 +189,7 @@ useEffect(() => {
 ## 🎨 User Experience
 
 ### Guest User Journey
+
 ```
 1. Browse products → Add to cart → Items stored locally
 2. Continue shopping → Cart persists in localStorage
@@ -174,6 +198,7 @@ useEffect(() => {
 ```
 
 ### Returning User Journey
+
 ```
 1. Login → Cart loads from database
 2. Add items → Saves to database
@@ -182,6 +207,7 @@ useEffect(() => {
 ```
 
 ### New User Experience
+
 ```
 1. Register → Starts with empty cart
 2. Add items → Saves to database
@@ -191,15 +217,16 @@ useEffect(() => {
 ## 🔧 Implementation Examples
 
 ### Product Page Integration
+
 ```typescript
 const ProductPage = () => {
   const [quantity, setQuantity] = useState(1);
-  
+
   const handleAddToCart = async () => {
     await addToCart(product.id, quantity);
     toast({ title: "Added to cart!" });
   };
-  
+
   return (
     <button onClick={handleAddToCart}>
       Add to Cart
@@ -209,19 +236,20 @@ const ProductPage = () => {
 ```
 
 ### Cart Page Integration
+
 ```typescript
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
-  
+
   useEffect(() => {
     const loadCart = async () => {
       const cart = await getCartItems();
       // Fetch product details and set state
     };
-    
+
     loadCart();
   }, []);
-  
+
   const handleUpdateQuantity = async (id: string, quantity: number) => {
     await updateCartItemQuantity(id, quantity);
     // Refresh cart display
@@ -230,19 +258,20 @@ const CartPage = () => {
 ```
 
 ### Header Cart Count
+
 ```typescript
 const Header = () => {
   const [cartCount, setCartCount] = useState(0);
-  
+
   useEffect(() => {
     // Initial load (sync for immediate display)
     setCartCount(getCartItemCountSync());
-    
+
     // Listen for cart updates
     const updateCount = async () => {
       setCartCount(await getCartItemCount());
     };
-    
+
     window.addEventListener("cartUpdated", updateCount);
     return () => window.removeEventListener("cartUpdated", updateCount);
   }, []);
@@ -252,10 +281,12 @@ const Header = () => {
 ## 🚨 Important Events
 
 ### Custom Events Dispatched
+
 - `"cartUpdated"` - When cart changes
 - `"authStateChanged"` - When user logs in/out
 
 ### Event Listeners
+
 ```typescript
 // Listen for cart updates
 window.addEventListener("cartUpdated", () => {
@@ -273,20 +304,24 @@ window.addEventListener("authStateChanged", () => {
 ### Common Issues
 
 **Cart doesn't update after login**
+
 - Verify `authStateChanged` event is fired after login
 - Check `mergeGuestCartWithUserCart` is called
 - Ensure database cart table exists with proper RLS policies
 
 **Guest cart persists after login**
+
 - Verify guest cart is cleared after merge: `clearGuestCart()`
 - Check if merge function completed successfully
 
 **User cart doesn't persist**
+
 - Verify cart table exists and RLS policies are correct
 - Check authentication token is valid
 - Ensure `syncCartToDatabase` function works
 
 **Cart count doesn't update in header**
+
 - Verify `cartUpdated` event is dispatched
 - Check event listeners are properly attached
 - Use `getCartItemCountSync()` for immediate updates

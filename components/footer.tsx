@@ -13,11 +13,11 @@ export function Footer() {
         } as React.CSSProperties
       }
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mb-8 grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Company Info */}
           <div>
-            <h3 className="font-heading font-bold text-white mb-4">
+            <h3 className="font-heading mb-4 font-bold text-white">
               TechSupply Co.
             </h3>
             <p className="text-sm">
@@ -27,7 +27,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-heading font-semibold text-white mb-4">
+            <h4 className="font-heading mb-4 font-semibold text-white">
               Quick Links
             </h4>
             <ul className="space-y-2 text-sm">
@@ -65,7 +65,7 @@ export function Footer() {
 
           {/* Policies */}
           <div>
-            <h4 className="font-heading font-semibold text-white mb-4">
+            <h4 className="font-heading mb-4 font-semibold text-white">
               Policies
             </h4>
             <ul className="space-y-2 text-sm">
@@ -106,7 +106,7 @@ export function Footer() {
 
           {/* Social Media */}
           <div>
-            <h4 className="font-heading font-semibold text-white mb-4">
+            <h4 className="font-heading mb-4 font-semibold text-white">
               Follow Us
             </h4>
             <div className="flex gap-4">
@@ -126,7 +126,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-accent-blue/30 pt-8 text-center text-sm">
+        <div className="border-accent-blue/30 border-t pt-8 text-center text-sm">
           <p>&copy; 2025 TechSupply Co. All rights reserved.</p>
         </div>
       </div>

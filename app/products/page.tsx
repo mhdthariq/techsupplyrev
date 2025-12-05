@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import SearchSuggestions from "@/components/SearchSuggestions";
 
 import { Filter, Star, Search, X, Grid3X3, List } from "lucide-react";
 
@@ -128,9 +129,9 @@ export default function ProductsPage() {
   }, [allProducts, filters, searchQuery]);
 
   const FilterSection = () => (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 h-fit sticky top-32">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="font-semibold text-gray-900 text-lg">Filters</h3>
+    <div className="sticky top-32 h-fit rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
         <button
           onClick={() => {
             setFilters({
@@ -141,7 +142,7 @@ export default function ProductsPage() {
             });
             setSearchQuery("");
           }}
-          className="text-sm text-[#3498db] hover:text-[#2980b9] font-medium"
+          className="text-sm font-medium text-[#3498db] hover:text-[#2980b9]"
         >
           Clear all
         </button>
@@ -150,7 +151,7 @@ export default function ProductsPage() {
       <div className="space-y-6">
         {/* Category Filter */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">Category</h4>
+          <h4 className="mb-3 font-medium text-gray-900">Category</h4>
           <div className="space-y-2">
             {[
               { value: "", label: "All Categories" },
@@ -162,7 +163,7 @@ export default function ProductsPage() {
             ].map((cat) => (
               <label
                 key={cat.value}
-                className="flex items-center gap-3 cursor-pointer group"
+                className="group flex cursor-pointer items-center gap-3"
               >
                 <input
                   type="radio"
@@ -172,9 +173,9 @@ export default function ProductsPage() {
                   onChange={(e) =>
                     setFilters({ ...filters, category: e.target.value })
                   }
-                  className="w-4 h-4 text-[#3498db] border-gray-300 focus:ring-[#3498db]"
+                  className="h-4 w-4 border-gray-300 text-[#3498db] focus:ring-[#3498db]"
                 />
-                <span className="text-sm text-gray-700 group-hover:text-[#3498db] transition-colors">
+                <span className="text-sm text-gray-700 transition-colors group-hover:text-[#3498db]">
                   {cat.label}
                 </span>
               </label>
@@ -184,7 +185,7 @@ export default function ProductsPage() {
 
         {/* Price Filter */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">Price Range</h4>
+          <h4 className="mb-3 font-medium text-gray-900">Price Range</h4>
           <div className="space-y-2">
             {[
               { value: "", label: "Any Price" },
@@ -195,7 +196,7 @@ export default function ProductsPage() {
             ].map((range) => (
               <label
                 key={range.value}
-                className="flex items-center gap-3 cursor-pointer group"
+                className="group flex cursor-pointer items-center gap-3"
               >
                 <input
                   type="radio"
@@ -205,9 +206,9 @@ export default function ProductsPage() {
                   onChange={(e) =>
                     setFilters({ ...filters, priceRange: e.target.value })
                   }
-                  className="w-4 h-4 text-[#3498db] border-gray-300 focus:ring-[#3498db]"
+                  className="h-4 w-4 border-gray-300 text-[#3498db] focus:ring-[#3498db]"
                 />
-                <span className="text-sm text-gray-700 group-hover:text-[#3498db] transition-colors">
+                <span className="text-sm text-gray-700 transition-colors group-hover:text-[#3498db]">
                   {range.label}
                 </span>
               </label>
@@ -217,7 +218,7 @@ export default function ProductsPage() {
 
         {/* Rating Filter */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">Rating</h4>
+          <h4 className="mb-3 font-medium text-gray-900">Rating</h4>
           <div className="space-y-2">
             {[
               { value: 0, label: "Any Rating" },
@@ -226,7 +227,7 @@ export default function ProductsPage() {
             ].map((rating) => (
               <label
                 key={rating.value}
-                className="flex items-center gap-3 cursor-pointer group"
+                className="group flex cursor-pointer items-center gap-3"
               >
                 <input
                   type="radio"
@@ -239,9 +240,9 @@ export default function ProductsPage() {
                       minRating: Number.parseFloat(e.target.value),
                     })
                   }
-                  className="w-4 h-4 text-[#3498db] border-gray-300 focus:ring-[#3498db]"
+                  className="h-4 w-4 border-gray-300 text-[#3498db] focus:ring-[#3498db]"
                 />
-                <span className="text-sm text-gray-700 group-hover:text-[#3498db] transition-colors">
+                <span className="text-sm text-gray-700 transition-colors group-hover:text-[#3498db]">
                   {rating.label}
                 </span>
               </label>
@@ -255,54 +256,35 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Page Header */}
-      <div className="bg-white border-b border-gray-200 pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div className="border-b border-gray-200 bg-white pt-20">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-              <p className="text-gray-600 mt-1">
+              <p className="mt-1 text-gray-600">
                 Discover our premium tech accessories
               </p>
             </div>
 
             {/* Search Bar */}
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-transparent"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  </button>
-                )}
-              </div>
+            <div className="max-w-md flex-1">
+              <SearchSuggestions />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex gap-8">
           {/* Sidebar Filters - Desktop */}
-          <aside className="hidden lg:block w-64 shrink-0">
+          <aside className="hidden w-64 shrink-0 lg:block">
             <FilterSection />
           </aside>
 
           {/* Main Content */}
           <div className="flex-1">
             {/* Results Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
                 <p className="text-sm text-gray-700">
                   <span className="font-medium">{filteredProducts.length}</span>{" "}
@@ -319,10 +301,10 @@ export default function ProductsPage() {
 
               <div className="flex items-center gap-4">
                 {/* View Mode Toggle */}
-                <div className="flex items-center bg-white border border-gray-200 rounded-lg p-1">
+                <div className="flex items-center rounded-lg border border-gray-200 bg-white p-1">
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded transition-colors ${
+                    className={`rounded p-2 transition-colors ${
                       viewMode === "grid"
                         ? "bg-[#3498db] text-white"
                         : "text-gray-500 hover:text-gray-700"
@@ -332,7 +314,7 @@ export default function ProductsPage() {
                   </button>
                   <button
                     onClick={() => setViewMode("list")}
-                    className={`p-2 rounded transition-colors ${
+                    className={`rounded p-2 transition-colors ${
                       viewMode === "list"
                         ? "bg-[#3498db] text-white"
                         : "text-gray-500 hover:text-gray-700"
@@ -348,7 +330,7 @@ export default function ProductsPage() {
                   onChange={(e) =>
                     setFilters({ ...filters, sort: e.target.value })
                   }
-                  className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-transparent"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-[#3498db] focus:outline-none"
                 >
                   <option value="newest">Newest</option>
                   <option value="price-low">Price: Low to High</option>
@@ -359,7 +341,7 @@ export default function ProductsPage() {
                 {/* Mobile Filters Button */}
                 <button
                   onClick={() => setShowMobileFilters(!showMobileFilters)}
-                  className="lg:hidden flex items-center gap-2 bg-[#3498db] text-white px-4 py-2 rounded-lg text-sm font-medium"
+                  className="flex items-center gap-2 rounded-lg bg-[#3498db] px-4 py-2 text-sm font-medium text-white lg:hidden"
                 >
                   <Filter size={16} />
                   Filters
@@ -369,9 +351,9 @@ export default function ProductsPage() {
 
             {/* Mobile Filters */}
             {showMobileFilters && (
-              <div className="lg:hidden mb-6 bg-white rounded-lg border border-gray-200">
+              <div className="mb-6 rounded-lg border border-gray-200 bg-white lg:hidden">
                 <div className="p-4">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="mb-4 flex items-center justify-between">
                     <h3 className="font-medium text-gray-900">Filters</h3>
                     <button
                       onClick={() => setShowMobileFilters(false)}
@@ -397,26 +379,26 @@ export default function ProductsPage() {
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-lg border border-gray-200 animate-pulse"
+                    className="animate-pulse rounded-lg border border-gray-200 bg-white"
                   >
-                    <div className="aspect-square bg-gray-200 rounded-t-lg"></div>
-                    <div className="p-4 space-y-3">
-                      <div className="h-4 bg-gray-200 rounded"></div>
-                      <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                    <div className="aspect-square rounded-t-lg bg-gray-200"></div>
+                    <div className="space-y-3 p-4">
+                      <div className="h-4 rounded bg-gray-200"></div>
+                      <div className="h-3 w-3/4 rounded bg-gray-200"></div>
+                      <div className="h-5 w-1/2 rounded bg-gray-200"></div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                  <Search className="w-8 h-8 text-gray-400" />
+              <div className="py-12 text-center">
+                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+                  <Search className="h-8 w-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="mb-2 text-lg font-medium text-gray-900">
                   No products found
                 </h3>
-                <p className="text-gray-500 mb-4">
+                <p className="mb-4 text-gray-500">
                   Try adjusting your search or filters to find what you&apos;re
                   looking for.
                 </p>
@@ -430,7 +412,7 @@ export default function ProductsPage() {
                       sort: "newest",
                     });
                   }}
-                  className="bg-[#3498db] text-white px-4 py-2 rounded-lg hover:bg-[#2980b9] transition-colors"
+                  className="rounded-lg bg-[#3498db] px-4 py-2 text-white transition-colors hover:bg-[#2980b9]"
                 >
                   Clear all filters
                 </button>
@@ -446,15 +428,15 @@ export default function ProductsPage() {
                 {filteredProducts.map((product) => (
                   <Link key={product.id} href={`/product/${product.id}`}>
                     <div
-                      className={`bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300 group ${
+                      className={`group rounded-lg border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg ${
                         viewMode === "list" ? "flex" : "block"
                       }`}
                     >
                       {/* Image */}
                       <div
-                        className={`relative bg-gray-50 overflow-hidden ${
+                        className={`relative overflow-hidden bg-gray-50 ${
                           viewMode === "list"
-                            ? "w-48 h-48 shrink-0"
+                            ? "h-48 w-48 shrink-0"
                             : "aspect-square"
                         } ${viewMode === "grid" ? "rounded-t-lg" : "rounded-l-lg"}`}
                       >
@@ -463,10 +445,10 @@ export default function ProductsPage() {
                           alt={product.name}
                           width={300}
                           height={300}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {product.discount_price && (
-                          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                          <div className="absolute top-3 right-3 rounded bg-red-500 px-2 py-1 text-xs font-bold text-white">
                             -
                             {Math.round(
                               (1 - product.discount_price / product.price) *
@@ -478,25 +460,25 @@ export default function ProductsPage() {
                       </div>
 
                       {/* Content */}
-                      <div className="p-4 flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-[#3498db] transition-colors">
+                      <div className="flex-1 p-4">
+                        <h3 className="mb-2 font-semibold text-gray-900 transition-colors group-hover:text-[#3498db]">
                           {product.name}
                         </h3>
 
                         {/* Rating */}
-                        <div className="flex items-center gap-1 mb-3">
+                        <div className="mb-3 flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
                               size={14}
                               className={
                                 i < Math.floor(product.rating)
-                                  ? "text-yellow-400 fill-current"
-                                  : "text-gray-200 fill-current"
+                                  ? "fill-current text-yellow-400"
+                                  : "fill-current text-gray-200"
                               }
                             />
                           ))}
-                          <span className="text-sm text-gray-600 ml-1">
+                          <span className="ml-1 text-sm text-gray-600">
                             {product.rating} ({product.reviews_count})
                           </span>
                         </div>

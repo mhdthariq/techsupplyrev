@@ -67,17 +67,17 @@ export default function Carousel({
 
   return (
     <div
-      className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-2xl bg-linear-to-r from-gray-200 to-gray-300"
+      className="relative h-[400px] w-full overflow-hidden rounded-2xl bg-linear-to-r from-gray-200 to-gray-300 md:h-[500px]"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {/* Banner slides */}
       <div
-        className="flex transition-transform duration-500 ease-in-out h-full"
+        className="flex h-full transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {banners.map((banner) => (
-          <div key={banner.id} className="w-full h-full shrink-0 relative">
+          <div key={banner.id} className="relative h-full w-full shrink-0">
             {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -90,20 +90,20 @@ export default function Carousel({
             </div>
 
             {/* Content */}
-            <div className="relative h-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
-              <div className="max-w-4xl mx-auto text-center text-white">
-                <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+            <div className="relative flex h-full items-center justify-center px-4 sm:px-6 lg:px-8">
+              <div className="mx-auto max-w-4xl text-center text-white">
+                <h2 className="mb-4 text-3xl leading-tight font-bold md:text-5xl lg:text-6xl">
                   {banner.title}
                 </h2>
                 {banner.description && (
-                  <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 leading-relaxed">
+                  <p className="mb-8 text-lg leading-relaxed text-white/90 md:text-xl lg:text-2xl">
                     {banner.description}
                   </p>
                 )}
                 {banner.link && (
                   <Link
                     href={banner.link}
-                    className="inline-flex items-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg"
+                    className="inline-flex transform items-center gap-2 rounded-xl bg-white px-8 py-4 font-bold text-gray-900 shadow-lg transition-all hover:scale-105 hover:bg-gray-100"
                   >
                     Shop Now
                   </Link>
@@ -119,14 +119,14 @@ export default function Carousel({
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-200 hover:scale-110 shadow-lg"
+            className="absolute top-1/2 left-4 -translate-y-1/2 rounded-full bg-white/30 p-3 text-white shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-white/50"
             aria-label="Previous banner"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-200 hover:scale-110 shadow-lg"
+            className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full bg-white/30 p-3 text-white shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-white/50"
             aria-label="Next banner"
           >
             <ChevronRight size={24} />
@@ -136,14 +136,14 @@ export default function Carousel({
 
       {/* Dots indicator */}
       {banners.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
+        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 space-x-2">
           {banners.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-200 shadow-md ${
+              className={`h-3 w-3 rounded-full shadow-md transition-all duration-200 ${
                 index === currentIndex
-                  ? "bg-white scale-125"
+                  ? "scale-125 bg-white"
                   : "bg-white/50 hover:bg-white/75"
               }`}
               aria-label={`Go to slide ${index + 1}`}
@@ -156,7 +156,7 @@ export default function Carousel({
       {autoplay && banners.length > 1 && (
         <button
           onClick={() => setIsPlaying(!isPlaying)}
-          className="absolute top-4 right-4 bg-white/30 hover:bg-white/50 backdrop-blur-sm text-white p-2 rounded-full transition-all duration-200 shadow-lg"
+          className="absolute top-4 right-4 rounded-full bg-white/30 p-2 text-white shadow-lg backdrop-blur-sm transition-all duration-200 hover:bg-white/50"
           aria-label={isPlaying ? "Pause autoplay" : "Start autoplay"}
         >
           {isPlaying ? (

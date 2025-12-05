@@ -7,7 +7,14 @@ import { createClient } from "@/lib/supabase/client";
 import { addToCart as addToCartUtil } from "@/lib/cart";
 import Carousel from "@/components/ui/carousel";
 
-import { Star, ShoppingCart, Zap, TrendingUp, Award } from "lucide-react";
+import {
+  Star,
+  ShoppingCart,
+  Zap,
+  TrendingUp,
+  Award,
+  Heart,
+} from "lucide-react";
 
 interface Product {
   id: string;
@@ -97,7 +104,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#f8f9fa]">
       {/* Hero Banner Carousel Section */}
       <section className="pt-32 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {banners.length > 0 ? (
             <Carousel
               banners={banners}
@@ -106,24 +113,24 @@ export default function Home() {
             />
           ) : (
             // Fallback banner if no banners in database
-            <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-2xl bg-linear-to-r from-[#2c3e50] via-[#34495e] to-[#3498db]">
-              <div className="relative h-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto text-center text-white">
-                  <div className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <div className="relative h-[400px] w-full overflow-hidden rounded-2xl bg-linear-to-r from-[#2c3e50] via-[#34495e] to-[#3498db] md:h-[500px]">
+              <div className="relative flex h-full items-center justify-center px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-4xl text-center text-white">
+                  <div className="mb-6 inline-block rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
                     New Collection 2024
                   </div>
-                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+                  <h1 className="mb-4 text-3xl leading-tight font-bold md:text-5xl lg:text-6xl">
                     Premium Tech{" "}
                     <span className="text-[#ffd700]">Accessories</span> for Your
                     Setup
                   </h1>
-                  <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 leading-relaxed">
+                  <p className="mb-8 text-lg leading-relaxed text-white/90 md:text-xl lg:text-2xl">
                     Discover our exclusive collection of high-quality tech
                     accessories. From gaming peripherals to office essentials.
                   </p>
                   <Link
                     href="/products"
-                    className="inline-flex items-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg"
+                    className="inline-flex transform items-center gap-2 rounded-xl bg-white px-8 py-4 font-bold text-gray-900 shadow-lg transition-all hover:scale-105 hover:bg-gray-100"
                   >
                     <Zap size={20} />
                     Shop Now
@@ -136,11 +143,11 @@ export default function Home() {
       </section>
 
       {/* Trust Badges */}
-      <section className="bg-white py-8 border-b border-[#ecf0f1]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="border-b border-[#ecf0f1] bg-white py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#ecf0f1] rounded-full flex items-center justify-center text-[#3498db]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf0f1] text-[#3498db]">
                 <Award size={24} />
               </div>
               <div>
@@ -149,7 +156,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#ecf0f1] rounded-full flex items-center justify-center text-[#3498db]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf0f1] text-[#3498db]">
                 <Zap size={24} />
               </div>
               <div>
@@ -158,7 +165,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#ecf0f1] rounded-full flex items-center justify-center text-[#3498db]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf0f1] text-[#3498db]">
                 <TrendingUp size={24} />
               </div>
               <div>
@@ -169,7 +176,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#ecf0f1] rounded-full flex items-center justify-center text-[#3498db]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf0f1] text-[#3498db]">
                 <Award size={24} />
               </div>
               <div>
@@ -182,48 +189,48 @@ export default function Home() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-12">
+      <section className="px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-12 flex items-center justify-between">
             <div>
-              <h2 className="text-4xl font-bold text-[#2c3e50] mb-2">
+              <h2 className="mb-2 text-4xl font-bold text-[#2c3e50]">
                 Featured Products
               </h2>
               <p className="text-[#7f8c8d]">Handpicked items just for you</p>
             </div>
             <Link
               href="/products"
-              className="text-[#3498db] hover:text-[#2980b9] font-bold text-lg transition-colors"
+              className="text-lg font-bold text-[#3498db] transition-colors hover:text-[#2980b9]"
             >
               View All →
             </Link>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl h-96 animate-pulse shadow-md"
+                  className="h-96 animate-pulse rounded-2xl bg-white shadow-md"
                 />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {products.slice(0, 8).map((product) => (
                 <Link key={product.id} href={`/product/${product.id}`}>
-                  <div className="bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-premium card-hover h-full flex flex-col">
+                  <div className="hover:shadow-premium card-hover flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300">
                     {/* Image Container */}
-                    <div className="relative aspect-square bg-[#f8f9fa] overflow-hidden group">
+                    <div className="group relative aspect-square overflow-hidden bg-[#f8f9fa]">
                       <Image
                         src={product.image_url || "/placeholder.svg"}
                         alt={product.name}
                         width={300}
                         height={300}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       {product.discount_price && (
-                        <div className="absolute top-4 right-4 badge-sale">
+                        <div className="badge-sale absolute top-4 left-4 z-10">
                           -
                           {Math.round(
                             (1 - product.discount_price / product.price) * 100,
@@ -231,14 +238,25 @@ export default function Home() {
                           %
                         </div>
                       )}
-                      <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // TODO: Implement wishlist functionality
+                          console.log("Add to wishlist", product.id);
+                        }}
+                        className="absolute top-4 right-4 z-10 translate-y-[-10px] transform rounded-full bg-white/80 p-2 text-gray-600 opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-white hover:text-red-500"
+                      >
+                        <Heart size={20} />
+                      </button>
+                      <div className="absolute right-4 bottom-4 left-4 translate-y-[10px] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             addToCart(product);
                           }}
-                          className="w-full bg-[#3498db] hover:bg-[#2980b9] text-white py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition"
+                          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3498db] py-2 font-bold text-white transition hover:bg-[#2980b9]"
                         >
                           <ShoppingCart size={18} />
                           Add to Cart
@@ -247,13 +265,13 @@ export default function Home() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-5 grow flex flex-col">
-                      <h3 className="font-bold text-[#2c3e50] line-clamp-2 mb-3 text-sm h-10">
+                    <div className="flex grow flex-col p-5">
+                      <h3 className="mb-3 line-clamp-2 h-10 text-sm font-bold text-[#2c3e50]">
                         {product.name}
                       </h3>
 
                       {/* Rating */}
-                      <div className="flex items-center gap-2 mb-4">
+                      <div className="mb-4 flex items-center gap-2">
                         <div className="flex gap-0.5">
                           {[...Array(5)].map((_, i) => (
                             <Star
@@ -276,7 +294,7 @@ export default function Home() {
                       </div>
 
                       {/* Price */}
-                      <div className="flex items-center gap-3 flex-wrap">
+                      <div className="flex flex-wrap items-center gap-3">
                         {product.discount_price ? (
                           <>
                             <span className="text-2xl font-bold text-[#3498db]">

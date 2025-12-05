@@ -5,30 +5,35 @@ Welcome to the TechSupply E-Commerce platform documentation. This project is a m
 ## 📚 Documentation Index
 
 ### Setup & Configuration
+
 - **[Account System Setup](./ACCOUNT_SETUP.md)** - Complete user account management setup
 - **[Cart System Guide](./CART_SYSTEM.md)** - User-aware shopping cart implementation
 
 ### Key Features
 
 #### 🛒 **Shopping Cart System**
+
 - Guest cart (localStorage) for unauthenticated users
 - Database cart for authenticated users
 - Automatic cart migration on login/register
 - Cross-device synchronization for logged-in users
 
 #### 👤 **User Management**
+
 - Email-based authentication (Google OAuth removed)
 - User profiles with personal information management
 - Password management and security
 - Real-time authentication state handling
 
 #### 📦 **Order Management**
+
 - Complete order history tracking
 - Order status management (pending → delivered)
 - Product details in order history
 - Order-based review system
 
 #### ⭐ **Product Review System**
+
 - Write reviews for purchased products
 - 5-star rating system with comments
 - Verified purchase badges
@@ -38,12 +43,14 @@ Welcome to the TechSupply E-Commerce platform documentation. This project is a m
 ## 🏗️ Technical Architecture
 
 ### Frontend Stack
+
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first styling
 - **Lucide React** - Icon library
 
 ### Backend Stack
+
 - **Supabase** - Backend-as-a-Service
   - PostgreSQL database
   - Authentication
@@ -53,6 +60,7 @@ Welcome to the TechSupply E-Commerce platform documentation. This project is a m
 ### Database Schema
 
 #### Core Tables
+
 - `auth.users` - User authentication (Supabase managed)
 - `public.profiles` - User profile information
 - `public.products` - Product catalog
@@ -64,6 +72,7 @@ Welcome to the TechSupply E-Commerce platform documentation. This project is a m
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
 - Supabase account
 - Git
@@ -71,6 +80,7 @@ Welcome to the TechSupply E-Commerce platform documentation. This project is a m
 ### Installation Steps
 
 1. **Clone and Install**
+
    ```bash
    git clone <repository-url>
    cd techsupplyrev
@@ -78,6 +88,7 @@ Welcome to the TechSupply E-Commerce platform documentation. This project is a m
    ```
 
 2. **Environment Setup**
+
    ```bash
    cp .env.example .env.local
    # Add your Supabase credentials
@@ -116,12 +127,14 @@ techsupplyrev/
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### Database Configuration
+
 - RLS enabled on all user-specific tables
 - Automatic profile creation on user signup
 - Automatic product rating updates on review changes
@@ -130,18 +143,21 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## 🎯 User Flows
 
 ### Guest Shopping Experience
+
 1. Browse products → Add to cart (localStorage)
 2. Proceed to checkout → Prompted to login/register
 3. After authentication → Cart transfers to account
 4. Complete purchase → Order saved to database
 
 ### Authenticated User Experience
+
 1. Login → Cart loads from database
 2. Shop across devices → Same cart everywhere
 3. Complete orders → Can write reviews
 4. Manage account → Edit profile, view orders, manage reviews
 
 ### Account Management Flow
+
 1. Profile tab → Edit personal information
 2. Orders tab → View history, write reviews for delivered items
 3. Reviews tab → Manage existing reviews, see reviewable products
@@ -168,16 +184,19 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ### Common Issues
 
 **Cart count not showing for logged-in users**
+
 - Verify cart table exists with proper RLS policies
 - Check authentication token validity
 - Ensure `getCurrentCartCount()` function works
 
 **Reviews not appearing**
+
 - Verify reviews table exists
 - Check order status is "delivered" or "completed"
 - Ensure user has actually purchased the product
 
 **Profile not loading**
+
 - Check profiles table exists
 - Verify user profile was created on signup
 - Check RLS policies allow user access
@@ -198,6 +217,7 @@ SELECT * FROM public.reviews WHERE user_id = 'user-uuid';
 ## 📈 Analytics & Monitoring
 
 ### Key Metrics to Track
+
 - Cart abandonment rate
 - Review submission rate
 - Order completion rate
@@ -205,6 +225,7 @@ SELECT * FROM public.reviews WHERE user_id = 'user-uuid';
 - Average order value
 
 ### Recommended Tools
+
 - Google Analytics for user behavior
 - Supabase Dashboard for database metrics
 - Vercel Analytics for performance monitoring
@@ -212,6 +233,7 @@ SELECT * FROM public.reviews WHERE user_id = 'user-uuid';
 ## 🔄 Future Enhancements
 
 ### Planned Features
+
 - Wishlist functionality
 - Product recommendations
 - Order tracking system
@@ -220,6 +242,7 @@ SELECT * FROM public.reviews WHERE user_id = 'user-uuid';
 - Inventory management
 
 ### Technical Improvements
+
 - Performance optimization
 - Mobile app development
 - Advanced caching strategies
@@ -229,12 +252,14 @@ SELECT * FROM public.reviews WHERE user_id = 'user-uuid';
 ## 📞 Support & Contributing
 
 ### Getting Help
+
 1. Check this documentation
 2. Review troubleshooting guides
 3. Check GitHub issues
 4. Create new issue with detailed description
 
 ### Development Guidelines
+
 - Follow TypeScript best practices
 - Use Prettier for code formatting
 - Write descriptive commit messages
@@ -248,4 +273,4 @@ This project is licensed under the MIT License. See LICENSE file for details.
 
 **Built with ❤️ using Next.js and Supabase**
 
-*Last updated: December 2024*
+_Last updated: December 2024_

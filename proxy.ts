@@ -37,7 +37,7 @@ async function updateSession(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/admin")) {
     if (!user) {
       const url = request.nextUrl.clone();
-      url.pathname = "/auth/login";
+      url.pathname = "/auth/admin/login";
       url.searchParams.set("redirectTo", request.nextUrl.pathname);
       return NextResponse.redirect(url);
     }
@@ -45,11 +45,11 @@ async function updateSession(request: NextRequest) {
     // Check if user has admin role
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("is_admin")
       .eq("id", user.id)
       .single();
 
-    if (!profile || profile.role !== "admin") {
+    if (!profile || !profile.is_admin) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);
@@ -72,11 +72,29 @@ async function updateSession(request: NextRequest) {
 
   // Redirect authenticated users away from auth pages
   if (user && request.nextUrl.pathname.startsWith("/auth")) {
-    const redirectTo = request.nextUrl.searchParams.get("redirectTo");
-    const url = request.nextUrl.clone();
-    url.pathname = redirectTo || "/";
-    url.search = "";
-    return NextResponse.redirect(url);
+    // Allow access to admin login if not already on dashboard (optional, but good for clarity)
+    // But generally we want to redirect if they are already logged in.
+    // If they are admin and on /auth/admin/login, redirect to /admin
+    if (request.nextUrl.pathname.startsWith("/auth/admin/login")) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_admin) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin";
+        return NextResponse.redirect(url);
+      }
+    } else {
+      // Standard auth pages
+      const redirectTo = request.nextUrl.searchParams.get("redirectTo");
+      const url = request.nextUrl.clone();
+      url.pathname = redirectTo || "/";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

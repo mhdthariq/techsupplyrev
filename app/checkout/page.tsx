@@ -209,10 +209,10 @@ export default function CheckoutPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="pt-28 pb-20 px-4">
-          <div className="max-w-6xl mx-auto animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/3" />
-            <div className="h-64 bg-gray-200 rounded" />
+        <div className="px-4 pt-28 pb-20">
+          <div className="mx-auto max-w-6xl animate-pulse space-y-4">
+            <div className="h-8 w-1/3 rounded bg-gray-200" />
+            <div className="h-64 rounded bg-gray-200" />
           </div>
         </div>
       </div>
@@ -221,20 +221,20 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="pt-28 pb-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold text-[#2C3E50] mb-12">Checkout</h1>
+      <div className="px-4 pt-28 pb-20">
+        <div className="mx-auto max-w-6xl">
+          <h1 className="mb-12 text-4xl font-bold text-[#2C3E50]">Checkout</h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Checkout Form */}
             <div className="lg:col-span-2">
               {/* Step Indicator */}
               <div className="mb-12">
-                <div className="flex items-center justify-between mb-8">
+                <div className="mb-8 flex items-center justify-between">
                   {steps.map((step, idx) => (
-                    <div key={step.number} className="flex items-center flex-1">
+                    <div key={step.number} className="flex flex-1 items-center">
                       <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition ${
+                        className={`flex h-10 w-10 items-center justify-center rounded-full font-bold transition ${
                           currentStep >= step.number
                             ? "bg-[#3498DB] text-white"
                             : "bg-gray-200 text-gray-600"
@@ -248,7 +248,7 @@ export default function CheckoutPage() {
                       </div>
                       {idx < steps.length - 1 && (
                         <div
-                          className={`flex-1 h-1 mx-2 transition ${
+                          className={`mx-2 h-1 flex-1 transition ${
                             currentStep > step.number
                               ? "bg-[#3498DB]"
                               : "bg-gray-200"
@@ -271,10 +271,10 @@ export default function CheckoutPage() {
 
               {/* Step 1: Shipping Address */}
               {currentStep === 1 && (
-                <div className="bg-white rounded-lg p-8 shadow border border-gray-200 mb-6">
+                <div className="mb-6 rounded-lg border border-gray-200 bg-white p-8 shadow">
                   <div className="space-y-4">
                     <div>
-                      <label className="block font-bold text-[#2C3E50] mb-2">
+                      <label className="mb-2 block font-bold text-[#2C3E50]">
                         Email Address
                       </label>
                       <input
@@ -283,13 +283,13 @@ export default function CheckoutPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
                         }
-                        className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-bold text-[#2C3E50] mb-2">
+                        <label className="mb-2 block font-bold text-[#2C3E50]">
                           First Name
                         </label>
                         <input
@@ -301,11 +301,11 @@ export default function CheckoutPage() {
                               firstName: e.target.value,
                             })
                           }
-                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                          className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                         />
                       </div>
                       <div>
-                        <label className="block font-bold text-[#2C3E50] mb-2">
+                        <label className="mb-2 block font-bold text-[#2C3E50]">
                           Last Name
                         </label>
                         <input
@@ -317,13 +317,13 @@ export default function CheckoutPage() {
                               lastName: e.target.value,
                             })
                           }
-                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                          className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block font-bold text-[#2C3E50] mb-2">
+                      <label className="mb-2 block font-bold text-[#2C3E50]">
                         Address
                       </label>
                       <input
@@ -332,13 +332,13 @@ export default function CheckoutPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, address: e.target.value })
                         }
-                        className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                       />
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <label className="block font-bold text-[#2C3E50] mb-2">
+                        <label className="mb-2 block font-bold text-[#2C3E50]">
                           City
                         </label>
                         <input
@@ -347,11 +347,11 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             setFormData({ ...formData, city: e.target.value })
                           }
-                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                          className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                         />
                       </div>
                       <div>
-                        <label className="block font-bold text-[#2C3E50] mb-2">
+                        <label className="mb-2 block font-bold text-[#2C3E50]">
                           State
                         </label>
                         <input
@@ -360,11 +360,11 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             setFormData({ ...formData, state: e.target.value })
                           }
-                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                          className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                         />
                       </div>
                       <div>
-                        <label className="block font-bold text-[#2C3E50] mb-2">
+                        <label className="mb-2 block font-bold text-[#2C3E50]">
                           ZIP
                         </label>
                         <input
@@ -373,13 +373,13 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             setFormData({ ...formData, zip: e.target.value })
                           }
-                          className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                          className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block font-bold text-[#2C3E50] mb-2">
+                      <label className="mb-2 block font-bold text-[#2C3E50]">
                         Country
                       </label>
                       <input
@@ -388,7 +388,7 @@ export default function CheckoutPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, country: e.target.value })
                         }
-                        className="w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-[#3498DB] outline-none"
+                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                       />
                     </div>
                   </div>
@@ -397,7 +397,7 @@ export default function CheckoutPage() {
 
               {/* Step 2: Shipping Method */}
               {currentStep === 2 && (
-                <div className="bg-white rounded-lg p-8 shadow border border-gray-200 mb-6">
+                <div className="mb-6 rounded-lg border border-gray-200 bg-white p-8 shadow">
                   <div className="space-y-3">
                     {[
                       {
@@ -421,7 +421,7 @@ export default function CheckoutPage() {
                     ].map((method) => (
                       <label
                         key={method.id}
-                        className="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-[#3498DB] transition"
+                        className="flex cursor-pointer items-center rounded-lg border-2 border-gray-300 p-4 transition hover:border-[#3498DB]"
                       >
                         <input
                           type="radio"
@@ -453,7 +453,7 @@ export default function CheckoutPage() {
 
               {/* Step 3: Payment */}
               {currentStep === 3 && (
-                <div className="bg-white rounded-lg p-8 shadow border border-gray-200 mb-6">
+                <div className="mb-6 rounded-lg border border-gray-200 bg-white p-8 shadow">
                   <div className="space-y-4">
                     {[
                       { id: "credit-card", name: "Credit/Debit Card" },
@@ -465,7 +465,7 @@ export default function CheckoutPage() {
                     ].map((method) => (
                       <label
                         key={method.id}
-                        className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition ${
+                        className={`flex cursor-pointer items-center rounded-lg border-2 p-4 transition ${
                           formData.paymentMethod === method.id
                             ? "border-[#3498DB] bg-blue-50"
                             : "border-gray-300 hover:border-[#3498DB]"
@@ -495,8 +495,8 @@ export default function CheckoutPage() {
 
               {/* Step 4: Review */}
               {currentStep === 4 && (
-                <div className="bg-white rounded-lg p-8 shadow border border-gray-200 mb-6">
-                  <h3 className="font-bold text-[#2C3E50] mb-4">
+                <div className="mb-6 rounded-lg border border-gray-200 bg-white p-8 shadow">
+                  <h3 className="mb-4 font-bold text-[#2C3E50]">
                     Order Details
                   </h3>
                   <div className="space-y-3 text-sm">
@@ -530,7 +530,7 @@ export default function CheckoutPage() {
                 {currentStep > 1 && (
                   <button
                     onClick={() => setCurrentStep(currentStep - 1)}
-                    className="px-6 py-3 border-2 border-[#2C3E50] text-[#2C3E50] rounded-lg hover:bg-gray-100 transition font-bold"
+                    className="rounded-lg border-2 border-[#2C3E50] px-6 py-3 font-bold text-[#2C3E50] transition hover:bg-gray-100"
                   >
                     Back
                   </button>
@@ -538,7 +538,7 @@ export default function CheckoutPage() {
                 {currentStep < 4 && (
                   <button
                     onClick={() => setCurrentStep(currentStep + 1)}
-                    className="ml-auto px-6 py-3 bg-[#3498DB] text-white rounded-lg hover:bg-[#2980B9] transition font-bold flex items-center gap-2"
+                    className="ml-auto flex items-center gap-2 rounded-lg bg-[#3498DB] px-6 py-3 font-bold text-white transition hover:bg-[#2980B9]"
                   >
                     Next <ChevronRight size={20} />
                   </button>
@@ -546,7 +546,7 @@ export default function CheckoutPage() {
                 {currentStep === 4 && (
                   <button
                     onClick={handlePlaceOrder}
-                    className="ml-auto px-8 py-3 bg-[#3498DB] text-white rounded-lg hover:bg-[#2980B9] transition font-bold text-lg"
+                    className="ml-auto rounded-lg bg-[#3498DB] px-8 py-3 text-lg font-bold text-white transition hover:bg-[#2980B9]"
                   >
                     Place Order
                   </button>
@@ -556,8 +556,8 @@ export default function CheckoutPage() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-gray-50 rounded-lg p-6 sticky top-24 border border-gray-200">
-                <h3 className="font-bold text-[#2C3E50] mb-6">Order Summary</h3>
+              <div className="sticky top-24 rounded-lg border border-gray-200 bg-gray-50 p-6">
+                <h3 className="mb-6 font-bold text-[#2C3E50]">Order Summary</h3>
 
                 {/* Coupon Code */}
                 <div className="mb-6">
@@ -567,18 +567,18 @@ export default function CheckoutPage() {
                       placeholder="Coupon code"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
-                      className="flex-1 border-2 border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      className="flex-1 rounded-lg border-2 border-gray-300 px-3 py-2 text-sm"
                     />
                     <button
                       onClick={applyCoupon}
-                      className="bg-[#3498DB] text-white px-4 py-2 rounded-lg hover:bg-[#2980B9] transition text-sm font-bold"
+                      className="rounded-lg bg-[#3498DB] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#2980B9]"
                     >
                       Apply
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-4 mb-6 space-y-3 text-sm">
+                <div className="mb-6 space-y-3 rounded-lg bg-white p-4 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-bold">${subtotal.toFixed(2)}</span>
