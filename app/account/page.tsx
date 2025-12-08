@@ -40,6 +40,7 @@ import type {
   Review,
   CreateReviewData,
 } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
 
 interface WishlistProduct {
   id: string;
@@ -202,7 +203,7 @@ function AccountContent() {
       console.error("Error loading user data:", error);
       toast({
         title: "Error",
-        description: "Failed to load account data",
+        description: "Gagal memuat data akun",
         variant: "destructive",
       });
     } finally {
@@ -232,8 +233,8 @@ function AccountContent() {
       const result = await updateUserProfile(user.id, updateData);
       if (result.success) {
         toast({
-          title: "Profile Updated",
-          description: "Your profile has been successfully updated",
+          title: "Profil Diperbarui",
+          description: "Profil Anda berhasil diperbarui",
           variant: "success",
         });
         setIsEditingProfile(false);
@@ -243,9 +244,9 @@ function AccountContent() {
       }
     } catch (error) {
       toast({
-        title: "Update Failed",
+        title: "Gagal Memperbarui",
         description:
-          error instanceof Error ? error.message : "Failed to update profile",
+          error instanceof Error ? error.message : "Gagal memperbarui profil",
         variant: "destructive",
       });
     }
@@ -254,8 +255,8 @@ function AccountContent() {
   const handlePasswordUpdate = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast({
-        title: "Password Mismatch",
-        description: "New passwords do not match",
+        title: "Password Tidak Cocok",
+        description: "Password baru tidak cocok",
         variant: "destructive",
       });
       return;
@@ -263,8 +264,8 @@ function AccountContent() {
 
     if (passwordForm.newPassword.length < 6) {
       toast({
-        title: "Password Too Short",
-        description: "Password must be at least 6 characters long",
+        title: "Password Terlalu Pendek",
+        description: "Password harus minimal 6 karakter",
         variant: "destructive",
       });
       return;
@@ -274,8 +275,8 @@ function AccountContent() {
       const result = await updatePassword(passwordForm.newPassword);
       if (!result.error) {
         toast({
-          title: "Password Updated",
-          description: "Your password has been successfully updated",
+          title: "Password Diperbarui",
+          description: "Password Anda berhasil diperbarui",
           variant: "success",
         });
         setShowPasswordForm(false);
@@ -283,8 +284,8 @@ function AccountContent() {
       }
     } catch {
       toast({
-        title: "Update Failed",
-        description: "Failed to update password",
+        title: "Gagal Memperbarui",
+        description: "Gagal memperbarui password",
         variant: "destructive",
       });
     }
@@ -295,8 +296,8 @@ function AccountContent() {
 
     if (!reviewForm.title.trim() || !reviewForm.comment.trim()) {
       toast({
-        title: "Incomplete Review",
-        description: "Please provide both a title and comment",
+        title: "Ulasan Tidak Lengkap",
+        description: "Mohon berikan judul dan komentar",
         variant: "destructive",
       });
       return;
@@ -314,8 +315,8 @@ function AccountContent() {
       const result = await createReview(user.id, reviewData);
       if (result.success) {
         toast({
-          title: "Review Created",
-          description: "Your review has been submitted successfully",
+          title: "Ulasan Dibuat",
+          description: "Ulasan Anda berhasil dikirim",
           variant: "success",
         });
         setShowReviewModal(false);
@@ -327,9 +328,9 @@ function AccountContent() {
       }
     } catch (error) {
       toast({
-        title: "Review Failed",
+        title: "Gagal Membuat Ulasan",
         description:
-          error instanceof Error ? error.message : "Failed to create review",
+          error instanceof Error ? error.message : "Gagal membuat ulasan",
         variant: "destructive",
       });
     }
@@ -342,8 +343,8 @@ function AccountContent() {
       const result = await deleteReview(reviewId, user.id);
       if (result.success) {
         toast({
-          title: "Review Deleted",
-          description: "Your review has been deleted successfully",
+          title: "Ulasan Dihapus",
+          description: "Ulasan Anda berhasil dihapus",
           variant: "success",
         });
         loadUserData(); // Reload data
@@ -352,9 +353,9 @@ function AccountContent() {
       }
     } catch (error) {
       toast({
-        title: "Delete Failed",
+        title: "Gagal Menghapus",
         description:
-          error instanceof Error ? error.message : "Failed to delete review",
+          error instanceof Error ? error.message : "Gagal menghapus ulasan",
         variant: "destructive",
       });
     }
@@ -388,7 +389,7 @@ function AccountContent() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("id-ID", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -400,7 +401,7 @@ function AccountContent() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[#3498DB] border-t-transparent"></div>
-          <p className="text-gray-600">Loading your account...</p>
+          <p className="text-gray-600">Memuat akun Anda...</p>
         </div>
       </div>
     );
@@ -412,10 +413,10 @@ function AccountContent() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
             <h1 className="mb-2 text-4xl font-bold text-[#2C3E50]">
-              My Account
+              Akun Saya
             </h1>
             <p className="text-gray-600">
-              Manage your profile, orders, and reviews
+              Kelola profil, pesanan, dan ulasan Anda
             </p>
           </div>
 
@@ -435,7 +436,7 @@ function AccountContent() {
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
-                    <User size={20} /> Profile
+                    <User size={20} /> Profil
                   </button>
                   <button
                     onClick={() => {
@@ -448,7 +449,7 @@ function AccountContent() {
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
-                    <Package size={20} /> Orders ({orders.length})
+                    <Package size={20} /> Pesanan ({orders.length})
                   </button>
                   <button
                     onClick={() => {
@@ -461,7 +462,7 @@ function AccountContent() {
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
-                    <MessageSquare size={20} /> Reviews ({reviews.length})
+                    <MessageSquare size={20} /> Ulasan ({reviews.length})
                   </button>
                   <button
                     onClick={() => {
@@ -487,13 +488,13 @@ function AccountContent() {
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
-                    <Settings size={20} /> Settings
+                    <Settings size={20} /> Pengaturan
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="flex items-center gap-3 border-t border-gray-200 px-6 py-4 text-left font-semibold text-red-600 transition-colors hover:bg-red-50"
                   >
-                    <LogOut size={20} /> Sign Out
+                    <LogOut size={20} /> Keluar
                   </button>
                 </nav>
               </div>
@@ -513,7 +514,7 @@ function AccountContent() {
                       className="flex items-center gap-2 rounded-lg bg-[#3498DB] px-4 py-2 text-white transition-colors hover:bg-[#2980B9]"
                     >
                       {isEditingProfile ? <X size={18} /> : <Edit size={18} />}
-                      {isEditingProfile ? "Cancel" : "Edit"}
+                      {isEditingProfile ? "Batal" : "Edit"}
                     </button>
                   </div>
 
@@ -534,7 +535,7 @@ function AccountContent() {
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         <User size={16} className="mr-2 inline" />
-                        Full Name
+                        Nama Lengkap
                       </label>
                       <input
                         type="text"
@@ -546,7 +547,7 @@ function AccountContent() {
                           })
                         }
                         disabled={!isEditingProfile}
-                        placeholder="Enter your full name"
+                        placeholder="Masukkan nama lengkap Anda"
                         className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none disabled:bg-gray-50"
                       />
                     </div>
@@ -554,7 +555,7 @@ function AccountContent() {
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         <Phone size={16} className="mr-2 inline" />
-                        Phone
+                        Telepon
                       </label>
                       <input
                         type="tel"
@@ -573,7 +574,7 @@ function AccountContent() {
                     <div className="md:col-span-2">
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         <MapPin size={16} className="mr-2 inline" />
-                        Address
+                        Alamat
                       </label>
                       <input
                         type="text"
@@ -591,7 +592,7 @@ function AccountContent() {
 
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                        City
+                        Kota
                       </label>
                       <input
                         type="text"
@@ -609,7 +610,7 @@ function AccountContent() {
 
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                        Postal Code
+                        Kode Pos
                       </label>
                       <input
                         type="text"
@@ -627,7 +628,7 @@ function AccountContent() {
 
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                        Country
+                        Negara
                       </label>
                       <input
                         type="text"
@@ -650,7 +651,7 @@ function AccountContent() {
                       className="mt-6 flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-green-700"
                     >
                       <Save size={18} />
-                      Save Changes
+                      Simpan Perubahan
                     </button>
                   )}
                 </div>
@@ -660,7 +661,7 @@ function AccountContent() {
               {activeTab === "orders" && (
                 <div className="rounded-lg bg-white p-8 shadow-sm">
                   <h2 className="mb-6 text-2xl font-bold text-[#2C3E50]">
-                    Order History
+                    Riwayat Pesanan
                   </h2>
 
                   {orders.length === 0 ? (
@@ -669,9 +670,9 @@ function AccountContent() {
                         size={48}
                         className="mx-auto mb-4 text-gray-400"
                       />
-                      <p className="text-lg text-gray-600">No orders yet</p>
+                      <p className="text-lg text-gray-600">Belum ada pesanan</p>
                       <p className="mb-6 text-gray-500">
-                        Start shopping to see your orders here
+                        Mulai berbelanja untuk melihat pesanan Anda di sini
                       </p>
                       <button
                         onClick={() => router.push("/products")}
@@ -690,7 +691,7 @@ function AccountContent() {
                           <div className="mb-4 flex items-start justify-between">
                             <div>
                               <h3 className="text-lg font-bold text-[#2C3E50]">
-                                Order #{order.id.slice(-8)}
+                                Pesanan #{order.id.slice(-8)}
                               </h3>
                               <div className="mt-1 flex items-center gap-4 text-sm text-gray-600">
                                 <span className="flex items-center gap-1">
@@ -706,7 +707,7 @@ function AccountContent() {
                             </div>
                             <div className="text-right">
                               <p className="text-xl font-bold text-[#2C3E50]">
-                                ${order.total_amount.toFixed(2)}
+                                {formatCurrency(order.total_amount)}
                               </p>
                               <span
                                 className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(order.status)}`}
@@ -740,12 +741,11 @@ function AccountContent() {
                                           </h4>
                                           <div className="mt-1 flex items-center justify-between">
                                             <span className="text-gray-600">
-                                              Qty: {item.quantity}
+                                              Jml: {item.quantity}
                                             </span>
                                             <span className="font-semibold">
-                                              $
-                                              {item.price_at_purchase.toFixed(
-                                                2,
+                                              {formatCurrency(
+                                                item.price_at_purchase,
                                               )}
                                             </span>
                                           </div>
@@ -762,7 +762,7 @@ function AccountContent() {
                                             }}
                                             className="rounded-lg bg-[#3498DB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2980B9]"
                                           >
-                                            Write Review
+                                            Tulis Ulasan
                                           </button>
                                         )}
                                       </>
@@ -783,11 +783,11 @@ function AccountContent() {
                 <div className="rounded-lg bg-white p-8 shadow-sm">
                   <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-[#2C3E50]">
-                      My Reviews
+                      Ulasan Saya
                     </h2>
                     {reviewableProducts.length > 0 && (
                       <span className="rounded-full bg-[#3498DB] px-3 py-1 text-sm text-white">
-                        {reviewableProducts.length} products awaiting review
+                        {reviewableProducts.length} produk menunggu ulasan
                       </span>
                     )}
                   </div>
@@ -796,7 +796,7 @@ function AccountContent() {
                   {reviewableProducts.length > 0 && (
                     <div className="mb-8">
                       <h3 className="mb-4 text-lg font-semibold text-[#2C3E50]">
-                        Products You Can Review
+                        Produk yang Dapat Anda Ulas
                       </h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {reviewableProducts.slice(0, 4).map((item) => (
@@ -934,7 +934,7 @@ function AccountContent() {
                     <div className="py-12 text-center">
                       <Heart size={48} className="mx-auto mb-4 text-gray-400" />
                       <p className="text-lg text-gray-600">
-                        Your wishlist is empty
+                        Wishlist Anda kosong
                       </p>
                       <p className="mb-6 text-gray-500">
                         Save items you love to buy later

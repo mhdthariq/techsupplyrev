@@ -45,7 +45,7 @@ export default function UserList() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-[#2C3E50]">Users</h2>
+        <h2 className="text-2xl font-bold text-[#2C3E50]">Pengguna</h2>
         <div className="flex gap-2">
           <span className="rounded-lg bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
             Total: {users.length}
@@ -58,19 +58,19 @@ export default function UserList() {
           <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
               <th className="p-4 text-left font-semibold text-gray-600">
-                User
+                Pengguna
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Role
+                Peran
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Joined Date
+                Tanggal Bergabung
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Orders
+                Pesanan
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Action
+                Aksi
               </th>
             </tr>
           </thead>

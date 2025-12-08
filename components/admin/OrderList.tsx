@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Eye, Truck, CheckCircle, Clock } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 interface Order {
   id: string;
@@ -76,16 +77,16 @@ export default function OrderList() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-[#2C3E50]">Orders</h2>
+        <h2 className="text-2xl font-bold text-[#2C3E50]">Pesanan</h2>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="rounded-lg border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-[#3498DB]"
         >
-          <option value="all">All Status</option>
-          <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
+          <option value="all">Semua Status</option>
+          <option value="processing">Diproses</option>
+          <option value="shipped">Dikirim</option>
+          <option value="delivered">Diterima</option>
         </select>
       </div>
 
@@ -94,16 +95,16 @@ export default function OrderList() {
           <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Order ID
+                ID Pesanan
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Customer
+                Pelanggan
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Date
+                Tanggal
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Items
+                Item
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
                 Total
@@ -112,7 +113,7 @@ export default function OrderList() {
                 Status
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Action
+                Aksi
               </th>
             </tr>
           </thead>
@@ -122,9 +123,9 @@ export default function OrderList() {
                 <td className="p-4 font-medium text-[#3498DB]">{order.id}</td>
                 <td className="p-4 text-gray-900">{order.customer}</td>
                 <td className="p-4 text-gray-600">{order.date}</td>
-                <td className="p-4 text-gray-600">{order.items} items</td>
+                <td className="p-4 text-gray-600">{order.items} item</td>
                 <td className="p-4 font-medium text-gray-900">
-                  ${order.total.toFixed(2)}
+                  {formatCurrency(order.total)}
                 </td>
                 <td className="p-4">
                   <span

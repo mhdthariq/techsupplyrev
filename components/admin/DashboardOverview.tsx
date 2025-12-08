@@ -12,6 +12,7 @@ import {
   Bar,
 } from "recharts";
 import { TrendingUp, Users } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 const data = [
   { name: "Jan", sales: 4000, visitors: 2400 },
@@ -27,29 +28,29 @@ const recentActivity = [
   {
     id: 1,
     user: "John Doe",
-    action: "placed an order",
-    time: "2 mins ago",
-    amount: "$120.00",
+    action: "membuat pesanan",
+    time: "2 menit yang lalu",
+    amount: 120,
   },
   {
     id: 2,
     user: "Jane Smith",
-    action: "registered",
-    time: "1 hour ago",
+    action: "mendaftar",
+    time: "1 jam yang lalu",
   },
   {
     id: 3,
     user: "Mike Johnson",
-    action: "reviewed a product",
-    time: "3 hours ago",
+    action: "mengulas produk",
+    time: "3 jam yang lalu",
     rating: 5,
   },
   {
     id: 4,
     user: "Sarah Wilson",
-    action: "placed an order",
-    time: "5 hours ago",
-    amount: "$350.00",
+    action: "membuat pesanan",
+    time: "5 jam yang lalu",
+    amount: 350,
   },
 ];
 
@@ -62,7 +63,7 @@ export default function DashboardOverview() {
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="text-lg font-bold text-[#2C3E50]">
-              Revenue Overview
+              Ringkasan Pendapatan
             </h3>
             <div className="flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-600">
               <TrendingUp size={16} />
@@ -101,7 +102,7 @@ export default function DashboardOverview() {
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="text-lg font-bold text-[#2C3E50]">
-              Visitor Traffic
+              Lalu Lintas Pengunjung
             </h3>
             <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
               <Users size={16} />
@@ -125,7 +126,9 @@ export default function DashboardOverview() {
       {/* Recent Activity */}
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
         <div className="border-b border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-[#2C3E50]">Recent Activity</h3>
+          <h3 className="text-lg font-bold text-[#2C3E50]">
+            Aktivitas Terbaru
+          </h3>
         </div>
         <div className="divide-y divide-gray-100">
           {recentActivity.map((activity) => (
@@ -147,7 +150,7 @@ export default function DashboardOverview() {
               </div>
               {activity.amount && (
                 <span className="font-bold text-[#2C3E50]">
-                  {activity.amount}
+                  {formatCurrency(activity.amount)}
                 </span>
               )}
             </div>

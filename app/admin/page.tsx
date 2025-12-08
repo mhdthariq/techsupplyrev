@@ -12,6 +12,7 @@ import ProductTable from "@/components/admin/ProductTable";
 import DashboardOverview from "@/components/admin/DashboardOverview";
 import OrderList from "@/components/admin/OrderList";
 import UserList from "@/components/admin/UserList";
+import { formatCurrency } from "@/lib/utils";
 
 interface User {
   id: string;
@@ -157,15 +158,15 @@ export default function AdminDashboard() {
         brand: "",
       });
       toast({
-        title: "Product added successfully!",
-        description: `${data.name} has been added to your store`,
+        title: "Produk berhasil ditambahkan!",
+        description: `${data.name} telah ditambahkan ke toko Anda`,
         variant: "success",
       });
     } catch (error) {
       console.error("Error adding product:", error);
       toast({
-        title: "Failed to add product",
-        description: "Please check all fields and try again",
+        title: "Gagal menambahkan produk",
+        description: "Mohon periksa semua kolom dan coba lagi",
         variant: "destructive",
       });
     }
@@ -177,17 +178,17 @@ export default function AdminDashboard() {
       await supabase.from("products").delete().eq("id", id);
       setProducts(products.filter((p) => p.id !== id));
       toast({
-        title: "Product deleted",
+        title: "Produk dihapus",
         description: productToDelete
-          ? `${productToDelete.name} has been removed`
-          : "Product has been removed",
+          ? `${productToDelete.name} telah dihapus`
+          : "Produk telah dihapus",
         variant: "success",
         action: {
           label: "Undo",
           onClick: () => {
             toast({
-              title: "Undo not implemented",
-              description: "Please add the product again manually",
+              title: "Undo belum diimplementasikan",
+              description: "Mohon tambahkan produk lagi secara manual",
               variant: "warning",
             });
           },
@@ -196,8 +197,8 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error deleting product:", error);
       toast({
-        title: "Failed to delete product",
-        description: "Please try again",
+        title: "Gagal menghapus produk",
+        description: "Mohon coba lagi",
         variant: "destructive",
       });
     }
@@ -285,7 +286,7 @@ export default function AdminDashboard() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <p className="text-xl font-bold text-red-600">
-          Access denied. Admin privileges required.
+          Akses ditolak. Diperlukan hak akses admin.
         </p>
       </div>
     );
@@ -309,7 +310,7 @@ export default function AdminDashboard() {
           <div className="space-y-8">
             <div>
               <h2 className="mb-6 text-2xl font-bold text-[#2C3E50]">
-                Dashboard Overview
+                Ringkasan Dashboard
               </h2>
               <AdminStats
                 productsCount={products.length}
@@ -336,17 +337,17 @@ export default function AdminDashboard() {
         {activeTab === "products" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-[#2C3E50]">Products</h2>
+              <h2 className="text-2xl font-bold text-[#2C3E50]">Produk</h2>
             </div>
 
             <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 className="mb-4 text-lg font-bold text-[#2C3E50]">
-                Add New Product
+                Tambah Produk Baru
               </h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
                 <input
                   type="text"
-                  placeholder="Product name"
+                  placeholder="Nama produk"
                   value={newProduct.name}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, name: e.target.value })
@@ -355,7 +356,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="number"
-                  placeholder="Price"
+                  placeholder="Harga"
                   value={newProduct.price}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, price: e.target.value })
@@ -364,7 +365,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="number"
-                  placeholder="Discount price"
+                  placeholder="Harga diskon"
                   value={newProduct.discount_price}
                   onChange={(e) =>
                     setNewProduct({
@@ -376,7 +377,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="text"
-                  placeholder="Category"
+                  placeholder="Kategori"
                   value={newProduct.category}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, category: e.target.value })
@@ -385,7 +386,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="text"
-                  placeholder="Brand"
+                  placeholder="Merek"
                   value={newProduct.brand}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, brand: e.target.value })
@@ -408,15 +409,15 @@ export default function AdminDashboard() {
         {/* Banners Tab */}
         {activeTab === "banners" && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-[#2C3E50]">Banners</h2>
+            <h2 className="text-2xl font-bold text-[#2C3E50]">Banner</h2>
             <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 className="mb-4 text-lg font-bold text-[#2C3E50]">
-                Add New Banner
+                Tambah Banner Baru
               </h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <input
                   type="text"
-                  placeholder="Banner title"
+                  placeholder="Judul banner"
                   value={newBanner.title}
                   onChange={(e) =>
                     setNewBanner({ ...newBanner, title: e.target.value })
@@ -425,7 +426,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="text"
-                  placeholder="Description"
+                  placeholder="Deskripsi"
                   value={newBanner.description}
                   onChange={(e) =>
                     setNewBanner({
@@ -437,7 +438,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="text"
-                  placeholder="Link"
+                  placeholder="Tautan"
                   value={newBanner.link}
                   onChange={(e) =>
                     setNewBanner({ ...newBanner, link: e.target.value })
@@ -446,7 +447,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="text"
-                  placeholder="Image URL"
+                  placeholder="URL Gambar"
                   value={newBanner.image_url}
                   onChange={(e) =>
                     setNewBanner({ ...newBanner, image_url: e.target.value })
@@ -471,7 +472,7 @@ export default function AdminDashboard() {
                   <div>
                     <h3 className="font-bold text-[#2C3E50]">{banner.title}</h3>
                     <span className="mt-2 inline-block rounded bg-green-50 px-2 py-1 text-sm text-green-600">
-                      Active
+                      Aktif
                     </span>
                   </div>
                   <div className="flex gap-2">
@@ -494,15 +495,15 @@ export default function AdminDashboard() {
         {/* Coupons Tab */}
         {activeTab === "coupons" && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-[#2C3E50]">Coupons</h2>
+            <h2 className="text-2xl font-bold text-[#2C3E50]">Kupon</h2>
             <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 className="mb-4 text-lg font-bold text-[#2C3E50]">
-                Add New Coupon
+                Tambah Kupon Baru
               </h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
                 <input
                   type="text"
-                  placeholder="Coupon code"
+                  placeholder="Kode kupon"
                   value={newCoupon.code}
                   onChange={(e) =>
                     setNewCoupon({ ...newCoupon, code: e.target.value })
@@ -519,12 +520,12 @@ export default function AdminDashboard() {
                   }
                   className="rounded-lg border border-gray-300 px-4 py-2 transition-all outline-none focus:border-transparent focus:ring-2 focus:ring-[#3498DB]"
                 >
-                  <option value="percentage">Percentage</option>
-                  <option value="fixed">Fixed</option>
+                  <option value="percentage">Persentase</option>
+                  <option value="fixed">Tetap</option>
                 </select>
                 <input
                   type="number"
-                  placeholder="Discount value"
+                  placeholder="Nilai diskon"
                   value={newCoupon.discount_value}
                   onChange={(e) =>
                     setNewCoupon({
@@ -536,7 +537,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="text"
-                  placeholder="Max uses"
+                  placeholder="Maks penggunaan"
                   className="rounded-lg border border-gray-300 px-4 py-2 transition-all outline-none focus:border-transparent focus:ring-2 focus:ring-[#3498DB]"
                 />
                 <button
@@ -553,19 +554,19 @@ export default function AdminDashboard() {
                 <thead className="border-b border-gray-200 bg-gray-50">
                   <tr>
                     <th className="p-4 text-left font-semibold text-gray-600">
-                      Code
+                      Kode
                     </th>
                     <th className="p-4 text-left font-semibold text-gray-600">
-                      Type
+                      Tipe
                     </th>
                     <th className="p-4 text-left font-semibold text-gray-600">
-                      Value
+                      Nilai
                     </th>
                     <th className="p-4 text-left font-semibold text-gray-600">
                       Status
                     </th>
                     <th className="p-4 text-left font-semibold text-gray-600">
-                      Action
+                      Aksi
                     </th>
                   </tr>
                 </thead>
@@ -582,11 +583,13 @@ export default function AdminDashboard() {
                         {coupon.discount_type}
                       </td>
                       <td className="p-4 text-gray-600">
-                        ${coupon.discount_value}
+                        {coupon.discount_type === "percentage"
+                          ? `${coupon.discount_value}%`
+                          : formatCurrency(coupon.discount_value)}
                       </td>
                       <td className="p-4">
                         <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                          Active
+                          Aktif
                         </span>
                       </td>
                       <td className="flex gap-3 p-4">

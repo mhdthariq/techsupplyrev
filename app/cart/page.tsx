@@ -9,6 +9,7 @@ import {
   updateCartItemQuantity,
   removeFromCart,
 } from "@/lib/cart";
+import { formatCurrency } from "@/lib/utils";
 
 import { Trash2, Plus, Minus } from "lucide-react";
 
@@ -115,10 +116,10 @@ export default function CartPage() {
       <div className="px-4 pt-28 pb-20">
         <div className="mx-auto max-w-7xl">
           <h1 className="mb-8 text-4xl font-bold text-[#2C3E50]">
-            Shopping Cart
+            Keranjang Belanja
           </h1>
           <p className="mb-8 text-gray-600">
-            {cartItems.length} items in your cart
+            {cartItems.length} item di keranjang Anda
           </p>
 
           {cartItems.length > 0 ? (
@@ -131,19 +132,19 @@ export default function CartPage() {
                       <thead>
                         <tr className="border-b-2 border-gray-200">
                           <th className="p-4 text-left font-bold text-[#2C3E50]">
-                            Product
+                            Produk
                           </th>
                           <th className="p-4 text-center font-bold text-[#2C3E50]">
-                            Price
+                            Harga
                           </th>
                           <th className="p-4 text-center font-bold text-[#2C3E50]">
-                            Quantity
+                            Jumlah
                           </th>
                           <th className="p-4 text-center font-bold text-[#2C3E50]">
                             Total
                           </th>
                           <th className="p-4 text-center font-bold text-[#2C3E50]">
-                            Remove
+                            Hapus
                           </th>
                         </tr>
                       </thead>
@@ -173,7 +174,7 @@ export default function CartPage() {
                             </td>
                             <td className="p-4 text-center">
                               <span className="font-bold text-[#3498DB]">
-                                ${item.price.toFixed(2)}
+                                {formatCurrency(item.price)}
                               </span>
                             </td>
                             <td className="p-4 text-center">
@@ -197,7 +198,7 @@ export default function CartPage() {
                             </td>
                             <td className="p-4 text-center">
                               <span className="font-bold text-[#2C3E50]">
-                                ${(item.price * item.quantity).toFixed(2)}
+                                {formatCurrency(item.price * item.quantity)}
                               </span>
                             </td>
                             <td className="p-4 text-center">
@@ -219,7 +220,7 @@ export default function CartPage() {
                   href="/products"
                   className="mt-6 inline-block font-bold text-[#3498DB] hover:text-[#2980B9]"
                 >
-                  ← Continue Shopping
+                  ← Lanjut Belanja
                 </Link>
               </div>
 
@@ -227,26 +228,26 @@ export default function CartPage() {
               <div className="lg:col-span-1">
                 <div className="sticky top-32 rounded-lg border border-gray-200 bg-white p-6 shadow">
                   <h3 className="mb-4 text-xl font-bold text-[#2C3E50]">
-                    Order Summary
+                    Ringkasan Pesanan
                   </h3>
 
                   <div className="mb-4 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal</span>
                       <span className="font-bold text-[#2C3E50]">
-                        ${subtotal.toFixed(2)}
+                        {formatCurrency(subtotal)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Shipping</span>
+                      <span className="text-gray-600">Pengiriman</span>
                       <span className="font-bold text-[#2C3E50]">
-                        ${shipping.toFixed(2)}
+                        {formatCurrency(shipping)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Tax</span>
+                      <span className="text-gray-600">Pajak</span>
                       <span className="font-bold text-[#2C3E50]">
-                        ${tax.toFixed(2)}
+                        {formatCurrency(tax)}
                       </span>
                     </div>
                   </div>
@@ -256,7 +257,7 @@ export default function CartPage() {
                   <div className="mb-6 flex justify-between">
                     <span className="font-bold text-[#2C3E50]">Total</span>
                     <span className="text-2xl font-bold text-[#3498DB]">
-                      ${total.toFixed(2)}
+                      {formatCurrency(total)}
                     </span>
                   </div>
 
@@ -264,14 +265,14 @@ export default function CartPage() {
                     href="/checkout"
                     className="mb-4 block w-full rounded-lg bg-[#3498DB] py-3 text-center font-bold text-white transition hover:bg-[#2980B9]"
                   >
-                    Proceed to Checkout
+                    Lanjut ke Pembayaran
                   </Link>
 
                   <Link
                     href="/products"
                     className="block w-full rounded-lg border-2 border-[#2C3E50] py-3 text-center font-bold text-[#2C3E50] transition hover:bg-gray-100"
                   >
-                    Continue Shopping
+                    Lanjut Belanja
                   </Link>
                 </div>
               </div>
@@ -280,16 +281,16 @@ export default function CartPage() {
             <div className="py-16 text-center">
               <div className="mb-4 text-6xl">🛒</div>
               <h2 className="mb-2 text-2xl font-bold text-[#2C3E50]">
-                Your cart is empty
+                Keranjang Anda kosong
               </h2>
               <p className="mb-6 text-gray-600">
-                Add some products to your cart and come back!
+                Tambahkan beberapa produk ke keranjang dan kembali lagi!
               </p>
               <Link
                 href="/products"
                 className="inline-block rounded-lg bg-[#3498DB] px-8 py-3 font-bold text-white transition hover:bg-[#2980B9]"
               >
-                Start Shopping
+                Mulai Belanja
               </Link>
             </div>
           )}

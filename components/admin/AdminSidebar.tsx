@@ -27,11 +27,11 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "orders", label: "Orders", icon: ShoppingCart },
-    { id: "users", label: "Users", icon: Users },
-    { id: "products", label: "Products", icon: Package },
-    { id: "banners", label: "Banners", icon: ImageIcon },
-    { id: "coupons", label: "Coupons", icon: Tag },
+    { id: "orders", label: "Pesanan", icon: ShoppingCart },
+    { id: "users", label: "Pengguna", icon: Users },
+    { id: "products", label: "Produk", icon: Package },
+    { id: "banners", label: "Banner", icon: ImageIcon },
+    { id: "coupons", label: "Kupon", icon: Tag },
   ];
 
   return (
@@ -83,7 +83,7 @@ export default function AdminSidebar({
             className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-500 transition-colors hover:bg-red-50"
           >
             <LogOut size={20} />
-            <span className="font-medium">Logout</span>
+            <span className="font-medium">Keluar</span>
           </button>
         </div>
       </div>

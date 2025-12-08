@@ -21,19 +21,19 @@ export function Footer() {
               TechSupply Co.
             </h3>
             <p className="text-sm">
-              Your trusted source for premium technology solutions and products.
+              Sumber terpercaya Anda untuk solusi dan produk teknologi premium.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
             <h4 className="font-heading mb-4 font-semibold text-white">
-              Quick Links
+              Tautan Cepat
             </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/" className="hover:text-accent-blue transition">
-                  Home
+                  Beranda
                 </Link>
               </li>
               <li>
@@ -41,7 +41,7 @@ export function Footer() {
                   href="/products"
                   className="hover:text-accent-blue transition"
                 >
-                  Products
+                  Produk
                 </Link>
               </li>
               <li>
@@ -49,7 +49,7 @@ export function Footer() {
                   href="/about"
                   className="hover:text-accent-blue transition"
                 >
-                  About Us
+                  Tentang Kami
                 </Link>
               </li>
               <li>
@@ -57,7 +57,7 @@ export function Footer() {
                   href="/contact"
                   className="hover:text-accent-blue transition"
                 >
-                  Contact
+                  Kontak
                 </Link>
               </li>
             </ul>
@@ -66,7 +66,7 @@ export function Footer() {
           {/* Policies */}
           <div>
             <h4 className="font-heading mb-4 font-semibold text-white">
-              Policies
+              Kebijakan
             </h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -74,7 +74,7 @@ export function Footer() {
                   href="/privacy"
                   className="hover:text-accent-blue transition"
                 >
-                  Privacy Policy
+                  Kebijakan Privasi
                 </Link>
               </li>
               <li>
@@ -82,7 +82,7 @@ export function Footer() {
                   href="/terms"
                   className="hover:text-accent-blue transition"
                 >
-                  Terms & Conditions
+                  Syarat & Ketentuan
                 </Link>
               </li>
               <li>
@@ -90,7 +90,7 @@ export function Footer() {
                   href="/shipping"
                   className="hover:text-accent-blue transition"
                 >
-                  Shipping Info
+                  Info Pengiriman
                 </Link>
               </li>
               <li>
@@ -98,7 +98,7 @@ export function Footer() {
                   href="/returns"
                   className="hover:text-accent-blue transition"
                 >
-                  Returns
+                  Pengembalian
                 </Link>
               </li>
             </ul>
@@ -107,7 +107,7 @@ export function Footer() {
           {/* Social Media */}
           <div>
             <h4 className="font-heading mb-4 font-semibold text-white">
-              Follow Us
+              Ikuti Kami
             </h4>
             <div className="flex gap-4">
               <a href="#" className="hover:text-accent-blue transition">
@@ -127,7 +127,7 @@ export function Footer() {
         </div>
 
         <div className="border-accent-blue/30 border-t pt-8 text-center text-sm">
-          <p>&copy; 2025 TechSupply Co. All rights reserved.</p>
+          <p>&copy; 2025 TechSupply Co. Hak cipta dilindungi.</p>
         </div>
       </div>
     </footer>

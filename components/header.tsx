@@ -132,7 +132,7 @@ export function Header() {
     <header className="fixed top-0 z-50 w-full border-b border-gray-100 bg-white/95 shadow-lg backdrop-blur-md">
       {/* Top promotional bar */}
       <div className="bg-linear-to-r from-[#2c3e50] to-[#3498db] py-2 text-center text-sm font-medium text-white">
-        🚚 Free shipping on orders over $50 | 🔒 Secure checkout
+        🚚 Gratis ongkir untuk pesanan di atas Rp 750.000 | 🔒 Pembayaran aman
       </div>
 
       {/* Main header */}
@@ -160,19 +160,19 @@ export function Header() {
               href="/"
               className="rounded-xl px-6 py-3 font-medium text-[#2c3e50] transition-all duration-200 hover:bg-[#ecf0f1] hover:text-[#3498db]"
             >
-              Home
+              Beranda
             </Link>
             <Link
               href="/products"
               className="rounded-xl px-6 py-3 font-medium text-[#2c3e50] transition-all duration-200 hover:bg-[#ecf0f1] hover:text-[#3498db]"
             >
-              Products
+              Produk
             </Link>
             <Link
               href="/about"
               className="rounded-xl px-6 py-3 font-medium text-[#2c3e50] transition-all duration-200 hover:bg-[#ecf0f1] hover:text-[#3498db]"
             >
-              About Us
+              Tentang Kami
             </Link>
           </nav>
 
@@ -187,7 +187,7 @@ export function Header() {
             <button
               className="flex h-9 w-9 items-center justify-center rounded-full text-[#2c3e50] transition-all hover:bg-gray-100 lg:hidden"
               onClick={() => {
-                const query = prompt("Search products:");
+                const query = prompt("Cari produk:");
                 if (query?.trim()) {
                   window.location.href = `/products?search=${encodeURIComponent(query.trim())}`;
                 }
@@ -233,13 +233,13 @@ export function Header() {
                       href="/account?tab=profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#3498DB]"
                     >
-                      Profile
+                      Profil
                     </Link>
                     <Link
                       href="/account?tab=orders"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#3498DB]"
                     >
-                      Orders
+                      Pesanan
                     </Link>
                     <Link
                       href="/account?tab=wishlist"
@@ -260,7 +260,7 @@ export function Header() {
                       onClick={handleSignOut}
                       className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                     >
-                      Sign out
+                      Keluar
                     </button>
                   </div>
                 )}
@@ -271,7 +271,7 @@ export function Header() {
                 className="hidden items-center gap-2 rounded-lg bg-[#3498db] px-4 py-2 text-sm font-medium text-white transition-all hover:bg-[#2980b9] sm:flex"
               >
                 <User size={16} />
-                Login
+                Masuk
               </Link>
             )}
 
@@ -300,7 +300,7 @@ export function Header() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
+                  placeholder="Cari produk..."
                   className="block w-full rounded-xl border border-gray-200 bg-white py-2.5 pr-3 pl-10 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-transparent focus:ring-2 focus:ring-[#3498db] focus:outline-none"
                   onKeyPress={(e) => {
                     if (e.key === "Enter" && searchQuery.trim()) {
@@ -343,7 +343,7 @@ export function Header() {
               onClick={() => setIsMenuOpen(false)}
             >
               <ShoppingCart size={20} />
-              Shopping Cart
+              Keranjang Belanja
               {cartCount > 0 && (
                 <span className="rounded-full bg-[#e74c3c] px-2 py-1 text-xs font-bold text-white">
                   {cartCount}
@@ -358,7 +358,7 @@ export function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <User size={20} />
-                  My Account
+                  Akun Saya
                 </Link>
                 <button
                   onClick={() => {
@@ -368,7 +368,7 @@ export function Header() {
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                 >
                   <LogOut size={20} />
-                  Sign Out
+                  Keluar
                 </button>
               </>
             ) : (
@@ -378,7 +378,7 @@ export function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <User size={20} />
-                Sign In / Register
+                Masuk / Daftar
               </Link>
             )}
           </div>
