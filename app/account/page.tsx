@@ -32,6 +32,8 @@ import {
   getReviewableProducts,
   createReview,
   deleteReview,
+  getWishlist,
+  removeFromWishlist,
 } from "@/lib/database";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -159,13 +161,11 @@ function AccountContent() {
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadUserData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+  /* eslint-disable react-hooks/exhaustive-deps */
   const loadUserData = async () => {
     try {
       const currentUser = await getCurrentUser();
+
       if (!currentUser) {
         router.push("/auth/login");
         return;
@@ -173,18 +173,18 @@ function AccountContent() {
 
       setUser(currentUser);
 
-      // Load profile
-      const userProfile = await getUserProfile(currentUser.id);
-      if (userProfile) {
-        const fullName =
-          `${userProfile.first_name || ""} ${userProfile.last_name || ""}`.trim();
+      // Load profile data
+      const profile = await getUserProfile(currentUser.id);
+      if (profile) {
         setProfileForm({
-          full_name: fullName || currentUser.name || "",
-          phone: userProfile.phone || "",
-          address: userProfile.address || "",
-          city: userProfile.city || "",
-          postal_code: userProfile.postal_code || "",
-          country: userProfile.country || "",
+          full_name: profile.first_name
+            ? `${profile.first_name} ${profile.last_name || ""}`.trim()
+            : currentUser.name || "",
+          phone: profile.phone || "",
+          address: profile.address || "",
+          city: profile.city || "",
+          postal_code: profile.postal_code || "",
+          country: profile.country || "",
         });
       }
 
@@ -197,19 +197,36 @@ function AccountContent() {
       setReviews(userReviews);
 
       // Load reviewable products
-      const reviewableItems = await getReviewableProducts(currentUser.id);
-      setReviewableProducts(reviewableItems.filter((item) => !item.hasReview));
+      const reviewable = await getReviewableProducts(currentUser.id);
+      setReviewableProducts(reviewable);
+
+      // Load wishlist
+      const wishlistData = await getWishlist(currentUser.id);
+      const mappedWishlist = wishlistData
+        .filter((item) => item.product) // Ensure product exists
+        .map((item) => ({
+          id: item.product!.id,
+          name: item.product!.name,
+          price: item.product!.price,
+          image_url: item.product!.image_url,
+          in_stock: item.product!.in_stock,
+        }));
+      setWishlist(mappedWishlist);
     } catch (error) {
       console.error("Error loading user data:", error);
       toast({
         title: "Error",
-        description: "Gagal memuat data akun",
+        description: "Gagal memuat data pengguna",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadUserData();
+  }, [router, toast]);
 
   const handleProfileUpdate = async () => {
     if (!user) return;
@@ -961,13 +978,15 @@ function AccountContent() {
                               className="object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                             <button
-                              onClick={() => {
+                              onClick={async () => {
+                                if (!user) return;
                                 setWishlist(
                                   wishlist.filter((w) => w.id !== item.id),
                                 );
+                                await removeFromWishlist(user.id, item.id);
                                 toast({
-                                  title: "Removed from Wishlist",
-                                  description: `${item.name} has been removed`,
+                                  title: "Dihapus dari Wishlist",
+                                  description: `${item.name} telah dihapus`,
                                 });
                               }}
                               className="absolute top-3 right-3 rounded-full bg-white/80 p-2 text-red-500 backdrop-blur-sm transition-colors hover:bg-white"

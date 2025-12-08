@@ -6,6 +6,7 @@ import type {
   Profile,
   UpdateProfileData,
   CreateReviewData,
+  Wishlist,
 } from "@/lib/types";
 
 const supabase = createClient();
@@ -53,6 +54,22 @@ export async function updateUserProfile(
   }
 }
 
+// User Management
+export async function getAllUsers(): Promise<Profile[]> {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    return [];
+  }
+}
+
 export async function createUserProfile(
   userId: string,
   email: string,
@@ -77,6 +94,29 @@ export async function createUserProfile(
 }
 
 // Order Management
+export async function getAllOrders(): Promise<Order[]> {
+  try {
+    const { data, error } = await supabase
+      .from("orders")
+      .select(
+        `
+        *,
+        order_items (
+          *,
+          product:products (*)
+        )
+      `,
+      )
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching all orders:", error);
+    return [];
+  }
+}
+
 export async function getUserOrders(userId: string): Promise<Order[]> {
   try {
     const { data, error } = await supabase
@@ -101,12 +141,33 @@ export async function getUserOrders(userId: string): Promise<Order[]> {
   }
 }
 
+export async function updateOrderStatus(
+  orderId: string,
+  status: Order["status"],
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", orderId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update order",
+    };
+  }
+}
+
 export async function getOrderById(
   orderId: string,
-  userId: string,
+  userId?: string,
 ): Promise<Order | null> {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("orders")
       .select(
         `
@@ -117,9 +178,13 @@ export async function getOrderById(
         )
       `,
       )
-      .eq("id", orderId)
-      .eq("user_id", userId)
-      .single();
+      .eq("id", orderId);
+
+    if (userId) {
+      query = query.eq("user_id", userId);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) throw error;
     return data;
@@ -423,5 +488,135 @@ export async function canUserReviewProduct(
   } catch (error) {
     console.error("Error checking review eligibility:", error);
     return false;
+  }
+}
+// Wishlist Management
+export async function getWishlist(userId: string): Promise<Wishlist[]> {
+  try {
+    const { data, error } = await supabase
+      .from("wishlists")
+      .select(
+        `
+        *,
+        product:products (*)
+      `,
+      )
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching wishlist:", error);
+    return [];
+  }
+}
+
+export async function addToWishlist(
+  userId: string,
+  productId: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabase.from("wishlists").insert({
+      user_id: userId,
+      product_id: productId,
+    });
+
+    if (error) {
+      if (error.code === "23505") {
+        // Unique violation
+        return { success: false, error: "Product already in wishlist" };
+      }
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error adding to wishlist:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to add to wishlist",
+    };
+  }
+}
+
+export async function removeFromWishlist(
+  userId: string,
+  productId: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabase
+      .from("wishlists")
+      .delete()
+      .eq("user_id", userId)
+      .eq("product_id", productId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    console.error("Error removing from wishlist:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to remove from wishlist",
+    };
+  }
+}
+
+export async function getAdminDashboardData() {
+  try {
+    // const today = new Date();
+    // const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+
+    // Get recent orders (last 5)
+    const { data: recentOrders } = await supabase
+      .from("orders")
+      .select(
+        `
+        id,
+        total_amount,
+        created_at,
+        status,
+        user:profiles (first_name, last_name, email)
+      `,
+      )
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    // Mock chart data structure for now since aggregations are complex in simple query
+    const chartData = [
+      { name: "Jan", sales: 4000, visitors: 2400 },
+      { name: "Feb", sales: 3000, visitors: 1398 },
+      { name: "Mar", sales: 2000, visitors: 9800 },
+      { name: "Apr", sales: 2780, visitors: 3908 },
+      { name: "May", sales: 1890, visitors: 4800 },
+      { name: "Jun", sales: 2390, visitors: 3800 },
+      { name: "Jul", sales: 3490, visitors: 4300 },
+    ];
+
+    return {
+      recentActivity:
+        recentOrders?.map((order) => {
+          const user = Array.isArray(order.user) ? order.user[0] : order.user;
+          const userName = user?.first_name
+            ? `${user.first_name} ${user.last_name || ""}`
+            : user?.email || "Guest";
+
+          return {
+            id: order.id,
+            user: userName,
+            action: `membuat pesanan`,
+            time: new Date(order.created_at).toLocaleDateString("id-ID"),
+            amount: order.total_amount,
+          };
+        }) || [],
+      chartData,
+    };
+  } catch (error) {
+    console.error("Error fetching admin dashboard data:", error);
+    return { recentActivity: [], chartData: [] };
   }
 }

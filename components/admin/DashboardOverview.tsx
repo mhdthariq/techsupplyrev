@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -13,48 +14,67 @@ import {
 } from "recharts";
 import { TrendingUp, Users } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-
-const data = [
-  { name: "Jan", sales: 4000, visitors: 2400 },
-  { name: "Feb", sales: 3000, visitors: 1398 },
-  { name: "Mar", sales: 2000, visitors: 9800 },
-  { name: "Apr", sales: 2780, visitors: 3908 },
-  { name: "May", sales: 1890, visitors: 4800 },
-  { name: "Jun", sales: 2390, visitors: 3800 },
-  { name: "Jul", sales: 3490, visitors: 4300 },
-];
-
-const recentActivity = [
-  {
-    id: 1,
-    user: "John Doe",
-    action: "membuat pesanan",
-    time: "2 menit yang lalu",
-    amount: 120,
-  },
-  {
-    id: 2,
-    user: "Jane Smith",
-    action: "mendaftar",
-    time: "1 jam yang lalu",
-  },
-  {
-    id: 3,
-    user: "Mike Johnson",
-    action: "mengulas produk",
-    time: "3 jam yang lalu",
-    rating: 5,
-  },
-  {
-    id: 4,
-    user: "Sarah Wilson",
-    action: "membuat pesanan",
-    time: "5 jam yang lalu",
-    amount: 350,
-  },
-];
+import { getAdminDashboardData } from "@/lib/database";
+import { CardSkeleton, Skeleton } from "@/components/skeleton-loader";
 
 export default function DashboardOverview() {
+  const [data, setData] = useState<
+    { name: string; sales?: number; visitors?: number }[]
+  >([]);
+  const [recentActivity, setRecentActivity] = useState<
+    {
+      id: string | number;
+      user: string;
+      action: string;
+      time: string;
+      amount?: number;
+    }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const dashboardData = await getAdminDashboardData();
+        setData(dashboardData.chartData);
+        setRecentActivity(dashboardData.recentActivity);
+      } catch (error) {
+        console.error("Error loading dashboard data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <Skeleton className="mb-6 h-8 w-48" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-6 w-20" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Charts Section */}
@@ -131,30 +151,36 @@ export default function DashboardOverview() {
           </h3>
         </div>
         <div className="divide-y divide-gray-100">
-          {recentActivity.map((activity) => (
-            <div
-              key={activity.id}
-              className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-600">
-                  {activity.user.charAt(0)}
+          {recentActivity.length > 0 ? (
+            recentActivity.map((activity) => (
+              <div
+                key={activity.id}
+                className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-600">
+                    {activity.user.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-900">
+                      <span className="font-bold">{activity.user}</span>{" "}
+                      {activity.action}
+                    </p>
+                    <p className="text-xs text-gray-500">{activity.time}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-900">
-                    <span className="font-bold">{activity.user}</span>{" "}
-                    {activity.action}
-                  </p>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
-                </div>
+                {activity.amount && (
+                  <span className="font-bold text-[#2C3E50]">
+                    {formatCurrency(activity.amount)}
+                  </span>
+                )}
               </div>
-              {activity.amount && (
-                <span className="font-bold text-[#2C3E50]">
-                  {formatCurrency(activity.amount)}
-                </span>
-              )}
+            ))
+          ) : (
+            <div className="p-6 text-center text-gray-500">
+              Belum ada aktivitas terbaru
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

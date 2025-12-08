@@ -1,46 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { Mail, Shield, User as UserIcon, MoreVertical } from "lucide-react";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "customer";
-  joinedDate: string;
-  ordersCount: number;
-}
-
-const mockUsers: User[] = [
-  {
-    id: "USR-001",
-    name: "Admin User",
-    email: "admin@techsupply.co",
-    role: "admin",
-    joinedDate: "2024-01-01",
-    ordersCount: 0,
-  },
-  {
-    id: "USR-002",
-    name: "John Doe",
-    email: "john@example.com",
-    role: "customer",
-    joinedDate: "2024-02-15",
-    ordersCount: 5,
-  },
-  {
-    id: "USR-003",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "customer",
-    joinedDate: "2024-03-10",
-    ordersCount: 2,
-  },
-];
+import { useState, useEffect } from "react";
+import { Mail, User as UserIcon, MoreVertical } from "lucide-react";
+import { getAllUsers } from "@/lib/database";
+import type { Profile } from "@/lib/types";
+import { TableSkeleton } from "@/components/skeleton-loader";
 
 export default function UserList() {
-  const [users] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const data = await getAllUsers();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error loading users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadUsers();
+  }, []);
+
+  if (loading) {
+    return <TableSkeleton rows={5} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -61,13 +47,10 @@ export default function UserList() {
                 Pengguna
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Peran
+                Email
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
                 Tanggal Bergabung
-              </th>
-              <th className="p-4 text-left font-semibold text-gray-600">
-                Pesanan
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
                 Aksi
@@ -83,28 +66,23 @@ export default function UserList() {
                       <UserIcon size={20} />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{user.name}</p>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Mail size={12} />
-                        {user.email}
-                      </div>
+                      <p className="font-medium text-gray-900">
+                        {user.first_name || user.last_name
+                          ? `${user.first_name || ""} ${user.last_name || ""}`
+                          : "User"}
+                      </p>
                     </div>
                   </div>
                 </td>
-                <td className="p-4">
-                  <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-                      user.role === "admin"
-                        ? "bg-purple-100 text-purple-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {user.role === "admin" && <Shield size={12} />}
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                  </span>
+                <td className="p-4 text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Mail size={12} />
+                    {user.email}
+                  </div>
                 </td>
-                <td className="p-4 text-gray-600">{user.joinedDate}</td>
-                <td className="p-4 text-gray-600">{user.ordersCount}</td>
+                <td className="p-4 text-gray-600">
+                  {new Date(user.created_at).toLocaleDateString("id-ID")}
+                </td>
                 <td className="p-4">
                   <button className="text-gray-400 transition-colors hover:text-gray-600">
                     <MoreVertical size={20} />

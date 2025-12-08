@@ -47,6 +47,7 @@ export interface Product {
   price: number;
   discount_price?: number | null;
   category: string;
+  brand: string;
   image_url: string;
   rating: number;
   reviews_count: number;
@@ -116,4 +117,21 @@ export interface CreateReviewData {
   rating: number;
   title: string;
   comment: string;
+}
+
+export interface Banner {
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  image_url: string;
+  active: boolean;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discount_value: number;
+  discount_type: string;
+  active: boolean;
 }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { addToCart as addToCartUtil } from "@/lib/cart";
+import { formatCurrency } from "@/lib/utils";
 import {
   Star,
   ShoppingCart,
@@ -44,7 +45,7 @@ export default function ProductPage() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [selectedTab, setSelectedTab] = useState("description");
+  const [selectedTab, setSelectedTab] = useState("deskripsi");
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
@@ -144,17 +145,17 @@ export default function ProductPage() {
       <div className="flex min-h-screen items-center justify-center bg-[#f8f9fa] pt-32 pb-20">
         <div className="text-center">
           <h1 className="mb-4 text-3xl font-bold text-[#2c3e50]">
-            Product Not Found
+            Produk Tidak Ditemukan
           </h1>
           <p className="mb-8 text-[#7f8c8d]">
-            The product you&apos;re looking for doesn&apos;t exist.
+            Produk yang Anda cari tidak tersedia.
           </p>
           <Link
             href="/products"
             className="inline-flex items-center gap-2 rounded-xl bg-[#3498db] px-6 py-3 font-bold text-white transition hover:bg-[#2980b9]"
           >
             <ArrowLeft size={20} />
-            Back to Products
+            Kembali ke Produk
           </Link>
         </div>
       </div>
@@ -173,11 +174,11 @@ export default function ProductPage() {
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center space-x-2 text-sm text-[#7f8c8d]">
           <Link href="/" className="hover:text-[#3498db]">
-            Home
+            Beranda
           </Link>
           <span>/</span>
           <Link href="/products" className="hover:text-[#3498db]">
-            Products
+            Produk
           </Link>
           <span>/</span>
           <Link
@@ -210,7 +211,7 @@ export default function ProductPage() {
               {!product.in_stock && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                   <span className="rounded-xl bg-white px-6 py-3 font-bold text-[#2c3e50]">
-                    Out of Stock
+                    Stok Habis
                   </span>
                 </div>
               )}
@@ -243,18 +244,18 @@ export default function ProductPage() {
                   {product.rating}
                 </span>
                 <span className="text-[#7f8c8d]">
-                  ({product.reviews_count} reviews)
+                  ({product.reviews_count} ulasan)
                 </span>
               </div>
 
               {/* Price */}
               <div className="mb-6 flex items-center gap-4">
                 <span className="text-4xl font-bold text-[#3498db]">
-                  ${finalPrice.toFixed(2)}
+                  {formatCurrency(finalPrice)}
                 </span>
                 {product.discount_price && (
                   <span className="text-xl text-[#7f8c8d] line-through">
-                    ${product.price.toFixed(2)}
+                    {formatCurrency(product.price)}
                   </span>
                 )}
               </div>
@@ -265,14 +266,12 @@ export default function ProductPage() {
                   <>
                     <Check className="text-green-500" size={20} />
                     <span className="font-medium text-green-600">
-                      In Stock ({product.stock_quantity} available)
+                      Tersedia ({product.stock_quantity} unit)
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="font-medium text-red-500">
-                      Out of Stock
-                    </span>
+                    <span className="font-medium text-red-500">Stok Habis</span>
                   </>
                 )}
               </div>
@@ -282,7 +281,7 @@ export default function ProductPage() {
             {product.in_stock && (
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <span className="font-medium text-[#2c3e50]">Quantity:</span>
+                  <span className="font-medium text-[#2c3e50]">Kuantitas:</span>
                   <div className="flex items-center rounded-lg border border-[#ecf0f1]">
                     <button
                       onClick={decrementQuantity}
@@ -308,7 +307,7 @@ export default function ProductPage() {
                     className="flex flex-1 transform items-center justify-center gap-2 rounded-xl bg-[#3498db] px-6 py-4 font-bold text-white transition hover:scale-105 hover:bg-[#2980b9]"
                   >
                     <ShoppingCart size={20} />
-                    Add to Cart
+                    Tambah ke Keranjang
                   </button>
                   <button
                     onClick={toggleWishlist}
@@ -338,10 +337,10 @@ export default function ProductPage() {
                 </div>
                 <div>
                   <div className="font-medium text-[#2c3e50]">
-                    Free Shipping
+                    Gratis Ongkir
                   </div>
                   <div className="text-sm text-[#7f8c8d]">
-                    On orders over $50
+                    Minimal belanja Rp 750rb
                   </div>
                 </div>
               </div>
@@ -351,9 +350,9 @@ export default function ProductPage() {
                 </div>
                 <div>
                   <div className="font-medium text-[#2c3e50]">
-                    30-Day Returns
+                    30 Hari Pengembalian
                   </div>
-                  <div className="text-sm text-[#7f8c8d]">Easy returns</div>
+                  <div className="text-sm text-[#7f8c8d]">Mudah & Cepat</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -361,8 +360,8 @@ export default function ProductPage() {
                   <Shield size={20} />
                 </div>
                 <div>
-                  <div className="font-medium text-[#2c3e50]">Warranty</div>
-                  <div className="text-sm text-[#7f8c8d]">1 year warranty</div>
+                  <div className="font-medium text-[#2c3e50]">Garansi</div>
+                  <div className="text-sm text-[#7f8c8d]">1 Tahun Garansi</div>
                 </div>
               </div>
             </div>
@@ -373,7 +372,7 @@ export default function ProductPage() {
         <div className="mb-16 rounded-2xl bg-white shadow-md">
           <div className="border-b border-[#ecf0f1]">
             <div className="flex gap-8 px-8">
-              {["description", "specifications", "reviews"].map((tab) => (
+              {["deskripsi", "spesifikasi", "ulasan"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setSelectedTab(tab)}
@@ -390,23 +389,23 @@ export default function ProductPage() {
           </div>
 
           <div className="p-8">
-            {selectedTab === "description" && (
+            {selectedTab === "deskripsi" && (
               <div className="prose max-w-none">
                 <p className="leading-relaxed text-[#2c3e50]">
-                  {product.description || "No description available."}
+                  {product.description || "Tidak ada deskripsi tersedia."}
                 </p>
               </div>
             )}
 
-            {selectedTab === "specifications" && (
+            {selectedTab === "spesifikasi" && (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-3">
                   <div className="flex justify-between border-b border-[#ecf0f1] py-2">
-                    <span className="font-medium text-[#2c3e50]">Category</span>
+                    <span className="font-medium text-[#2c3e50]">Kategori</span>
                     <span className="text-[#7f8c8d]">{product.category}</span>
                   </div>
                   <div className="flex justify-between border-b border-[#ecf0f1] py-2">
-                    <span className="font-medium text-[#2c3e50]">Brand</span>
+                    <span className="font-medium text-[#2c3e50]">Merek</span>
                     <span className="text-[#7f8c8d]">TechSupply</span>
                   </div>
                   <div className="flex justify-between border-b border-[#ecf0f1] py-2">
@@ -417,14 +416,14 @@ export default function ProductPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between border-b border-[#ecf0f1] py-2">
                     <span className="font-medium text-[#2c3e50]">
-                      Availability
+                      Ketersediaan
                     </span>
                     <span
                       className={
                         product.in_stock ? "text-green-600" : "text-red-600"
                       }
                     >
-                      {product.in_stock ? "In Stock" : "Out of Stock"}
+                      {product.in_stock ? "Tersedia" : "Stok Habis"}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[#ecf0f1] py-2">
@@ -434,25 +433,27 @@ export default function ProductPage() {
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[#ecf0f1] py-2">
-                    <span className="font-medium text-[#2c3e50]">Weight</span>
+                    <span className="font-medium text-[#2c3e50]">Berat</span>
                     <span className="text-[#7f8c8d]">0.5 kg</span>
                   </div>
                 </div>
               </div>
             )}
 
-            {selectedTab === "reviews" && (
+            {selectedTab === "ulasan" && (
               <div>
                 <div>
                   <h3 className="mb-4 text-xl font-bold text-[#2c3e50]">
-                    Customer Reviews
+                    Ulasan Pelanggan
                   </h3>
                   <button className="rounded-lg bg-[#3498db] px-4 py-2 text-white transition hover:bg-[#2980b9]">
-                    Write Review
+                    Tulis Ulasan
                   </button>
                 </div>
                 <div className="py-12 text-center text-[#7f8c8d]">
-                  <p>No reviews yet. Be the first to review this product!</p>
+                  <p>
+                    Belum ada ulasan. Jadilah yang pertama mengulas produk ini!
+                  </p>
                 </div>
               </div>
             )}
@@ -463,7 +464,7 @@ export default function ProductPage() {
         {relatedProducts.length > 0 && (
           <section>
             <h2 className="mb-8 text-3xl font-bold text-[#2c3e50]">
-              Related Products
+              Produk Terkait
             </h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {relatedProducts.map((relatedProduct) => (
@@ -489,15 +490,15 @@ export default function ProductPage() {
                         {relatedProduct.discount_price ? (
                           <>
                             <span className="text-lg font-bold text-[#3498db]">
-                              ${relatedProduct.discount_price.toFixed(2)}
+                              {formatCurrency(relatedProduct.discount_price)}
                             </span>
                             <span className="text-sm text-[#7f8c8d] line-through">
-                              ${relatedProduct.price.toFixed(2)}
+                              {formatCurrency(relatedProduct.price)}
                             </span>
                           </>
                         ) : (
                           <span className="text-lg font-bold text-[#3498db]">
-                            ${relatedProduct.price.toFixed(2)}
+                            {formatCurrency(relatedProduct.price)}
                           </span>
                         )}
                       </div>

@@ -1,14 +1,6 @@
 import { Edit2, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  discount_price: number | null;
-  category: string;
-  brand: string;
-}
+import type { Product } from "@/lib/types";
 
 interface ProductTableProps {
   products: Product[];
