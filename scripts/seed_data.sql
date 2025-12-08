@@ -1,3 +1,8 @@
+-- Clean up existing data
+TRUNCATE TABLE public.products RESTART IDENTITY CASCADE;
+TRUNCATE TABLE public.banners RESTART IDENTITY CASCADE;
+TRUNCATE TABLE public.coupons RESTART IDENTITY CASCADE;
+
 -- Seed products
 INSERT INTO public.products (name, description, price, discount_price, category, image_url, rating, reviews_count, in_stock, stock_quantity, featured) VALUES
 ('Pro Wireless Headphones', 'Premium noise-canceling headphones with 30-hour battery life', 4500000, 3750000, 'Electronics', '/placeholder.svg?height=300&width=300', 4.8, 1250, true, 50, true),
