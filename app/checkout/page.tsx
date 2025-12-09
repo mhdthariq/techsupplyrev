@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getCartItems, clearCart } from "@/lib/cart";
 import { formatCurrency } from "@/lib/utils";
 
-import { Check, ChevronRight } from "lucide-react";
+import { Check, ChevronRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CartItem {
@@ -22,7 +22,7 @@ interface User {
   email?: string;
 }
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [orderTotal, setOrderTotal] = useState(0);
@@ -687,5 +687,19 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#3498DB]" />
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }

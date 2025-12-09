@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
 
@@ -113,5 +114,19 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-background min-h-screen px-4 pt-28 text-center">
+          Loading search...
+        </div>
+      }
+    >
+      <SearchContent />
+    </Suspense>
   );
 }
