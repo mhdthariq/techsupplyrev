@@ -21,7 +21,10 @@ import {
   Trash2,
   Heart,
   ShoppingCart,
+  Camera,
 } from "lucide-react";
+
+import ReviewModal from "@/components/reviews/ReviewModal";
 
 import { getCurrentUser, signOut, updatePassword } from "@/lib/auth";
 import {
@@ -30,16 +33,20 @@ import {
   getUserOrders,
   getUserReviews,
   getReviewableProducts,
-  createReview,
   deleteReview,
+  getWishlist,
+  removeFromWishlist,
 } from "@/lib/database";
 import { useToast } from "@/hooks/use-toast";
 import type {
   User as AuthUser,
   Order,
   Review,
-  CreateReviewData,
+  UpdateProfileData,
 } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { convertImageToWebP } from "@/lib/image-utils";
 
 interface WishlistProduct {
   id: string;
@@ -149,22 +156,14 @@ function AccountContent() {
     confirmPassword: "",
   });
 
-  const [reviewForm, setReviewForm] = useState({
-    rating: 5,
-    title: "",
-    comment: "",
-  });
-
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadUserData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+  /* eslint-disable react-hooks/exhaustive-deps */
   const loadUserData = async () => {
     try {
       const currentUser = await getCurrentUser();
+
       if (!currentUser) {
         router.push("/auth/login");
         return;
@@ -172,19 +171,20 @@ function AccountContent() {
 
       setUser(currentUser);
 
-      // Load profile
-      const userProfile = await getUserProfile(currentUser.id);
-      if (userProfile) {
-        const fullName =
-          `${userProfile.first_name || ""} ${userProfile.last_name || ""}`.trim();
+      // Load profile data
+      const profile = await getUserProfile(currentUser.id);
+      if (profile) {
         setProfileForm({
-          full_name: fullName || currentUser.name || "",
-          phone: userProfile.phone || "",
-          address: userProfile.address || "",
-          city: userProfile.city || "",
-          postal_code: userProfile.postal_code || "",
-          country: userProfile.country || "",
+          full_name: profile.first_name
+            ? `${profile.first_name} ${profile.last_name || ""}`.trim()
+            : currentUser.name || "",
+          phone: profile.phone || "",
+          address: profile.address || "",
+          city: profile.city || "",
+          postal_code: profile.postal_code || "",
+          country: profile.country || "",
         });
+        setAvatarUrl(profile.avatar_url || currentUser.avatar_url || "");
       }
 
       // Load orders
@@ -196,17 +196,94 @@ function AccountContent() {
       setReviews(userReviews);
 
       // Load reviewable products
-      const reviewableItems = await getReviewableProducts(currentUser.id);
-      setReviewableProducts(reviewableItems.filter((item) => !item.hasReview));
+      const reviewable = await getReviewableProducts(currentUser.id);
+      setReviewableProducts(reviewable);
+
+      // Load wishlist
+      const wishlistData = await getWishlist(currentUser.id);
+      const mappedWishlist = wishlistData
+        .filter((item) => item.product) // Ensure product exists
+        .map((item) => ({
+          id: item.product!.id,
+          name: item.product!.name,
+          price: item.product!.price,
+          image_url: item.product!.image_url,
+          in_stock: item.product!.in_stock,
+        }));
+      setWishlist(mappedWishlist);
     } catch (error) {
       console.error("Error loading user data:", error);
       toast({
         title: "Error",
-        description: "Failed to load account data",
+        description: "Gagal memuat data pengguna",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUserData();
+  }, [router, toast]);
+
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0] || !user) return;
+
+    const file = e.target.files[0];
+    setIsUploadingAvatar(true);
+
+    try {
+      // Convert to WebP
+      const webpFile = await convertImageToWebP(file);
+
+      const supabase = createClient();
+      const fileName = `${user.id}-${Date.now()}.webp`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, webpFile, {
+          contentType: "image/webp",
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(fileName);
+
+      // Update profile
+      const updateData: UpdateProfileData = {
+        avatar_url: publicUrl,
+      };
+
+      const result = await updateUserProfile(user.id, updateData);
+
+      if (result.success) {
+        setAvatarUrl(publicUrl);
+        toast({
+          title: "Foto Profil Diperbarui",
+          description: "Foto profil Anda berhasil diperbarui",
+          variant: "success",
+        });
+
+        // Refresh full user data to sync everything
+        loadUserData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast({
+        title: "Gagal Mengunggah",
+        description: "Gagal mengunggah foto profil",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
 
@@ -232,8 +309,8 @@ function AccountContent() {
       const result = await updateUserProfile(user.id, updateData);
       if (result.success) {
         toast({
-          title: "Profile Updated",
-          description: "Your profile has been successfully updated",
+          title: "Profil Diperbarui",
+          description: "Profil Anda berhasil diperbarui",
           variant: "success",
         });
         setIsEditingProfile(false);
@@ -243,9 +320,9 @@ function AccountContent() {
       }
     } catch (error) {
       toast({
-        title: "Update Failed",
+        title: "Gagal Memperbarui",
         description:
-          error instanceof Error ? error.message : "Failed to update profile",
+          error instanceof Error ? error.message : "Gagal memperbarui profil",
         variant: "destructive",
       });
     }
@@ -254,8 +331,8 @@ function AccountContent() {
   const handlePasswordUpdate = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast({
-        title: "Password Mismatch",
-        description: "New passwords do not match",
+        title: "Password Tidak Cocok",
+        description: "Password baru tidak cocok",
         variant: "destructive",
       });
       return;
@@ -263,8 +340,8 @@ function AccountContent() {
 
     if (passwordForm.newPassword.length < 6) {
       toast({
-        title: "Password Too Short",
-        description: "Password must be at least 6 characters long",
+        title: "Password Terlalu Pendek",
+        description: "Password harus minimal 6 karakter",
         variant: "destructive",
       });
       return;
@@ -274,8 +351,8 @@ function AccountContent() {
       const result = await updatePassword(passwordForm.newPassword);
       if (!result.error) {
         toast({
-          title: "Password Updated",
-          description: "Your password has been successfully updated",
+          title: "Password Diperbarui",
+          description: "Password Anda berhasil diperbarui",
           variant: "success",
         });
         setShowPasswordForm(false);
@@ -283,53 +360,8 @@ function AccountContent() {
       }
     } catch {
       toast({
-        title: "Update Failed",
-        description: "Failed to update password",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCreateReview = async () => {
-    if (!user || !selectedProduct) return;
-
-    if (!reviewForm.title.trim() || !reviewForm.comment.trim()) {
-      toast({
-        title: "Incomplete Review",
-        description: "Please provide both a title and comment",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const reviewData: CreateReviewData = {
-        product_id: selectedProduct.product_id,
-        order_id: selectedProduct.order_id,
-        rating: reviewForm.rating,
-        title: reviewForm.title.trim(),
-        comment: reviewForm.comment.trim(),
-      };
-
-      const result = await createReview(user.id, reviewData);
-      if (result.success) {
-        toast({
-          title: "Review Created",
-          description: "Your review has been submitted successfully",
-          variant: "success",
-        });
-        setShowReviewModal(false);
-        setSelectedProduct(null);
-        setReviewForm({ rating: 5, title: "", comment: "" });
-        loadUserData(); // Reload data
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      toast({
-        title: "Review Failed",
-        description:
-          error instanceof Error ? error.message : "Failed to create review",
+        title: "Gagal Memperbarui",
+        description: "Gagal memperbarui password",
         variant: "destructive",
       });
     }
@@ -342,8 +374,8 @@ function AccountContent() {
       const result = await deleteReview(reviewId, user.id);
       if (result.success) {
         toast({
-          title: "Review Deleted",
-          description: "Your review has been deleted successfully",
+          title: "Ulasan Dihapus",
+          description: "Ulasan Anda berhasil dihapus",
           variant: "success",
         });
         loadUserData(); // Reload data
@@ -352,9 +384,9 @@ function AccountContent() {
       }
     } catch (error) {
       toast({
-        title: "Delete Failed",
+        title: "Gagal Menghapus",
         description:
-          error instanceof Error ? error.message : "Failed to delete review",
+          error instanceof Error ? error.message : "Gagal menghapus ulasan",
         variant: "destructive",
       });
     }
@@ -388,7 +420,7 @@ function AccountContent() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("id-ID", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -400,7 +432,7 @@ function AccountContent() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[#3498DB] border-t-transparent"></div>
-          <p className="text-gray-600">Loading your account...</p>
+          <p className="text-gray-600">Memuat akun Anda...</p>
         </div>
       </div>
     );
@@ -412,10 +444,10 @@ function AccountContent() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
             <h1 className="mb-2 text-4xl font-bold text-[#2C3E50]">
-              My Account
+              Akun Saya
             </h1>
             <p className="text-gray-600">
-              Manage your profile, orders, and reviews
+              Kelola profil, pesanan, dan ulasan Anda
             </p>
           </div>
 
@@ -435,7 +467,7 @@ function AccountContent() {
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
-                    <User size={20} /> Profile
+                    <User size={20} /> Profil
                   </button>
                   <button
                     onClick={() => {
@@ -448,7 +480,7 @@ function AccountContent() {
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
-                    <Package size={20} /> Orders ({orders.length})
+                    <Package size={20} /> Pesanan ({orders.length})
                   </button>
                   <button
                     onClick={() => {
@@ -461,7 +493,7 @@ function AccountContent() {
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
-                    <MessageSquare size={20} /> Reviews ({reviews.length})
+                    <MessageSquare size={20} /> Ulasan ({reviews.length})
                   </button>
                   <button
                     onClick={() => {
@@ -487,13 +519,13 @@ function AccountContent() {
                         : "text-[#2C3E50] hover:bg-gray-50"
                     }`}
                   >
-                    <Settings size={20} /> Settings
+                    <Settings size={20} /> Pengaturan
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="flex items-center gap-3 border-t border-gray-200 px-6 py-4 text-left font-semibold text-red-600 transition-colors hover:bg-red-50"
                   >
-                    <LogOut size={20} /> Sign Out
+                    <LogOut size={20} /> Keluar
                   </button>
                 </nav>
               </div>
@@ -513,8 +545,54 @@ function AccountContent() {
                       className="flex items-center gap-2 rounded-lg bg-[#3498DB] px-4 py-2 text-white transition-colors hover:bg-[#2980B9]"
                     >
                       {isEditingProfile ? <X size={18} /> : <Edit size={18} />}
-                      {isEditingProfile ? "Cancel" : "Edit"}
+                      {isEditingProfile ? "Batal" : "Edit"}
                     </button>
+                  </div>
+
+                  <div className="mb-8 flex items-center gap-6 border-b border-gray-100 pb-8">
+                    <div className="group relative">
+                      <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-gray-50 bg-gray-100">
+                        {avatarUrl ? (
+                          <Image
+                            src={avatarUrl}
+                            alt="Profile"
+                            width={96}
+                            height={96}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-[#3498DB] text-3xl font-bold text-white">
+                            {user?.name?.[0]?.toUpperCase() || "U"}
+                          </div>
+                        )}
+                      </div>
+                      {isEditingProfile && (
+                        <label className="absolute right-0 bottom-0 cursor-pointer rounded-full bg-[#3498DB] p-2 text-white shadow-lg transition-transform hover:scale-110 hover:bg-[#2980B9]">
+                          <div
+                            className={isUploadingAvatar ? "animate-spin" : ""}
+                          >
+                            <Camera size={16} />
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={isUploadingAvatar}
+                          />
+                        </label>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-[#2C3E50]">
+                        {user?.name || "Pengguna"}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {isEditingProfile
+                          ? "Klik ikon kamera untuk mengubah foto"
+                          : "Anggota TechSupply"}
+                      </p>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -534,7 +612,7 @@ function AccountContent() {
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         <User size={16} className="mr-2 inline" />
-                        Full Name
+                        Nama Lengkap
                       </label>
                       <input
                         type="text"
@@ -546,7 +624,7 @@ function AccountContent() {
                           })
                         }
                         disabled={!isEditingProfile}
-                        placeholder="Enter your full name"
+                        placeholder="Masukkan nama lengkap Anda"
                         className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none disabled:bg-gray-50"
                       />
                     </div>
@@ -554,7 +632,7 @@ function AccountContent() {
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         <Phone size={16} className="mr-2 inline" />
-                        Phone
+                        Telepon
                       </label>
                       <input
                         type="tel"
@@ -573,7 +651,7 @@ function AccountContent() {
                     <div className="md:col-span-2">
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
                         <MapPin size={16} className="mr-2 inline" />
-                        Address
+                        Alamat
                       </label>
                       <input
                         type="text"
@@ -591,7 +669,7 @@ function AccountContent() {
 
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                        City
+                        Kota
                       </label>
                       <input
                         type="text"
@@ -609,7 +687,7 @@ function AccountContent() {
 
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                        Postal Code
+                        Kode Pos
                       </label>
                       <input
                         type="text"
@@ -627,7 +705,7 @@ function AccountContent() {
 
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                        Country
+                        Negara
                       </label>
                       <input
                         type="text"
@@ -650,7 +728,7 @@ function AccountContent() {
                       className="mt-6 flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-green-700"
                     >
                       <Save size={18} />
-                      Save Changes
+                      Simpan Perubahan
                     </button>
                   )}
                 </div>
@@ -660,7 +738,7 @@ function AccountContent() {
               {activeTab === "orders" && (
                 <div className="rounded-lg bg-white p-8 shadow-sm">
                   <h2 className="mb-6 text-2xl font-bold text-[#2C3E50]">
-                    Order History
+                    Riwayat Pesanan
                   </h2>
 
                   {orders.length === 0 ? (
@@ -669,9 +747,9 @@ function AccountContent() {
                         size={48}
                         className="mx-auto mb-4 text-gray-400"
                       />
-                      <p className="text-lg text-gray-600">No orders yet</p>
+                      <p className="text-lg text-gray-600">Belum ada pesanan</p>
                       <p className="mb-6 text-gray-500">
-                        Start shopping to see your orders here
+                        Mulai berbelanja untuk melihat pesanan Anda di sini
                       </p>
                       <button
                         onClick={() => router.push("/products")}
@@ -690,7 +768,7 @@ function AccountContent() {
                           <div className="mb-4 flex items-start justify-between">
                             <div>
                               <h3 className="text-lg font-bold text-[#2C3E50]">
-                                Order #{order.id.slice(-8)}
+                                Pesanan #{order.id.slice(-8)}
                               </h3>
                               <div className="mt-1 flex items-center gap-4 text-sm text-gray-600">
                                 <span className="flex items-center gap-1">
@@ -706,7 +784,7 @@ function AccountContent() {
                             </div>
                             <div className="text-right">
                               <p className="text-xl font-bold text-[#2C3E50]">
-                                ${order.total_amount.toFixed(2)}
+                                {formatCurrency(order.total_amount)}
                               </p>
                               <span
                                 className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(order.status)}`}
@@ -740,12 +818,11 @@ function AccountContent() {
                                           </h4>
                                           <div className="mt-1 flex items-center justify-between">
                                             <span className="text-gray-600">
-                                              Qty: {item.quantity}
+                                              Jml: {item.quantity}
                                             </span>
                                             <span className="font-semibold">
-                                              $
-                                              {item.price_at_purchase.toFixed(
-                                                2,
+                                              {formatCurrency(
+                                                item.price_at_purchase,
                                               )}
                                             </span>
                                           </div>
@@ -762,7 +839,7 @@ function AccountContent() {
                                             }}
                                             className="rounded-lg bg-[#3498DB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2980B9]"
                                           >
-                                            Write Review
+                                            Tulis Ulasan
                                           </button>
                                         )}
                                       </>
@@ -783,11 +860,11 @@ function AccountContent() {
                 <div className="rounded-lg bg-white p-8 shadow-sm">
                   <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-[#2C3E50]">
-                      My Reviews
+                      Ulasan Saya
                     </h2>
                     {reviewableProducts.length > 0 && (
                       <span className="rounded-full bg-[#3498DB] px-3 py-1 text-sm text-white">
-                        {reviewableProducts.length} products awaiting review
+                        {reviewableProducts.length} produk menunggu ulasan
                       </span>
                     )}
                   </div>
@@ -796,7 +873,7 @@ function AccountContent() {
                   {reviewableProducts.length > 0 && (
                     <div className="mb-8">
                       <h3 className="mb-4 text-lg font-semibold text-[#2C3E50]">
-                        Products You Can Review
+                        Produk yang Dapat Anda Ulas
                       </h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {reviewableProducts.slice(0, 4).map((item) => (
@@ -934,7 +1011,7 @@ function AccountContent() {
                     <div className="py-12 text-center">
                       <Heart size={48} className="mx-auto mb-4 text-gray-400" />
                       <p className="text-lg text-gray-600">
-                        Your wishlist is empty
+                        Wishlist Anda kosong
                       </p>
                       <p className="mb-6 text-gray-500">
                         Save items you love to buy later
@@ -961,13 +1038,15 @@ function AccountContent() {
                               className="object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                             <button
-                              onClick={() => {
+                              onClick={async () => {
+                                if (!user) return;
                                 setWishlist(
                                   wishlist.filter((w) => w.id !== item.id),
                                 );
+                                await removeFromWishlist(user.id, item.id);
                                 toast({
-                                  title: "Removed from Wishlist",
-                                  description: `${item.name} has been removed`,
+                                  title: "Dihapus dari Wishlist",
+                                  description: `${item.name} telah dihapus`,
                                 });
                               }}
                               className="absolute top-3 right-3 rounded-full bg-white/80 p-2 text-red-500 backdrop-blur-sm transition-colors hover:bg-white"
@@ -1111,117 +1190,27 @@ function AccountContent() {
       </div>
 
       {/* Review Modal */}
-      {showReviewModal && selectedProduct && (
-        <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-[#2C3E50]">Write Review</h3>
-              <button
-                onClick={() => {
-                  setShowReviewModal(false);
-                  setSelectedProduct(null);
-                  setReviewForm({ rating: 5, title: "", comment: "" });
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="mb-6 flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedProduct.product?.image_url}
-                alt={selectedProduct.product?.name}
-                className="h-16 w-16 rounded-lg object-cover"
-              />
-              <div>
-                <h4 className="font-semibold text-[#2C3E50]">
-                  {selectedProduct.product?.name}
-                </h4>
-                <p className="text-sm text-gray-600">
-                  Order #{selectedProduct.order_id?.slice(-8)}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                  Rating
-                </label>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() =>
-                        setReviewForm({ ...reviewForm, rating: star })
-                      }
-                      className="transition-colors"
-                    >
-                      <Star
-                        size={24}
-                        className={
-                          star <= reviewForm.rating
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                  Review Title
-                </label>
-                <input
-                  type="text"
-                  value={reviewForm.title}
-                  onChange={(e) =>
-                    setReviewForm({ ...reviewForm, title: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none"
-                  placeholder="Summarize your experience"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                  Comment
-                </label>
-                <textarea
-                  value={reviewForm.comment}
-                  onChange={(e) =>
-                    setReviewForm({ ...reviewForm, comment: e.target.value })
-                  }
-                  className="h-24 w-full resize-none rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none"
-                  placeholder="Tell others about your experience with this product"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={handleCreateReview}
-                  className="flex-1 rounded-lg bg-[#3498DB] py-3 font-semibold text-white transition-colors hover:bg-[#2980B9]"
-                >
-                  Submit Review
-                </button>
-                <button
-                  onClick={() => {
-                    setShowReviewModal(false);
-                    setSelectedProduct(null);
-                    setReviewForm({ rating: 5, title: "", comment: "" });
-                  }}
-                  className="rounded-lg bg-gray-500 px-6 py-3 text-white transition-colors hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Review Modal */}
+      {showReviewModal && selectedProduct && user && (
+        <ReviewModal
+          isOpen={showReviewModal}
+          onClose={() => {
+            setShowReviewModal(false);
+            setSelectedProduct(null);
+          }}
+          productId={selectedProduct.product_id}
+          orderId={selectedProduct.order_id}
+          productName={selectedProduct.product?.name || "Product"}
+          productImage={
+            selectedProduct.product?.image_url || "/placeholder.svg"
+          }
+          userId={user.id}
+          onSuccess={() => {
+            setShowReviewModal(false);
+            setSelectedProduct(null);
+            loadUserData();
+          }}
+        />
       )}
     </div>
   );

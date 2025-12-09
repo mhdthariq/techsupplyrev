@@ -13,22 +13,22 @@ export default function AdminStats({
 }: AdminStatsProps) {
   const stats = [
     {
-      label: "Total Products",
+      label: "Total Produk",
       value: productsCount,
       color: "bg-blue-50 text-blue-600",
     },
     {
-      label: "Active Banners",
+      label: "Banner Aktif",
       value: activeBannersCount,
       color: "bg-green-50 text-green-600",
     },
     {
-      label: "Active Coupons",
+      label: "Kupon Aktif",
       value: activeCouponsCount,
       color: "bg-yellow-50 text-yellow-600",
     },
     {
-      label: "Admin User",
+      label: "Admin",
       value: userName || "Admin",
       color: "bg-purple-50 text-purple-600",
     },

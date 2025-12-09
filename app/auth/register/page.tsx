@@ -38,17 +38,17 @@ function RegisterForm() {
       !formData.password ||
       !formData.confirmPassword
     ) {
-      setError("Please fill in all fields");
+      setError("Mohon isi semua kolom");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Password tidak cocok");
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError("Password harus minimal 6 karakter");
       return;
     }
 
@@ -70,10 +70,10 @@ function RegisterForm() {
       const errorMessage =
         err instanceof Error
           ? err.message
-          : "Registration failed. Please try again.";
+          : "Registrasi gagal. Silakan coba lagi.";
       setError(errorMessage);
       toast({
-        title: "Registration failed",
+        title: "Registrasi gagal",
         description: errorMessage,
         variant: "destructive",
       });
@@ -100,7 +100,7 @@ function RegisterForm() {
             size={18}
             className="transition-transform group-hover:-translate-x-1"
           />
-          Back to Home
+          Kembali ke Beranda
         </Link>
 
         {/* Logo */}
@@ -120,10 +120,10 @@ function RegisterForm() {
         <div className="rounded-3xl border border-gray-200/50 bg-white/95 p-8 shadow-xl backdrop-blur-sm">
           <div className="mb-10 text-center">
             <h2 className="mb-3 text-3xl font-bold text-[#2C3E50]">
-              Create Account
+              Buat Akun
             </h2>
             <p className="text-lg text-gray-600">
-              Join thousands of satisfied customers
+              Bergabunglah dengan ribuan pelanggan yang puas
             </p>
           </div>
 
@@ -150,7 +150,7 @@ function RegisterForm() {
             {/* Full Name Field */}
             <div>
               <label className="mb-3 block text-sm font-semibold text-[#2C3E50]">
-                Full Name
+                Nama Lengkap
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
@@ -158,7 +158,7 @@ function RegisterForm() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder="Masukkan nama lengkap Anda"
                   value={formData.fullName}
                   onChange={(e) =>
                     handleInputChange("fullName", e.target.value)
@@ -171,7 +171,7 @@ function RegisterForm() {
             {/* Email Field */}
             <div>
               <label className="mb-3 block text-sm font-semibold text-[#2C3E50]">
-                Email Address
+                Alamat Email
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
@@ -179,7 +179,7 @@ function RegisterForm() {
                 </div>
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Masukkan email Anda"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   className="w-full rounded-xl border-2 border-gray-200 bg-white py-4 pr-4 pl-12 text-base text-[#2C3E50] placeholder-gray-400 transition-all hover:border-gray-300 focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 focus:outline-none"
@@ -198,7 +198,7 @@ function RegisterForm() {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create a strong password"
+                  placeholder="Buat password yang kuat"
                   value={formData.password}
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
@@ -218,7 +218,7 @@ function RegisterForm() {
             {/* Confirm Password Field */}
             <div>
               <label className="mb-3 block text-sm font-semibold text-[#2C3E50]">
-                Confirm Password
+                Konfirmasi Password
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
@@ -226,7 +226,7 @@ function RegisterForm() {
                 </div>
                 <input
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
+                  placeholder="Konfirmasi password Anda"
                   value={formData.confirmPassword}
                   onChange={(e) =>
                     handleInputChange("confirmPassword", e.target.value)
@@ -256,10 +256,10 @@ function RegisterForm() {
               {isLoading ? (
                 <div className="flex items-center justify-center gap-3">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
-                  Creating Account...
+                  Membuat Akun...
                 </div>
               ) : (
-                "Create Account"
+                "Buat Akun"
               )}
             </button>
           </form>
@@ -267,12 +267,12 @@ function RegisterForm() {
           {/* Sign In Link */}
           <div className="mt-8 border-t border-gray-100 pt-8 text-center">
             <p className="text-gray-600">
-              Already have an account?{" "}
+              Sudah punya akun?{" "}
               <Link
                 href="/auth/login"
                 className="font-semibold text-[#3498db] transition-colors hover:text-[#2980b9] hover:underline"
               >
-                Sign in here
+                Masuk di sini
               </Link>
             </p>
           </div>
@@ -280,7 +280,7 @@ function RegisterForm() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-400">
-          <p>© 2024 TechSupply. All rights reserved.</p>
+          <p>© 2024 TechSupply. Hak cipta dilindungi.</p>
         </div>
       </div>
     </div>
@@ -292,7 +292,7 @@ export default function RegisterPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50">
-          <div className="text-gray-600">Loading...</div>
+          <div className="text-gray-600">Memuat...</div>
         </div>
       }
     >

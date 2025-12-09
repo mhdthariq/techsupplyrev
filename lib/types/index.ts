@@ -47,6 +47,7 @@ export interface Product {
   price: number;
   discount_price?: number | null;
   category: string;
+  brand: string;
   image_url: string;
   rating: number;
   reviews_count: number;
@@ -70,7 +71,9 @@ export interface Review {
   updated_at: string;
   user?: {
     email: string;
-    name?: string;
+    first_name?: string;
+    last_name?: string;
+    name?: string; // Keep for backward compatibility if needed, or remove
   };
   product?: {
     name: string;
@@ -88,6 +91,7 @@ export interface Profile {
   city?: string;
   postal_code?: string;
   country?: string;
+  avatar_url?: string;
   created_at: string;
   updated_at: string;
 }
@@ -108,6 +112,7 @@ export interface UpdateProfileData {
   city?: string;
   postal_code?: string;
   country?: string;
+  avatar_url?: string;
 }
 
 export interface CreateReviewData {
@@ -116,4 +121,22 @@ export interface CreateReviewData {
   rating: number;
   title: string;
   comment: string;
+}
+
+export interface Banner {
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  image_url: string;
+  active: boolean;
+  position: number;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discount_value: number;
+  discount_type: string;
+  active: boolean;
 }

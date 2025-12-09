@@ -6,6 +6,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { addToCart as addToCartUtil } from "@/lib/cart";
 import Carousel from "@/components/ui/carousel";
+import { formatCurrency } from "@/lib/utils";
 
 import {
   Star,
@@ -117,23 +118,24 @@ export default function Home() {
               <div className="relative flex h-full items-center justify-center px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-4xl text-center text-white">
                   <div className="mb-6 inline-block rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
-                    New Collection 2024
+                    Koleksi Baru 2024
                   </div>
                   <h1 className="mb-4 text-3xl leading-tight font-bold md:text-5xl lg:text-6xl">
-                    Premium Tech{" "}
-                    <span className="text-[#ffd700]">Accessories</span> for Your
-                    Setup
+                    Aksesoris Tech{" "}
+                    <span className="text-[#ffd700]">Premium</span> untuk Setup
+                    Anda
                   </h1>
                   <p className="mb-8 text-lg leading-relaxed text-white/90 md:text-xl lg:text-2xl">
-                    Discover our exclusive collection of high-quality tech
-                    accessories. From gaming peripherals to office essentials.
+                    Temukan koleksi eksklusif aksesoris teknologi berkualitas
+                    tinggi kami. Dari perlengkapan gaming hingga kebutuhan
+                    kantor.
                   </p>
                   <Link
                     href="/products"
                     className="inline-flex transform items-center gap-2 rounded-xl bg-white px-8 py-4 font-bold text-gray-900 shadow-lg transition-all hover:scale-105 hover:bg-gray-100"
                   >
                     <Zap size={20} />
-                    Shop Now
+                    Belanja Sekarang
                   </Link>
                 </div>
               </div>
@@ -151,8 +153,8 @@ export default function Home() {
                 <Award size={24} />
               </div>
               <div>
-                <div className="font-bold text-[#2c3e50]">Trusted</div>
-                <div className="text-sm text-[#7f8c8d]">100K+ Customers</div>
+                <div className="font-bold text-[#2c3e50]">Terpercaya</div>
+                <div className="text-sm text-[#7f8c8d]">100K+ Pelanggan</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -160,8 +162,10 @@ export default function Home() {
                 <Zap size={24} />
               </div>
               <div>
-                <div className="font-bold text-[#2c3e50]">Fast Shipping</div>
-                <div className="text-sm text-[#7f8c8d]">2-3 Days Delivery</div>
+                <div className="font-bold text-[#2c3e50]">Pengiriman Cepat</div>
+                <div className="text-sm text-[#7f8c8d]">
+                  2-3 Hari Pengiriman
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -169,9 +173,9 @@ export default function Home() {
                 <TrendingUp size={24} />
               </div>
               <div>
-                <div className="font-bold text-[#2c3e50]">Best Prices</div>
+                <div className="font-bold text-[#2c3e50]">Harga Terbaik</div>
                 <div className="text-sm text-[#7f8c8d]">
-                  Price Match Guarantee
+                  Jaminan Harga Termurah
                 </div>
               </div>
             </div>
@@ -180,8 +184,10 @@ export default function Home() {
                 <Award size={24} />
               </div>
               <div>
-                <div className="font-bold text-[#2c3e50]">30-Day Returns</div>
-                <div className="text-sm text-[#7f8c8d]">Easy Returns</div>
+                <div className="font-bold text-[#2c3e50]">
+                  30 Hari Pengembalian
+                </div>
+                <div className="text-sm text-[#7f8c8d]">Pengembalian Mudah</div>
               </div>
             </div>
           </div>
@@ -194,15 +200,17 @@ export default function Home() {
           <div className="mb-12 flex items-center justify-between">
             <div>
               <h2 className="mb-2 text-4xl font-bold text-[#2c3e50]">
-                Featured Products
+                Produk Unggulan
               </h2>
-              <p className="text-[#7f8c8d]">Handpicked items just for you</p>
+              <p className="text-[#7f8c8d]">
+                Pilihan terbaik khusus untuk Anda
+              </p>
             </div>
             <Link
               href="/products"
               className="text-lg font-bold text-[#3498db] transition-colors hover:text-[#2980b9]"
             >
-              View All →
+              Lihat Semua →
             </Link>
           </div>
 
@@ -259,7 +267,7 @@ export default function Home() {
                           className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3498db] py-2 font-bold text-white transition hover:bg-[#2980b9]"
                         >
                           <ShoppingCart size={18} />
-                          Add to Cart
+                          Tambah ke Keranjang
                         </button>
                       </div>
                     </div>
@@ -298,15 +306,15 @@ export default function Home() {
                         {product.discount_price ? (
                           <>
                             <span className="text-2xl font-bold text-[#3498db]">
-                              ${product.discount_price.toFixed(2)}
+                              {formatCurrency(product.discount_price)}
                             </span>
                             <span className="text-sm text-[#7f8c8d] line-through">
-                              ${product.price.toFixed(2)}
+                              {formatCurrency(product.price)}
                             </span>
                           </>
                         ) : (
                           <span className="text-2xl font-bold text-[#3498db]">
-                            ${product.price.toFixed(2)}
+                            {formatCurrency(product.price)}
                           </span>
                         )}
                       </div>

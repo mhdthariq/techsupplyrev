@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import SearchSuggestions from "@/components/SearchSuggestions";
+import { formatCurrency } from "@/lib/utils";
 
 import { Filter, Star, Search, X, Grid3X3, List } from "lucide-react";
 
@@ -94,14 +95,18 @@ export default function ProductsPage() {
     }
 
     // Apply price filter
-    if (filters.priceRange === "under50")
-      filtered = filtered.filter((p) => p.price < 50);
-    else if (filters.priceRange === "50-100")
-      filtered = filtered.filter((p) => p.price >= 50 && p.price <= 100);
-    else if (filters.priceRange === "100-200")
-      filtered = filtered.filter((p) => p.price >= 100 && p.price <= 200);
-    else if (filters.priceRange === "over200")
-      filtered = filtered.filter((p) => p.price > 200);
+    if (filters.priceRange === "under750k")
+      filtered = filtered.filter((p) => p.price < 750000);
+    else if (filters.priceRange === "750k-1500k")
+      filtered = filtered.filter(
+        (p) => p.price >= 750000 && p.price <= 1500000,
+      );
+    else if (filters.priceRange === "1500k-3000k")
+      filtered = filtered.filter(
+        (p) => p.price >= 1500000 && p.price <= 3000000,
+      );
+    else if (filters.priceRange === "over3000k")
+      filtered = filtered.filter((p) => p.price > 3000000);
 
     // Apply rating filter
     if (filters.minRating > 0)
@@ -131,7 +136,7 @@ export default function ProductsPage() {
   const FilterSection = () => (
     <div className="sticky top-32 h-fit rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Filter</h3>
         <button
           onClick={() => {
             setFilters({
@@ -144,22 +149,22 @@ export default function ProductsPage() {
           }}
           className="text-sm font-medium text-[#3498db] hover:text-[#2980b9]"
         >
-          Clear all
+          Hapus semua
         </button>
       </div>
 
       <div className="space-y-6">
         {/* Category Filter */}
         <div>
-          <h4 className="mb-3 font-medium text-gray-900">Category</h4>
+          <h4 className="mb-3 font-medium text-gray-900">Kategori</h4>
           <div className="space-y-2">
             {[
-              { value: "", label: "All Categories" },
-              { value: "Electronics", label: "Electronics" },
-              { value: "Peripherals", label: "Peripherals" },
-              { value: "Accessories", label: "Accessories" },
-              { value: "Storage", label: "Storage" },
-              { value: "Lighting", label: "Lighting" },
+              { value: "", label: "Semua Kategori" },
+              { value: "Electronics", label: "Elektronik" },
+              { value: "Peripherals", label: "Periferal" },
+              { value: "Accessories", label: "Aksesoris" },
+              { value: "Storage", label: "Penyimpanan" },
+              { value: "Lighting", label: "Pencahayaan" },
             ].map((cat) => (
               <label
                 key={cat.value}
@@ -185,14 +190,14 @@ export default function ProductsPage() {
 
         {/* Price Filter */}
         <div>
-          <h4 className="mb-3 font-medium text-gray-900">Price Range</h4>
+          <h4 className="mb-3 font-medium text-gray-900">Rentang Harga</h4>
           <div className="space-y-2">
             {[
-              { value: "", label: "Any Price" },
-              { value: "under50", label: "Under $50" },
-              { value: "50-100", label: "$50 - $100" },
-              { value: "100-200", label: "$100 - $200" },
-              { value: "over200", label: "Over $200" },
+              { value: "", label: "Semua Harga" },
+              { value: "under750k", label: "Di bawah Rp 750rb" },
+              { value: "750k-1500k", label: "Rp 750rb - Rp 1.5jt" },
+              { value: "1500k-3000k", label: "Rp 1.5jt - Rp 3jt" },
+              { value: "over3000k", label: "Di atas Rp 3jt" },
             ].map((range) => (
               <label
                 key={range.value}
@@ -221,9 +226,9 @@ export default function ProductsPage() {
           <h4 className="mb-3 font-medium text-gray-900">Rating</h4>
           <div className="space-y-2">
             {[
-              { value: 0, label: "Any Rating" },
-              { value: 4, label: "4+ Stars" },
-              { value: 4.5, label: "4.5+ Stars" },
+              { value: 0, label: "Semua Rating" },
+              { value: 4, label: "4+ Bintang" },
+              { value: 4.5, label: "4.5+ Bintang" },
             ].map((rating) => (
               <label
                 key={rating.value}
@@ -260,9 +265,9 @@ export default function ProductsPage() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Produk</h1>
               <p className="mt-1 text-gray-600">
-                Discover our premium tech accessories
+                Temukan aksesoris teknologi premium kami
               </p>
             </div>
 
@@ -288,11 +293,11 @@ export default function ProductsPage() {
               <div className="flex items-center gap-4">
                 <p className="text-sm text-gray-700">
                   <span className="font-medium">{filteredProducts.length}</span>{" "}
-                  {filteredProducts.length === 1 ? "product" : "products"}
+                  {filteredProducts.length === 1 ? "produk" : "produk"}
                   {searchQuery && (
                     <span>
                       {" "}
-                      for &quot;
+                      untuk &quot;
                       <span className="font-medium">{searchQuery}</span>&quot;
                     </span>
                   )}
@@ -332,10 +337,10 @@ export default function ProductsPage() {
                   }
                   className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-[#3498db] focus:outline-none"
                 >
-                  <option value="newest">Newest</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Top Rated</option>
+                  <option value="newest">Terbaru</option>
+                  <option value="price-low">Harga: Rendah ke Tinggi</option>
+                  <option value="price-high">Harga: Tinggi ke Rendah</option>
+                  <option value="rating">Rating Tertinggi</option>
                 </select>
 
                 {/* Mobile Filters Button */}
@@ -344,7 +349,7 @@ export default function ProductsPage() {
                   className="flex items-center gap-2 rounded-lg bg-[#3498db] px-4 py-2 text-sm font-medium text-white lg:hidden"
                 >
                   <Filter size={16} />
-                  Filters
+                  Filter
                 </button>
               </div>
             </div>
@@ -354,7 +359,7 @@ export default function ProductsPage() {
               <div className="mb-6 rounded-lg border border-gray-200 bg-white lg:hidden">
                 <div className="p-4">
                   <div className="mb-4 flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900">Filters</h3>
+                    <h3 className="font-medium text-gray-900">Filter</h3>
                     <button
                       onClick={() => setShowMobileFilters(false)}
                       className="text-gray-400 hover:text-gray-600"
@@ -396,11 +401,11 @@ export default function ProductsPage() {
                   <Search className="h-8 w-8 text-gray-400" />
                 </div>
                 <h3 className="mb-2 text-lg font-medium text-gray-900">
-                  No products found
+                  Produk tidak ditemukan
                 </h3>
                 <p className="mb-4 text-gray-500">
-                  Try adjusting your search or filters to find what you&apos;re
-                  looking for.
+                  Coba sesuaikan pencarian atau filter Anda untuk menemukan apa
+                  yang Anda cari.
                 </p>
                 <button
                   onClick={() => {
@@ -414,7 +419,7 @@ export default function ProductsPage() {
                   }}
                   className="rounded-lg bg-[#3498db] px-4 py-2 text-white transition-colors hover:bg-[#2980b9]"
                 >
-                  Clear all filters
+                  Hapus semua filter
                 </button>
               </div>
             ) : (
@@ -488,15 +493,15 @@ export default function ProductsPage() {
                           {product.discount_price ? (
                             <>
                               <span className="text-xl font-bold text-gray-900">
-                                ${product.discount_price.toFixed(2)}
+                                {formatCurrency(product.discount_price)}
                               </span>
                               <span className="text-sm text-gray-500 line-through">
-                                ${product.price.toFixed(2)}
+                                {formatCurrency(product.price)}
                               </span>
                             </>
                           ) : (
                             <span className="text-xl font-bold text-gray-900">
-                              ${product.price.toFixed(2)}
+                              {formatCurrency(product.price)}
                             </span>
                           )}
                         </div>

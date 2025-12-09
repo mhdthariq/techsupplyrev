@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -11,49 +12,70 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { TrendingUp, Users } from "lucide-react";
-
-const data = [
-  { name: "Jan", sales: 4000, visitors: 2400 },
-  { name: "Feb", sales: 3000, visitors: 1398 },
-  { name: "Mar", sales: 2000, visitors: 9800 },
-  { name: "Apr", sales: 2780, visitors: 3908 },
-  { name: "May", sales: 1890, visitors: 4800 },
-  { name: "Jun", sales: 2390, visitors: 3800 },
-  { name: "Jul", sales: 3490, visitors: 4300 },
-];
-
-const recentActivity = [
-  {
-    id: 1,
-    user: "John Doe",
-    action: "placed an order",
-    time: "2 mins ago",
-    amount: "$120.00",
-  },
-  {
-    id: 2,
-    user: "Jane Smith",
-    action: "registered",
-    time: "1 hour ago",
-  },
-  {
-    id: 3,
-    user: "Mike Johnson",
-    action: "reviewed a product",
-    time: "3 hours ago",
-    rating: 5,
-  },
-  {
-    id: 4,
-    user: "Sarah Wilson",
-    action: "placed an order",
-    time: "5 hours ago",
-    amount: "$350.00",
-  },
-];
+import { TrendingUp } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+import { getAdminDashboardData } from "@/lib/database";
+import { CardSkeleton, Skeleton } from "@/components/skeleton-loader";
 
 export default function DashboardOverview() {
+  const [data, setData] = useState<
+    { name: string; sales?: number; visitors?: number }[]
+  >([]);
+  const [recentActivity, setRecentActivity] = useState<
+    {
+      id: string;
+      user: string;
+      action: string;
+      date: string;
+      amount: number;
+      status: string;
+    }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const dashboardData = await getAdminDashboardData();
+        setData(dashboardData.chartData);
+        setRecentActivity(dashboardData.recentActivity);
+      } catch (error) {
+        console.error("Error loading dashboard data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+          <Skeleton className="mb-6 h-8 w-48" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-6 w-20" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Charts Section */}
@@ -62,7 +84,7 @@ export default function DashboardOverview() {
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="text-lg font-bold text-[#2C3E50]">
-              Revenue Overview
+              Ringkasan Pendapatan
             </h3>
             <div className="flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-600">
               <TrendingUp size={16} />
@@ -97,25 +119,24 @@ export default function DashboardOverview() {
           </div>
         </div>
 
-        {/* Visitors Chart */}
+        {/* Orders Chart */}
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-[#2C3E50]">
-              Visitor Traffic
-            </h3>
-            <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
-              <Users size={16} />
-              +5.2%
-            </div>
+            <h3 className="text-lg font-bold text-[#2C3E50]">Jumlah Pesanan</h3>
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" />
-                <YAxis />
+                <YAxis allowDecimals={false} />
                 <Tooltip />
-                <Bar dataKey="visitors" fill="#2ECC71" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="visitors"
+                  name="Jumlah Pesanan"
+                  fill="#2ECC71"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -125,33 +146,41 @@ export default function DashboardOverview() {
       {/* Recent Activity */}
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
         <div className="border-b border-gray-100 p-6">
-          <h3 className="text-lg font-bold text-[#2C3E50]">Recent Activity</h3>
+          <h3 className="text-lg font-bold text-[#2C3E50]">
+            Aktivitas Terbaru
+          </h3>
         </div>
         <div className="divide-y divide-gray-100">
-          {recentActivity.map((activity) => (
-            <div
-              key={activity.id}
-              className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-600">
-                  {activity.user.charAt(0)}
+          {recentActivity.length > 0 ? (
+            recentActivity.map((activity) => (
+              <div
+                key={activity.id}
+                className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-600">
+                    {activity.user.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-900">
+                      <span className="font-bold">{activity.user}</span>{" "}
+                      {activity.action}
+                    </p>
+                    <p className="text-xs text-gray-500">{activity.date}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-900">
-                    <span className="font-bold">{activity.user}</span>{" "}
-                    {activity.action}
-                  </p>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
-                </div>
+                {activity.amount && (
+                  <span className="font-bold text-[#2C3E50]">
+                    {formatCurrency(activity.amount)}
+                  </span>
+                )}
               </div>
-              {activity.amount && (
-                <span className="font-bold text-[#2C3E50]">
-                  {activity.amount}
-                </span>
-              )}
+            ))
+          ) : (
+            <div className="p-6 text-center text-gray-500">
+              Belum ada aktivitas terbaru
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

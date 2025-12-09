@@ -1,22 +1,17 @@
 import { Edit2, Trash2 } from "lucide-react";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  discount_price: number | null;
-  category: string;
-  brand: string;
-}
+import { formatCurrency } from "@/lib/utils";
+import type { Product } from "@/lib/types";
 
 interface ProductTableProps {
   products: Product[];
   deleteProduct: (id: string) => void;
+  onEdit: (product: Product) => void;
 }
 
 export default function ProductTable({
   products,
   deleteProduct,
+  onEdit,
 }: ProductTableProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
@@ -25,22 +20,22 @@ export default function ProductTable({
           <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Name
+                Nama
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Price
+                Harga
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Discount
+                Diskon
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Category
+                Kategori
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Brand
+                Merek
               </th>
               <th className="p-4 text-left font-semibold text-gray-600">
-                Action
+                Aksi
               </th>
             </tr>
           </thead>
@@ -54,11 +49,11 @@ export default function ProductTable({
                   {product.name}
                 </td>
                 <td className="p-4 text-gray-600">
-                  ${product.price.toFixed(2)}
+                  {formatCurrency(product.price)}
                 </td>
                 <td className="p-4 text-gray-600">
                   {product.discount_price
-                    ? `$${product.discount_price.toFixed(2)}`
+                    ? formatCurrency(product.discount_price)
                     : "-"}
                 </td>
                 <td className="p-4">
@@ -68,7 +63,10 @@ export default function ProductTable({
                 </td>
                 <td className="p-4 text-gray-600">{product.brand}</td>
                 <td className="flex gap-3 p-4">
-                  <button className="text-blue-500 transition-colors hover:text-blue-700">
+                  <button
+                    onClick={() => onEdit(product)}
+                    className="text-blue-500 transition-colors hover:text-blue-700"
+                  >
                     <Edit2 size={18} />
                   </button>
                   <button

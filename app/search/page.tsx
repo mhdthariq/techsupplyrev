@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -15,9 +16,9 @@ export default function SearchPage() {
           id: 1,
           name: "USB-C Hub 7-in-1",
           price: 79.99,
-          match: "matches your search",
+          match: "cocok dengan pencarian Anda",
         },
-        { id: 2, name: "USB 3.0 Hub", price: 39.99, match: "contains USB" },
+        { id: 2, name: "USB 3.0 Hub", price: 39.99, match: "berisi USB" },
       ]
     : [];
 
@@ -28,7 +29,7 @@ export default function SearchPage() {
           {/* Search Header */}
           <div className="mb-8">
             <h1 className="font-heading text-primary-blue mb-4 text-4xl font-bold">
-              Search Results
+              Hasil Pencarian
             </h1>
 
             {/* Search Bar */}
@@ -37,13 +38,13 @@ export default function SearchPage() {
                 <input
                   type="text"
                   defaultValue={query}
-                  placeholder="Search products..."
+                  placeholder="Cari produk..."
                   className="text-dark-grey flex-1 py-3 outline-none"
                 />
                 <Search className="text-neutral-grey" size={20} />
               </div>
               <button className="bg-accent-blue hover:bg-accent-blue/90 rounded-lg px-6 py-3 font-semibold text-white transition">
-                Search
+                Cari
               </button>
             </div>
           </div>
@@ -53,7 +54,7 @@ export default function SearchPage() {
             results.length > 0 ? (
               <div>
                 <p className="text-neutral-grey mb-6">
-                  Found {results.length} results for &quot;{query}&quot;
+                  Ditemukan {results.length} hasil untuk &quot;{query}&quot;
                 </p>
                 <div className="space-y-4">
                   {results.map((result) => (
@@ -72,10 +73,10 @@ export default function SearchPage() {
                       </div>
                       <div className="text-right">
                         <span className="text-accent-blue text-2xl font-bold">
-                          ${result.price}
+                          {formatCurrency(result.price)}
                         </span>
                         <button className="bg-accent-blue hover:bg-accent-blue/90 mt-2 rounded px-4 py-2 text-sm font-semibold text-white transition">
-                          View Product
+                          Lihat Produk
                         </button>
                       </div>
                     </Link>
@@ -86,17 +87,18 @@ export default function SearchPage() {
               <div className="py-12 text-center">
                 <div className="mb-4 text-4xl">🔍</div>
                 <h2 className="font-heading text-dark-grey mb-2 text-xl font-semibold">
-                  No results found
+                  Tidak ada hasil ditemukan
                 </h2>
                 <p className="text-neutral-grey mb-4">
-                  We couldn&apos;t find any products matching &quot;{query}
+                  Kami tidak dapat menemukan produk yang cocok dengan &quot;
+                  {query}
                   &quot;
                 </p>
                 <Link
                   href="/products"
                   className="bg-accent-blue hover:bg-accent-blue/90 inline-block rounded-lg px-6 py-3 font-semibold text-white transition"
                 >
-                  Browse All Products
+                  Lihat Semua Produk
                 </Link>
               </div>
             )
@@ -104,7 +106,7 @@ export default function SearchPage() {
             <div className="py-12 text-center">
               <div className="mb-4 text-4xl">🔍</div>
               <p className="text-neutral-grey">
-                Enter a search term to find products
+                Masukkan kata kunci untuk mencari produk
               </p>
             </div>
           )}

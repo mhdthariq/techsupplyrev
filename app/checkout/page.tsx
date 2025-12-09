@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getCartItems, clearCart } from "@/lib/cart";
+import { formatCurrency } from "@/lib/utils";
 
 import { Check, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CartItem {
+  // ... (same as before)
   id: string;
   name: string;
   price: number;
@@ -26,17 +28,22 @@ export default function CheckoutPage() {
   const [orderTotal, setOrderTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  const [couponCode, setCouponCode] = useState("");
+  const searchParams = useSearchParams();
+  const [couponCode, setCouponCode] = useState(
+    searchParams.get("coupon") || "",
+  );
+  const [hasAutoApplied, setHasAutoApplied] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [formData, setFormData] = useState({
+    // ... same as before
     email: "",
     firstName: "",
     lastName: "",
     address: "",
     city: "",
-    state: "",
-    zip: "",
-    country: "",
+    province: "",
+    postalCode: "",
+    country: "Indonesia",
     shippingMethod: "standard",
     paymentMethod: "credit-card",
   });
@@ -47,16 +54,20 @@ export default function CheckoutPage() {
   const steps = [
     {
       number: 1,
-      title: "Shipping Address",
-      description: "Where should we send your order?",
+      title: "Alamat Pengiriman",
+      description: "Ke mana kami harus mengirim pesanan Anda?",
     },
     {
       number: 2,
-      title: "Shipping Method",
-      description: "How fast do you need it?",
+      title: "Metode Pengiriman",
+      description: "Seberapa cepat Anda membutuhkannya?",
     },
-    { number: 3, title: "Payment", description: "How would you like to pay?" },
-    { number: 4, title: "Review", description: "Confirm your order" },
+    {
+      number: 3,
+      title: "Pembayaran",
+      description: "Bagaimana Anda ingin membayar?",
+    },
+    { number: 4, title: "Tinjauan", description: "Konfirmasi pesanan Anda" },
   ];
 
   useEffect(() => {
@@ -133,28 +144,74 @@ export default function CheckoutPage() {
           discountAmount = coupon.discount_value;
         }
         setDiscount(discountAmount);
+        toast({
+          title: "Kupon Berhasil",
+          description: "Diskon telah diterapkan",
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: "Kupon Tidak Valid",
+          description: "Kode kupon tidak ditemukan atau kadaluarsa",
+          variant: "destructive",
+        });
+        setDiscount(0);
       }
     } catch (error) {
       console.error("Error applying coupon:", error);
+      toast({
+        title: "Error",
+        description: "Gagal menerapkan kupon",
+        variant: "destructive",
+      });
     }
   };
 
-  const shippingCost =
-    formData.shippingMethod === "standard"
-      ? 9.99
-      : formData.shippingMethod === "express"
-        ? 24.99
-        : 49.99;
+  useEffect(() => {
+    if (
+      orderTotal > 0 &&
+      couponCode &&
+      !hasAutoApplied &&
+      searchParams.get("coupon")
+    ) {
+      // We only auto-apply if it came from URL and we haven't tried yet
+      const autoApply = async () => {
+        // Re-implement apply logic or call applyCoupon if dependency warnings allow.
+        // Since applyCoupon depends on state, calling it here is fine if included in deps or we ignore deps.
+        // But applyCoupon is not in deps. I'll add it to deps or suppress.
+        // Actually, simplest is to just call it.
+        await applyCoupon();
+      };
+      autoApply();
+      setHasAutoApplied(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderTotal, hasAutoApplied]);
+
+  const getShippingCost = (method: string) => {
+    switch (method) {
+      case "standard":
+        return 20000;
+      case "express":
+        return 50000;
+      case "overnight":
+        return 100000;
+      default:
+        return 20000;
+    }
+  };
+
+  const shippingCost = getShippingCost(formData.shippingMethod);
   const subtotal = orderTotal;
-  const tax = (subtotal - discount) * 0.08;
+  const tax = (subtotal - discount) * 0.11; // PPN 11%
   const total = subtotal + shippingCost + tax - discount;
 
   const handlePlaceOrder = async () => {
     try {
       if (!user) {
         toast({
-          title: "Please log in",
-          description: "You need to be logged in to place an order",
+          title: "Silakan login",
+          description: "Anda harus login untuk membuat pesanan",
           variant: "destructive",
         });
         router.push("/auth/login");
@@ -170,7 +227,7 @@ export default function CheckoutPage() {
           status: "pending",
           shipping_address: formData.address,
           shipping_city: formData.city,
-          shipping_postal_code: formData.zip,
+          shipping_postal_code: formData.postalCode,
           shipping_country: formData.country,
           payment_method: formData.paymentMethod,
         })
@@ -191,16 +248,16 @@ export default function CheckoutPage() {
       clearCart();
 
       toast({
-        title: "Order placed successfully!",
-        description: `Your order #${order.id} has been confirmed`,
+        title: "Pesanan berhasil dibuat!",
+        description: `Pesanan #${order.id.slice(0, 8)} telah dikonfirmasi`,
         variant: "success",
       });
       router.push(`/order-confirmation/${order.id}`);
     } catch (error) {
       console.error("Error placing order:", error);
       toast({
-        title: "Failed to place order",
-        description: "Please try again or contact support",
+        title: "Gagal membuat pesanan",
+        description: "Silakan coba lagi atau hubungi support",
         variant: "destructive",
       });
     }
@@ -275,7 +332,7 @@ export default function CheckoutPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="mb-2 block font-bold text-[#2C3E50]">
-                        Email Address
+                        Email
                       </label>
                       <input
                         type="email"
@@ -290,7 +347,7 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="mb-2 block font-bold text-[#2C3E50]">
-                          First Name
+                          Nama Depan
                         </label>
                         <input
                           type="text"
@@ -306,7 +363,7 @@ export default function CheckoutPage() {
                       </div>
                       <div>
                         <label className="mb-2 block font-bold text-[#2C3E50]">
-                          Last Name
+                          Nama Belakang
                         </label>
                         <input
                           type="text"
@@ -324,7 +381,7 @@ export default function CheckoutPage() {
 
                     <div>
                       <label className="mb-2 block font-bold text-[#2C3E50]">
-                        Address
+                        Alamat
                       </label>
                       <input
                         type="text"
@@ -336,10 +393,10 @@ export default function CheckoutPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="mb-2 block font-bold text-[#2C3E50]">
-                          City
+                          Kota
                         </label>
                         <input
                           type="text"
@@ -352,44 +409,49 @@ export default function CheckoutPage() {
                       </div>
                       <div>
                         <label className="mb-2 block font-bold text-[#2C3E50]">
-                          State
+                          Provinsi
                         </label>
                         <input
                           type="text"
-                          value={formData.state}
+                          value={formData.province}
                           onChange={(e) =>
-                            setFormData({ ...formData, state: e.target.value })
+                            setFormData({
+                              ...formData,
+                              province: e.target.value,
+                            })
+                          }
+                          className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-2 block font-bold text-[#2C3E50]">
+                          Kode Pos
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.postalCode}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              postalCode: e.target.value,
+                            })
                           }
                           className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
                         />
                       </div>
                       <div>
                         <label className="mb-2 block font-bold text-[#2C3E50]">
-                          ZIP
+                          Negara
                         </label>
                         <input
                           type="text"
-                          value={formData.zip}
-                          onChange={(e) =>
-                            setFormData({ ...formData, zip: e.target.value })
-                          }
-                          className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
+                          value={formData.country}
+                          disabled
+                          className="w-full rounded-lg border-2 border-gray-200 bg-gray-100 px-4 py-2 text-gray-500 outline-none"
                         />
                       </div>
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block font-bold text-[#2C3E50]">
-                        Country
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.country}
-                        onChange={(e) =>
-                          setFormData({ ...formData, country: e.target.value })
-                        }
-                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 outline-none focus:border-[#3498DB]"
-                      />
                     </div>
                   </div>
                 </div>
@@ -402,21 +464,21 @@ export default function CheckoutPage() {
                     {[
                       {
                         id: "standard",
-                        name: "Standard Shipping",
-                        desc: "5-7 business days",
-                        price: 9.99,
+                        name: "Reguler",
+                        desc: "5-7 hari kerja",
+                        price: 20000,
                       },
                       {
                         id: "express",
-                        name: "Express Shipping",
-                        desc: "2-3 business days",
-                        price: 24.99,
+                        name: "Express",
+                        desc: "2-3 hari kerja",
+                        price: 50000,
                       },
                       {
                         id: "overnight",
-                        name: "Overnight Shipping",
-                        desc: "Next business day",
-                        price: 49.99,
+                        name: "Instan / Same Day",
+                        desc: "Hari yang sama",
+                        price: 100000,
                       },
                     ].map((method) => (
                       <label
@@ -443,7 +505,7 @@ export default function CheckoutPage() {
                           <p className="text-sm text-gray-600">{method.desc}</p>
                         </div>
                         <span className="font-bold text-[#3498DB]">
-                          ${method.price.toFixed(2)}
+                          {formatCurrency(method.price)}
                         </span>
                       </label>
                     ))}
@@ -456,12 +518,12 @@ export default function CheckoutPage() {
                 <div className="mb-6 rounded-lg border border-gray-200 bg-white p-8 shadow">
                   <div className="space-y-4">
                     {[
-                      { id: "credit-card", name: "Credit/Debit Card" },
+                      { id: "credit-card", name: "Kartu Kredit / Debit" },
                       {
                         id: "midtrans",
-                        name: "Midtrans (Bank Transfer, E-Wallet)",
+                        name: "Midtrans (Transfer Bank, E-Wallet)",
                       },
-                      { id: "paypal", name: "PayPal" },
+                      { id: "cod", name: "Bayar di Tempat (COD)" },
                     ].map((method) => (
                       <label
                         key={method.id}
@@ -497,7 +559,7 @@ export default function CheckoutPage() {
               {currentStep === 4 && (
                 <div className="mb-6 rounded-lg border border-gray-200 bg-white p-8 shadow">
                   <h3 className="mb-4 font-bold text-[#2C3E50]">
-                    Order Details
+                    Detail Pesanan
                   </h3>
                   <div className="space-y-3 text-sm">
                     <p>
@@ -506,20 +568,24 @@ export default function CheckoutPage() {
                     </p>
                     <p>
                       <span className="font-bold text-[#2C3E50]">
-                        Shipping To:
+                        Penerima:
                       </span>{" "}
                       {formData.firstName} {formData.lastName}
                     </p>
                     <p>
-                      <span className="font-bold text-[#2C3E50]">Address:</span>{" "}
-                      {formData.address}, {formData.city}, {formData.state}{" "}
-                      {formData.zip}, {formData.country}
+                      <span className="font-bold text-[#2C3E50]">Alamat:</span>{" "}
+                      {formData.address}, {formData.city}, {formData.province}{" "}
+                      {formData.postalCode}, {formData.country}
                     </p>
                     <p>
                       <span className="font-bold text-[#2C3E50]">
-                        Payment Method:
+                        Metode Pembayaran:
                       </span>{" "}
-                      {formData.paymentMethod.replace("-", " ").toUpperCase()}
+                      {formData.paymentMethod === "credit-card"
+                        ? "Kartu Kredit"
+                        : formData.paymentMethod === "midtrans"
+                          ? "Midtrans"
+                          : "COD"}
                     </p>
                   </div>
                 </div>
@@ -532,7 +598,7 @@ export default function CheckoutPage() {
                     onClick={() => setCurrentStep(currentStep - 1)}
                     className="rounded-lg border-2 border-[#2C3E50] px-6 py-3 font-bold text-[#2C3E50] transition hover:bg-gray-100"
                   >
-                    Back
+                    Kembali
                   </button>
                 )}
                 {currentStep < 4 && (
@@ -540,7 +606,7 @@ export default function CheckoutPage() {
                     onClick={() => setCurrentStep(currentStep + 1)}
                     className="ml-auto flex items-center gap-2 rounded-lg bg-[#3498DB] px-6 py-3 font-bold text-white transition hover:bg-[#2980B9]"
                   >
-                    Next <ChevronRight size={20} />
+                    Lanjut <ChevronRight size={20} />
                   </button>
                 )}
                 {currentStep === 4 && (
@@ -548,7 +614,7 @@ export default function CheckoutPage() {
                     onClick={handlePlaceOrder}
                     className="ml-auto rounded-lg bg-[#3498DB] px-8 py-3 text-lg font-bold text-white transition hover:bg-[#2980B9]"
                   >
-                    Place Order
+                    Buat Pesanan
                   </button>
                 )}
               </div>
@@ -557,14 +623,16 @@ export default function CheckoutPage() {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 rounded-lg border border-gray-200 bg-gray-50 p-6">
-                <h3 className="mb-6 font-bold text-[#2C3E50]">Order Summary</h3>
+                <h3 className="mb-6 font-bold text-[#2C3E50]">
+                  Ringkasan Pesanan
+                </h3>
 
                 {/* Coupon Code */}
                 <div className="mb-6">
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Coupon code"
+                      placeholder="Kode Kupon"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                       className="flex-1 rounded-lg border-2 border-gray-300 px-3 py-2 text-sm"
@@ -573,7 +641,7 @@ export default function CheckoutPage() {
                       onClick={applyCoupon}
                       className="rounded-lg bg-[#3498DB] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#2980B9]"
                     >
-                      Apply
+                      Terapkan
                     </button>
                   </div>
                 </div>
@@ -581,23 +649,27 @@ export default function CheckoutPage() {
                 <div className="mb-6 space-y-3 rounded-lg bg-white p-4 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-bold">${subtotal.toFixed(2)}</span>
+                    <span className="font-bold">
+                      {formatCurrency(subtotal)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping</span>
+                    <span className="text-gray-600">Pengiriman</span>
                     <span className="font-bold">
-                      ${shippingCost.toFixed(2)}
+                      {formatCurrency(shippingCost)}
                     </span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>Discount</span>
-                      <span className="font-bold">-${discount.toFixed(2)}</span>
+                      <span>Diskon</span>
+                      <span className="font-bold">
+                        -{formatCurrency(discount)}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Tax (8%)</span>
-                    <span className="font-bold">${tax.toFixed(2)}</span>
+                    <span className="text-gray-600">PPN (11%)</span>
+                    <span className="font-bold">{formatCurrency(tax)}</span>
                   </div>
                 </div>
 
@@ -605,7 +677,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between">
                     <span className="font-bold text-[#2C3E50]">Total</span>
                     <span className="text-2xl font-bold text-[#3498DB]">
-                      ${total.toFixed(2)}
+                      {formatCurrency(total)}
                     </span>
                   </div>
                 </div>
