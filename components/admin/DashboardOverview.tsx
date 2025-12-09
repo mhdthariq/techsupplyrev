@@ -12,7 +12,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { TrendingUp, Users } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getAdminDashboardData } from "@/lib/database";
 import { CardSkeleton, Skeleton } from "@/components/skeleton-loader";
@@ -23,11 +23,12 @@ export default function DashboardOverview() {
   >([]);
   const [recentActivity, setRecentActivity] = useState<
     {
-      id: string | number;
+      id: string;
       user: string;
       action: string;
-      time: string;
-      amount?: number;
+      date: string;
+      amount: number;
+      status: string;
     }[]
   >([]);
   const [loading, setLoading] = useState(true);
@@ -118,25 +119,24 @@ export default function DashboardOverview() {
           </div>
         </div>
 
-        {/* Visitors Chart */}
+        {/* Orders Chart */}
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-[#2C3E50]">
-              Lalu Lintas Pengunjung
-            </h3>
-            <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
-              <Users size={16} />
-              +5.2%
-            </div>
+            <h3 className="text-lg font-bold text-[#2C3E50]">Jumlah Pesanan</h3>
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" />
-                <YAxis />
+                <YAxis allowDecimals={false} />
                 <Tooltip />
-                <Bar dataKey="visitors" fill="#2ECC71" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="visitors"
+                  name="Jumlah Pesanan"
+                  fill="#2ECC71"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -166,7 +166,7 @@ export default function DashboardOverview() {
                       <span className="font-bold">{activity.user}</span>{" "}
                       {activity.action}
                     </p>
-                    <p className="text-xs text-gray-500">{activity.time}</p>
+                    <p className="text-xs text-gray-500">{activity.date}</p>
                   </div>
                 </div>
                 {activity.amount && (

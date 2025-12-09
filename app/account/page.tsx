@@ -21,7 +21,10 @@ import {
   Trash2,
   Heart,
   ShoppingCart,
+  Camera,
 } from "lucide-react";
+
+import ReviewModal from "@/components/reviews/ReviewModal";
 
 import { getCurrentUser, signOut, updatePassword } from "@/lib/auth";
 import {
@@ -30,7 +33,6 @@ import {
   getUserOrders,
   getUserReviews,
   getReviewableProducts,
-  createReview,
   deleteReview,
   getWishlist,
   removeFromWishlist,
@@ -40,9 +42,11 @@ import type {
   User as AuthUser,
   Order,
   Review,
-  CreateReviewData,
+  UpdateProfileData,
 } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { convertImageToWebP } from "@/lib/image-utils";
 
 interface WishlistProduct {
   id: string;
@@ -152,12 +156,6 @@ function AccountContent() {
     confirmPassword: "",
   });
 
-  const [reviewForm, setReviewForm] = useState({
-    rating: 5,
-    title: "",
-    comment: "",
-  });
-
   const router = useRouter();
   const { toast } = useToast();
 
@@ -186,6 +184,7 @@ function AccountContent() {
           postal_code: profile.postal_code || "",
           country: profile.country || "",
         });
+        setAvatarUrl(profile.avatar_url || currentUser.avatar_url || "");
       }
 
       // Load orders
@@ -227,6 +226,66 @@ function AccountContent() {
   useEffect(() => {
     loadUserData();
   }, [router, toast]);
+
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0] || !user) return;
+
+    const file = e.target.files[0];
+    setIsUploadingAvatar(true);
+
+    try {
+      // Convert to WebP
+      const webpFile = await convertImageToWebP(file);
+
+      const supabase = createClient();
+      const fileName = `${user.id}-${Date.now()}.webp`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, webpFile, {
+          contentType: "image/webp",
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(fileName);
+
+      // Update profile
+      const updateData: UpdateProfileData = {
+        avatar_url: publicUrl,
+      };
+
+      const result = await updateUserProfile(user.id, updateData);
+
+      if (result.success) {
+        setAvatarUrl(publicUrl);
+        toast({
+          title: "Foto Profil Diperbarui",
+          description: "Foto profil Anda berhasil diperbarui",
+          variant: "success",
+        });
+
+        // Refresh full user data to sync everything
+        loadUserData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast({
+        title: "Gagal Mengunggah",
+        description: "Gagal mengunggah foto profil",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   const handleProfileUpdate = async () => {
     if (!user) return;
@@ -303,51 +362,6 @@ function AccountContent() {
       toast({
         title: "Gagal Memperbarui",
         description: "Gagal memperbarui password",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCreateReview = async () => {
-    if (!user || !selectedProduct) return;
-
-    if (!reviewForm.title.trim() || !reviewForm.comment.trim()) {
-      toast({
-        title: "Ulasan Tidak Lengkap",
-        description: "Mohon berikan judul dan komentar",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const reviewData: CreateReviewData = {
-        product_id: selectedProduct.product_id,
-        order_id: selectedProduct.order_id,
-        rating: reviewForm.rating,
-        title: reviewForm.title.trim(),
-        comment: reviewForm.comment.trim(),
-      };
-
-      const result = await createReview(user.id, reviewData);
-      if (result.success) {
-        toast({
-          title: "Ulasan Dibuat",
-          description: "Ulasan Anda berhasil dikirim",
-          variant: "success",
-        });
-        setShowReviewModal(false);
-        setSelectedProduct(null);
-        setReviewForm({ rating: 5, title: "", comment: "" });
-        loadUserData(); // Reload data
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      toast({
-        title: "Gagal Membuat Ulasan",
-        description:
-          error instanceof Error ? error.message : "Gagal membuat ulasan",
         variant: "destructive",
       });
     }
@@ -533,6 +547,52 @@ function AccountContent() {
                       {isEditingProfile ? <X size={18} /> : <Edit size={18} />}
                       {isEditingProfile ? "Batal" : "Edit"}
                     </button>
+                  </div>
+
+                  <div className="mb-8 flex items-center gap-6 border-b border-gray-100 pb-8">
+                    <div className="group relative">
+                      <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-gray-50 bg-gray-100">
+                        {avatarUrl ? (
+                          <Image
+                            src={avatarUrl}
+                            alt="Profile"
+                            width={96}
+                            height={96}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-[#3498DB] text-3xl font-bold text-white">
+                            {user?.name?.[0]?.toUpperCase() || "U"}
+                          </div>
+                        )}
+                      </div>
+                      {isEditingProfile && (
+                        <label className="absolute right-0 bottom-0 cursor-pointer rounded-full bg-[#3498DB] p-2 text-white shadow-lg transition-transform hover:scale-110 hover:bg-[#2980B9]">
+                          <div
+                            className={isUploadingAvatar ? "animate-spin" : ""}
+                          >
+                            <Camera size={16} />
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={isUploadingAvatar}
+                          />
+                        </label>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-[#2C3E50]">
+                        {user?.name || "Pengguna"}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {isEditingProfile
+                          ? "Klik ikon kamera untuk mengubah foto"
+                          : "Anggota TechSupply"}
+                      </p>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -1130,117 +1190,27 @@ function AccountContent() {
       </div>
 
       {/* Review Modal */}
-      {showReviewModal && selectedProduct && (
-        <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-[#2C3E50]">Write Review</h3>
-              <button
-                onClick={() => {
-                  setShowReviewModal(false);
-                  setSelectedProduct(null);
-                  setReviewForm({ rating: 5, title: "", comment: "" });
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="mb-6 flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedProduct.product?.image_url}
-                alt={selectedProduct.product?.name}
-                className="h-16 w-16 rounded-lg object-cover"
-              />
-              <div>
-                <h4 className="font-semibold text-[#2C3E50]">
-                  {selectedProduct.product?.name}
-                </h4>
-                <p className="text-sm text-gray-600">
-                  Order #{selectedProduct.order_id?.slice(-8)}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                  Rating
-                </label>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() =>
-                        setReviewForm({ ...reviewForm, rating: star })
-                      }
-                      className="transition-colors"
-                    >
-                      <Star
-                        size={24}
-                        className={
-                          star <= reviewForm.rating
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                  Review Title
-                </label>
-                <input
-                  type="text"
-                  value={reviewForm.title}
-                  onChange={(e) =>
-                    setReviewForm({ ...reviewForm, title: e.target.value })
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none"
-                  placeholder="Summarize your experience"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#2C3E50]">
-                  Comment
-                </label>
-                <textarea
-                  value={reviewForm.comment}
-                  onChange={(e) =>
-                    setReviewForm({ ...reviewForm, comment: e.target.value })
-                  }
-                  className="h-24 w-full resize-none rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-[#3498DB] focus:outline-none"
-                  placeholder="Tell others about your experience with this product"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={handleCreateReview}
-                  className="flex-1 rounded-lg bg-[#3498DB] py-3 font-semibold text-white transition-colors hover:bg-[#2980B9]"
-                >
-                  Submit Review
-                </button>
-                <button
-                  onClick={() => {
-                    setShowReviewModal(false);
-                    setSelectedProduct(null);
-                    setReviewForm({ rating: 5, title: "", comment: "" });
-                  }}
-                  className="rounded-lg bg-gray-500 px-6 py-3 text-white transition-colors hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Review Modal */}
+      {showReviewModal && selectedProduct && user && (
+        <ReviewModal
+          isOpen={showReviewModal}
+          onClose={() => {
+            setShowReviewModal(false);
+            setSelectedProduct(null);
+          }}
+          productId={selectedProduct.product_id}
+          orderId={selectedProduct.order_id}
+          productName={selectedProduct.product?.name || "Product"}
+          productImage={
+            selectedProduct.product?.image_url || "/placeholder.svg"
+          }
+          userId={user.id}
+          onSuccess={() => {
+            setShowReviewModal(false);
+            setSelectedProduct(null);
+            loadUserData();
+          }}
+        />
       )}
     </div>
   );

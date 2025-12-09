@@ -71,7 +71,9 @@ export interface Review {
   updated_at: string;
   user?: {
     email: string;
-    name?: string;
+    first_name?: string;
+    last_name?: string;
+    name?: string; // Keep for backward compatibility if needed, or remove
   };
   product?: {
     name: string;
@@ -89,6 +91,7 @@ export interface Profile {
   city?: string;
   postal_code?: string;
   country?: string;
+  avatar_url?: string;
   created_at: string;
   updated_at: string;
 }
@@ -109,6 +112,7 @@ export interface UpdateProfileData {
   city?: string;
   postal_code?: string;
   country?: string;
+  avatar_url?: string;
 }
 
 export interface CreateReviewData {
@@ -126,6 +130,7 @@ export interface Banner {
   link: string;
   image_url: string;
   active: boolean;
+  position: number;
 }
 
 export interface Coupon {

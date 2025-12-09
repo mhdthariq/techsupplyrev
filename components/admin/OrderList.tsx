@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Eye, Truck, CheckCircle, Clock } from "lucide-react";
+import { Eye, Truck, CheckCircle, Clock, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getAllOrders, updateOrderStatus } from "@/lib/database";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,7 @@ export default function OrderList() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const { toast } = useToast();
 
   const loadOrders = useCallback(async () => {
@@ -50,7 +51,7 @@ export default function OrderList() {
       } else {
         throw new Error(result.error);
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Gagal Update Status",
         description: "Terjadi kesalahan saat memperbarui status",
@@ -178,7 +179,10 @@ export default function OrderList() {
                     </select>
                   </td>
                   <td className="p-4">
-                    <button className="text-gray-400 transition-colors hover:text-[#3498DB]">
+                    <button
+                      onClick={() => setSelectedOrder(order)}
+                      className="text-gray-400 transition-colors hover:text-[#3498DB]"
+                    >
                       <Eye size={20} />
                     </button>
                   </td>
@@ -188,6 +192,177 @@ export default function OrderList() {
           </tbody>
         </table>
       </div>
+
+      {selectedOrder && (
+        <div
+          className="animate-in fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-all duration-200"
+          onClick={() => setSelectedOrder(null)}
+        >
+          <div
+            className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl ring-1 ring-gray-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-6 flex items-center justify-between border-b pb-4">
+              <div>
+                <h3 className="text-xl font-bold text-[#2C3E50]">
+                  Detail Pesanan
+                </h3>
+                <p className="text-sm text-gray-500">ID: {selectedOrder.id}</p>
+              </div>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="space-y-3">
+                  <h4 className="font-bold text-[#3498DB]">Pengiriman</h4>
+                  <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 text-sm text-gray-600">
+                    <p className="mb-1 font-semibold text-gray-900">Alamat:</p>
+                    <p>{selectedOrder.shipping_address}</p>
+                    <p>
+                      {selectedOrder.shipping_city},{" "}
+                      {selectedOrder.shipping_postal_code}
+                    </p>
+                    <p className="mt-2 text-xs font-medium tracking-wide text-gray-500 uppercase">
+                      {selectedOrder.shipping_country}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-bold text-[#3498DB]">Info Pesanan</h4>
+                  <div className="space-y-2 rounded-lg border border-gray-100 bg-gray-50 p-4 text-sm text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Tanggal:</span>
+                      <span className="font-medium text-gray-900">
+                        {new Date(selectedOrder.created_at).toLocaleDateString(
+                          "id-ID",
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Status:</span>
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(selectedOrder.status)}`}
+                      >
+                        {selectedOrder.status}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Metode Pembayaran:</span>
+                      <span className="font-medium text-gray-900 capitalize">
+                        {selectedOrder.payment_method?.replace("-", " ")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="mb-3 font-bold text-[#3498DB]">Item Produk</h4>
+                <div className="overflow-hidden rounded-lg border border-gray-200">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 text-gray-700">
+                      <tr>
+                        <th className="p-3 text-left font-semibold">Produk</th>
+                        <th className="p-3 text-right font-semibold">Harga</th>
+                        <th className="p-3 text-center font-semibold">Qty</th>
+                        <th className="p-3 text-right font-semibold">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {selectedOrder.order_items?.length ? (
+                        selectedOrder.order_items.map((item) => (
+                          <tr key={item.id}>
+                            <td className="p-3 font-medium text-gray-900">
+                              {item.product?.name || "Unknown Product"}
+                            </td>
+                            <td className="p-3 text-right text-gray-600">
+                              {formatCurrency(item.price_at_purchase)}
+                            </td>
+                            <td className="p-3 text-center text-gray-600">
+                              {item.quantity}
+                            </td>
+                            <td className="p-3 text-right font-semibold text-gray-900">
+                              {formatCurrency(
+                                item.price_at_purchase * item.quantity,
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={4}
+                            className="p-4 text-center text-gray-500 italic"
+                          >
+                            Data produk tidak tersedia
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                    <tfoot className="bg-gray-50 font-semibold text-gray-900">
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="p-3 text-right text-gray-600"
+                        >
+                          Subtotal
+                        </td>
+                        <td className="p-3 text-right">
+                          {formatCurrency(
+                            selectedOrder.order_items?.reduce(
+                              (sum, item) =>
+                                sum + item.price_at_purchase * item.quantity,
+                              0,
+                            ) || 0,
+                          )}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="p-3 text-right text-green-600"
+                        >
+                          Diskon
+                        </td>
+                        <td className="p-3 text-right text-green-600">
+                          -{formatCurrency(selectedOrder.discount_amount || 0)}
+                        </td>
+                      </tr>
+                      <tr className="border-t border-gray-300 bg-blue-50/50">
+                        <td
+                          colSpan={3}
+                          className="p-3 px-4 text-right text-base"
+                        >
+                          Grand Total
+                        </td>
+                        <td className="p-3 text-right text-base text-[#3498DB]">
+                          {formatCurrency(selectedOrder.total_amount)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="rounded-lg bg-gray-100 px-6 py-2.5 font-bold text-gray-600 transition-colors hover:bg-gray-200"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

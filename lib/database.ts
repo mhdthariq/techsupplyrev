@@ -490,6 +490,42 @@ export async function canUserReviewProduct(
     return false;
   }
 }
+
+export async function getReviewableOrderByProduct(
+  userId: string,
+  productId: string,
+): Promise<string | null> {
+  try {
+    // Check for delivered/completed orders containing this product
+    const { data: orderItem } = await supabase
+      .from("order_items")
+      .select("order_id, order:orders!inner(status)")
+      .eq("product_id", productId)
+      .eq("order.user_id", userId)
+      .in("order.status", ["delivered", "completed"])
+      .limit(1)
+      .single();
+
+    if (!orderItem) return null;
+
+    // Check if review already exists
+    const { data: existingReview } = await supabase
+      .from("reviews")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("product_id", productId)
+      .eq("order_id", orderItem.order_id)
+      .single();
+
+    if (existingReview) return null;
+
+    return orderItem.order_id;
+  } catch (error) {
+    console.error("Error checking review eligibility:", error);
+    return null;
+  }
+}
+
 // Wishlist Management
 export async function getWishlist(userId: string): Promise<Wishlist[]> {
   try {
@@ -568,51 +604,106 @@ export async function removeFromWishlist(
 
 export async function getAdminDashboardData() {
   try {
-    // const today = new Date();
-    // const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-
     // Get recent orders (last 5)
-    const { data: recentOrders } = await supabase
+    const { data: recentOrders, error: ordersError } = await supabase
       .from("orders")
-      .select(
-        `
-        id,
-        total_amount,
-        created_at,
-        status,
-        user:profiles (first_name, last_name, email)
-      `,
-      )
+      .select("id, total_amount, created_at, status, user_id")
       .order("created_at", { ascending: false })
       .limit(5);
 
-    // Mock chart data structure for now since aggregations are complex in simple query
-    const chartData = [
-      { name: "Jan", sales: 4000, visitors: 2400 },
-      { name: "Feb", sales: 3000, visitors: 1398 },
-      { name: "Mar", sales: 2000, visitors: 9800 },
-      { name: "Apr", sales: 2780, visitors: 3908 },
-      { name: "May", sales: 1890, visitors: 4800 },
-      { name: "Jun", sales: 2390, visitors: 3800 },
-      { name: "Jul", sales: 3490, visitors: 4300 },
+    if (ordersError) throw ordersError;
+
+    // Get profiles for these orders
+    let recentActivity: {
+      id: string;
+      user: string;
+      action: string;
+      amount: number;
+      status: string;
+      date: string;
+    }[] = [];
+    if (recentOrders && recentOrders.length > 0) {
+      const userIds = Array.from(new Set(recentOrders.map((o) => o.user_id)));
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, email")
+        .in("id", userIds);
+
+      recentActivity = recentOrders.map((order) => {
+        const user = profiles?.find((p) => p.id === order.user_id);
+        const userName = user?.first_name
+          ? `${user.first_name} ${user.last_name || ""}`
+          : user?.email || "Guest";
+
+        return {
+          id: order.id,
+          user: userName,
+          action: `membuat pesanan`,
+          date: new Date(order.created_at).toLocaleDateString("id-ID"),
+          amount: order.total_amount,
+          status: order.status,
+        };
+      });
+    }
+
+    // Chart Data Processing
+    // Fetch orders for the last 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    sixMonthsAgo.setDate(1); // Start of that month
+
+    const { data: chartOrders } = await supabase
+      .from("orders")
+      .select("total_amount, created_at")
+      .gte("created_at", sixMonthsAgo.toISOString())
+      .order("created_at", { ascending: true });
+
+    // Initialize map for last 6 months
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
+    const monthlyData = new Map<string, { sales: number; orders: number }>();
+
+    // Fill with empty data for last 6 months to ensure continuity
+    for (let i = 0; i < 6; i++) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - (5 - i));
+      const monthKey = monthNames[d.getMonth()];
+      monthlyData.set(monthKey, { sales: 0, orders: 0 });
+    }
+
+    // Aggregate data
+    chartOrders?.forEach((order) => {
+      const date = new Date(order.created_at);
+      const monthKey = monthNames[date.getMonth()];
+      // Only valid if in our map (handling edge cases of dates)
+      if (monthlyData.has(monthKey)) {
+        const current = monthlyData.get(monthKey)!;
+        current.sales += order.total_amount;
+        current.orders += 1;
+      }
+    });
+
+    // Convert map to array
+    const chartData = Array.from(monthlyData.entries()).map(([name, data]) => ({
+      name,
+      sales: data.sales,
+      visitors: data.orders, // Using orders as visitor proxy/replacement
+    }));
 
     return {
-      recentActivity:
-        recentOrders?.map((order) => {
-          const user = Array.isArray(order.user) ? order.user[0] : order.user;
-          const userName = user?.first_name
-            ? `${user.first_name} ${user.last_name || ""}`
-            : user?.email || "Guest";
-
-          return {
-            id: order.id,
-            user: userName,
-            action: `membuat pesanan`,
-            time: new Date(order.created_at).toLocaleDateString("id-ID"),
-            amount: order.total_amount,
-          };
-        }) || [],
+      recentActivity,
       chartData,
     };
   } catch (error) {

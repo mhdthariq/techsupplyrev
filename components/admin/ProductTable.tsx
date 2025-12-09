@@ -5,11 +5,13 @@ import type { Product } from "@/lib/types";
 interface ProductTableProps {
   products: Product[];
   deleteProduct: (id: string) => void;
+  onEdit: (product: Product) => void;
 }
 
 export default function ProductTable({
   products,
   deleteProduct,
+  onEdit,
 }: ProductTableProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
@@ -61,7 +63,10 @@ export default function ProductTable({
                 </td>
                 <td className="p-4 text-gray-600">{product.brand}</td>
                 <td className="flex gap-3 p-4">
-                  <button className="text-blue-500 transition-colors hover:text-blue-700">
+                  <button
+                    onClick={() => onEdit(product)}
+                    className="text-blue-500 transition-colors hover:text-blue-700"
+                  >
                     <Edit2 size={18} />
                   </button>
                   <button

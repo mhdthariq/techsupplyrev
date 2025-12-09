@@ -12,6 +12,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 
 import { Trash2, Plus, Minus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CartItem {
   id: string;
@@ -30,8 +31,13 @@ interface CartLocalItem {
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [couponCode, setCouponCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const { toast } = useToast();
 
   const supabase = createClient();
+
+  // ... (useEffect remains same, I will assume it's correct context) ...
 
   useEffect(() => {
     const loadCart = async () => {
@@ -94,9 +100,50 @@ export default function CartPage() {
     (sum, item) => sum + (item.discount_price || item.price) * item.quantity,
     0,
   );
-  const shipping = subtotal > 100 ? 0 : 9.99;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
+
+  const applyCoupon = async () => {
+    try {
+      const { data: coupon } = await supabase
+        .from("coupons")
+        .select("*")
+        .eq("code", couponCode.toUpperCase())
+        .eq("active", true)
+        .single();
+
+      if (coupon) {
+        let discountAmount = 0;
+        if (coupon.discount_type === "percentage") {
+          discountAmount = subtotal * (coupon.discount_value / 100);
+        } else {
+          discountAmount = coupon.discount_value;
+        }
+        setDiscount(discountAmount);
+        toast({
+          title: "Kupon Berhasil",
+          description: "Diskon telah diterapkan",
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: "Kupon Tidak Valid",
+          description: "Kode kupon tidak ditemukan atau kadaluarsa",
+          variant: "destructive",
+        });
+        setDiscount(0);
+      }
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+      toast({
+        title: "Error",
+        description: "Gagal menerapkan kupon",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const shipping = subtotal > 750000 ? 0 : 20000;
+  const tax = (subtotal - discount) * 0.11;
+  const total = subtotal + shipping + tax - discount;
 
   if (loading) {
     return (
@@ -155,8 +202,8 @@ export default function CartPage() {
                             className="border-b border-gray-100 transition hover:bg-gray-50"
                           >
                             <td className="p-4">
-                              <div className="flex items-center gap-4">
-                                <div className="h-16 w-16 overflow-hidden rounded bg-gray-100">
+                              <div className="flex items-start gap-4">
+                                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded bg-gray-100">
                                   <Image
                                     src={item.image_url || "/placeholder.svg"}
                                     alt={item.name}
@@ -166,16 +213,31 @@ export default function CartPage() {
                                   />
                                 </div>
                                 <div>
-                                  <h3 className="font-semibold text-gray-900">
+                                  <h3
+                                    className="line-clamp-2 font-semibold text-gray-900"
+                                    title={item.name}
+                                  >
                                     {item.name}
                                   </h3>
                                 </div>
                               </div>
                             </td>
                             <td className="p-4 text-center">
-                              <span className="font-bold text-[#3498DB]">
-                                {formatCurrency(item.price)}
-                              </span>
+                              {item.discount_price &&
+                              item.discount_price < item.price ? (
+                                <div className="flex flex-col items-center">
+                                  <span className="text-xs text-gray-500 line-through">
+                                    {formatCurrency(item.price)}
+                                  </span>
+                                  <span className="font-bold text-[#3498DB]">
+                                    {formatCurrency(item.discount_price)}
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="font-bold text-[#3498DB]">
+                                  {formatCurrency(item.price)}
+                                </span>
+                              )}
                             </td>
                             <td className="p-4 text-center">
                               <div className="flex items-center justify-center gap-2">
@@ -198,7 +260,10 @@ export default function CartPage() {
                             </td>
                             <td className="p-4 text-center">
                               <span className="font-bold text-[#2C3E50]">
-                                {formatCurrency(item.price * item.quantity)}
+                                {formatCurrency(
+                                  (item.discount_price || item.price) *
+                                    item.quantity,
+                                )}
                               </span>
                             </td>
                             <td className="p-4 text-center">
@@ -231,6 +296,25 @@ export default function CartPage() {
                     Ringkasan Pesanan
                   </h3>
 
+                  {/* Coupon Input */}
+                  <div className="mb-6">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Kode Kupon"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                        className="flex-1 rounded-lg border-2 border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#3498DB]"
+                      />
+                      <button
+                        onClick={applyCoupon}
+                        className="rounded-lg bg-[#3498DB] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#2980B9]"
+                      >
+                        Terapkan
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="mb-4 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal</span>
@@ -244,8 +328,16 @@ export default function CartPage() {
                         {formatCurrency(shipping)}
                       </span>
                     </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>Diskon</span>
+                        <span className="font-bold">
+                          -{formatCurrency(discount)}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Pajak</span>
+                      <span className="text-gray-600">PPN (11%)</span>
                       <span className="font-bold text-[#2C3E50]">
                         {formatCurrency(tax)}
                       </span>
@@ -262,7 +354,7 @@ export default function CartPage() {
                   </div>
 
                   <Link
-                    href="/checkout"
+                    href={`/checkout${discount > 0 ? `?coupon=${couponCode}` : ""}`}
                     className="mb-4 block w-full rounded-lg bg-[#3498DB] py-3 text-center font-bold text-white transition hover:bg-[#2980B9]"
                   >
                     Lanjut ke Pembayaran

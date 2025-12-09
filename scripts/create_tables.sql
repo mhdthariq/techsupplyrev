@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.products (
   price DECIMAL(10, 2) NOT NULL,
   discount_price DECIMAL(10, 2),
   category TEXT NOT NULL,
+  brand TEXT,
   image_url TEXT,
   rating DECIMAL(3, 2) DEFAULT 4.5,
   reviews_count INTEGER DEFAULT 0,
@@ -53,6 +54,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   city TEXT,
   postal_code TEXT,
   country TEXT,
+  avatar_url TEXT,
   is_admin BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
@@ -178,6 +180,43 @@ CREATE POLICY "Allow users to view own order items" ON public.order_items
     )
   );
 
+CREATE POLICY "Allow admin to manage all order items" ON public.order_items
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.is_admin = true
+    )
+  );
+
 -- Wishlist RLS policies
 CREATE POLICY "Allow users to manage own wishlist" ON public.wishlist
   FOR ALL USING (auth.uid() = user_id);
+
+-- Reviews table
+CREATE TABLE IF NOT EXISTS public.reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  title TEXT,
+  comment TEXT,
+  order_id UUID REFERENCES public.orders(id) ON DELETE SET NULL,
+  verified_purchase BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Reviews RLS policies
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public to read reviews" ON public.reviews
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow users to create reviews" ON public.reviews
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to update own reviews" ON public.reviews
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to delete own reviews" ON public.reviews
+  FOR DELETE USING (auth.uid() = user_id);

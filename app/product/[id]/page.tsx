@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import ReviewList from "@/components/reviews/ReviewList";
 import { createClient } from "@/lib/supabase/client";
 import { addToCart as addToCartUtil } from "@/lib/cart";
 import { formatCurrency } from "@/lib/utils";
@@ -441,21 +442,11 @@ export default function ProductPage() {
             )}
 
             {selectedTab === "ulasan" && (
-              <div>
-                <div>
-                  <h3 className="mb-4 text-xl font-bold text-[#2c3e50]">
-                    Ulasan Pelanggan
-                  </h3>
-                  <button className="rounded-lg bg-[#3498db] px-4 py-2 text-white transition hover:bg-[#2980b9]">
-                    Tulis Ulasan
-                  </button>
-                </div>
-                <div className="py-12 text-center text-[#7f8c8d]">
-                  <p>
-                    Belum ada ulasan. Jadilah yang pertama mengulas produk ini!
-                  </p>
-                </div>
-              </div>
+              <ReviewList
+                productId={product.id}
+                productName={product.name}
+                productImage={product.image_url}
+              />
             )}
           </div>
         </div>

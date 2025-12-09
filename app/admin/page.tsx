@@ -138,7 +138,7 @@ export default function AdminDashboard() {
                 userName={
                   user?.first_name
                     ? `${user.first_name} ${user.last_name || ""}`
-                    : user?.email
+                    : "Administrator"
                 }
               />
             </div>
