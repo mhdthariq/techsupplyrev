@@ -4,10 +4,23 @@ Welcome to the TechSupply E-Commerce platform documentation. This project is a m
 
 ## 📚 Documentation Index
 
-### Setup & Configuration
+### 📊 Project Overview & Analysis
 
+- **[Comprehensive Project Report](./report.md)** - Complete project documentation covering:
+  - E-Commerce definition and concepts (with academic references)
+  - E-Commerce type implemented (B2C)
+  - Web components breakdown (UI/UX, Frontend, Backend, Database)
+  - Complete technology stack analysis
+
+### 🚀 Setup & Configuration
+
+- **[Getting Started Guide](./GETTING_STARTED.md)** - Development setup and Next.js basics
 - **[Account System Setup](./ACCOUNT_SETUP.md)** - Complete user account management setup
 - **[Cart System Guide](./CART_SYSTEM.md)** - User-aware shopping cart implementation
+
+### 📋 Planning & Roadmap
+
+- **[Project Roadmap](./ROADMAP.md)** - Strategic plan for future development phases
 
 ### Key Features
 
