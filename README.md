@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TechSupply - E-Commerce Platform
 
-## Getting Started
+A modern, full-featured B2C e-commerce platform built with Next.js, Supabase, and TypeScript.
 
-First, run the development server:
+## 🚀 Quick Start
 
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Add your Supabase credentials to .env.local
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📚 Documentation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Complete documentation is available in the [`docs/`](./docs) directory:
 
-## Learn More
+- **[Project Report](./docs/report.md)** - Comprehensive project documentation (E-Commerce concepts, architecture, technologies)
+- **[Getting Started Guide](./docs/GETTING_STARTED.md)** - Development setup and Next.js basics
+- **[Account System Setup](./docs/ACCOUNT_SETUP.md)** - User account management setup guide
+- **[Cart System Guide](./docs/CART_SYSTEM.md)** - Shopping cart implementation details
+- **[Project Roadmap](./docs/ROADMAP.md)** - Future plans and development phases
+- **[Main Documentation](./docs/README.md)** - Documentation index and feature overview
 
-To learn more about Next.js, take a look at the following resources:
+## ✨ Key Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- 🛒 **Smart Shopping Cart** - Guest cart with automatic migration to user account on login
+- 👤 **User Management** - Complete account system with profiles and authentication
+- 📦 **Order Management** - Full order tracking and history
+- ⭐ **Product Reviews** - Review system with verified purchase badges
+- 🎨 **Modern UI/UX** - Responsive design with Tailwind CSS
+- 🔒 **Secure** - Row Level Security (RLS) and authentication via Supabase
+- 📱 **Responsive** - Mobile-first design approach
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Technology Stack
 
-## Deploy on Vercel
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL, Authentication, Storage)
+- **Testing**: Jest (Unit), Playwright (E2E)
+- **Code Quality**: ESLint, Prettier, Husky, lint-staged
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📖 Learn More
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+
+## 🚢 Deployment
+
+Deploy on [Vercel](https://vercel.com/new) for optimal Next.js performance:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/mhdthariq/techsupplyrev)
+
+---
+
+**Built with ❤️ using Next.js and Supabase**
