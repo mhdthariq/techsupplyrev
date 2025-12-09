@@ -9,9 +9,9 @@ E-commerce atau perdagangan elektronik merupakan aktivitas transaksi komersial y
 Dalam konteks modern, Chaffey & Ellis-Chadwick (2019) menjelaskan bahwa e-commerce mencakup semua aspek perdagangan elektronik, mulai dari pencarian produk, pemesanan, pembayaran online, hingga layanan purna jual yang terintegrasi dalam platform digital. E-commerce telah berkembang dari sekadar katalog produk online menjadi ekosistem digital yang kompleks dengan personalisasi konten, rekomendasi berbasis AI, sistem pembayaran yang aman, dan pengalaman pengguna yang seamless di berbagai perangkat. Schneider (2020) menambahkan bahwa e-commerce modern juga mencakup integrasi dengan media sosial (social commerce), mobile commerce (m-commerce), dan penggunaan teknologi seperti big data analytics untuk memahami perilaku konsumen. Platform e-commerce saat ini tidak hanya berfungsi sebagai toko online, tetapi juga sebagai marketplace yang menghubungkan berbagai pihak dalam ekosistem digital, termasuk penjual, pembeli, penyedia layanan logistik, dan sistem pembayaran.
 
 **Referensi:**
-- Laudon, K. C., & Traver, C. G. (2021). *E-commerce 2021-2022: Business, Technology and Society* (17th ed.). Pearson. https://doi.org/10.1108/oir.2012.05136gaa.001
-- Turban, E., Outland, J., King, D., Lee, J. K., Liang, T. P., & Turban, D. C. (2018). *Electronic Commerce 2018: A Managerial and Social Networks Perspective* (9th ed.). Springer. https://doi.org/10.1007/978-3-319-58715-8
-- Chaffey, D., & Ellis-Chadwick, F. (2019). *Digital Marketing: Strategy, Implementation and Practice* (7th ed.). Pearson.
+- Laudon, K. C., & Traver, C. G. (2021). *E-commerce 2021-2022: Business, Technology and Society* (17th ed.). Pearson Education.
+- Turban, E., Outland, J., King, D., Lee, J. K., Liang, T. P., & Turban, D. C. (2018). *Electronic Commerce 2018: A Managerial and Social Networks Perspective* (9th ed.). Springer International Publishing.
+- Chaffey, D., & Ellis-Chadwick, F. (2019). *Digital Marketing: Strategy, Implementation and Practice* (7th ed.). Pearson Education.
 - Schneider, G. P. (2020). *Electronic Commerce* (12th ed.). Cengage Learning.
 
 ---
@@ -192,9 +192,9 @@ components/
 
 #### Security Features:
 - **Row Level Security (RLS)**: Database-level security policies
-- **User-specific data access**: Users dapat only access data mereka sendiri
+- **User-specific data access**: Users can only access their own data
 - **Foreign key constraints**: Data integrity enforcement
-- **Input validation**: Sanitization dan validation untuk semua inputs
+- **Input validation**: Sanitization and validation for all inputs
 
 #### Image Management:
 - **Next.js Image Optimization**: Automatic image optimization
@@ -474,10 +474,10 @@ Located di `scripts/` directory:
 
 ### 4.8 Key Technology Choices & Rationale
 
-1. **Next.js**: Chosen untuk SSR/SSG capabilities, excellent SEO, dan developer experience
-2. **Supabase**: Open-source BaaS yang menyediakan database, auth, dan storage dalam satu platform
-3. **TypeScript**: Type safety mengurangi bugs dan meningkatkan maintainability
-4. **Tailwind CSS**: Rapid development dengan utility classes, consistent design system
+1. **Next.js**: Chosen for SSR/SSG capabilities, excellent SEO, and developer experience
+2. **Supabase**: Open-source BaaS that provides database, auth, and storage in one platform
+3. **TypeScript**: Type safety reduces bugs and improves maintainability
+4. **Tailwind CSS**: Rapid development with utility classes and consistent design system
 5. **Jest + Playwright**: Comprehensive testing coverage (unit + E2E)
 6. **Husky + lint-staged**: Enforce code quality standards automatically
 
