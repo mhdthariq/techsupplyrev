@@ -77,7 +77,7 @@ export async function signUpWithEmail(
           full_name: fullName,
           display_name: fullName,
         },
-        emailRedirectTo: `${window.location.origin}/auth/login`,
+        emailRedirectTo: `${window.location.origin}/auth/verify`,
       },
     });
 
