@@ -489,6 +489,6 @@ Project **TechSupply** merupakan implementasi modern dari B2C e-commerce platfor
 
 ---
 
-**Dokumen ini terakhir diperbarui**: Desember 2024
+**Dokumen ini terakhir diperbarui**: Desember 2025
 **Versi**: 1.0
 **Project**: TechSupply E-Commerce Platform
